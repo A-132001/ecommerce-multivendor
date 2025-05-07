@@ -151,3 +151,15 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'abdo01143617687@gmail.com'
+EMAIL_HOST_PASSWORD = 'xxijdhyyqghjkcdq'
+DEFAULT_FROM_EMAIL = 'abdo@abdostore.com'
+
+# Frontend URL for email verification and password reset
+FRONTEND_URL = 'http://localhost:3000'  # Change this to your frontend URL
