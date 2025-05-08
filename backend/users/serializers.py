@@ -1,0 +1,50 @@
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+import logging
+
+logger = logging.getLogger(__name__)
+User = get_user_model()
+
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
+    user_type = serializers.ChoiceField(choices=User.USER_TYPE_CHOICES)
+    email = serializers.EmailField(required=True)
+    name = serializers.CharField(required=True, max_length=255)
+    username = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('name', 'email', 'username', 'password', 'password2', 'user_type', 'phone_number', 'address')
+
+    def validate(self, attrs):
+        logger.info(f"Validating registration data: {attrs}")
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+        
+        # Check if email already exists
+        if User.objects.filter(email=attrs['email']).exists():
+            raise serializers.ValidationError({"email": "A user with this email already exists."})
+        
+        # Check if username already exists
+        if User.objects.filter(username=attrs['username']).exists():
+            raise serializers.ValidationError({"username": "A user with this username already exists."})
+        
+        return attrs
+
+    def create(self, validated_data):
+        logger.info(f"Creating user with data: {validated_data}")
+        validated_data.pop('password2')
+        user = User.objects.create_user(**validated_data)
+        return user
+
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'name', 'email', 'username', 'user_type', 'phone_number', 'address')
+        read_only_fields = ('id',) 
