@@ -162,9 +162,9 @@ EMAIL_HOST_USER = 'abdo01143617687@gmail.com'
 EMAIL_HOST_PASSWORD = 'xxijdhyyqghjkcdq'
 DEFAULT_FROM_EMAIL = 'abdo@abdostore.com'
 
-# Frontend URL for email verification and password reset
-FRONTEND_URL = 'http://localhost:3000'  # Change this to your frontend URL
 
+FRONTEND_URL = 'http://localhost:3000' 
+BACKEND_URL = 'http://localhost:8000'  
 
 # Allauth settings
 # SITE_ID = 1

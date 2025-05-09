@@ -37,7 +37,7 @@ def register_user(request):
         # Generate verification token
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        verification_url = f"{settings.FRONTEND_URL}/verify-email/{uid}/{token}"
+        verification_url = f"{settings.BACKEND_URL}/api/auth/verify-email/{uid}/{token}"
         
         # Send verification email
         send_mail(
@@ -91,7 +91,7 @@ def request_password_reset(request):
         user = User.objects.get(email=email)
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}"
+        reset_url = f"{settings.BACKEND_URL}/api/auth/reset-password/{uid}/{token}"
         
         send_mail(
             'Password Reset Request',
