@@ -31,6 +31,18 @@ INSTALLED_APPS = [
     'shops',
     'orders',
     'vendors',
+    'products',
+    'cart',
+    'payment',
+    # 'rest_framework.authtoken',
+    # 'dj_rest_auth',
+    # 'dj_rest_auth.registration',
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
+    # 'allauth.socialaccount.providers.facebook',
+
 ]
 
 MIDDLEWARE = [
@@ -140,3 +152,44 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'abdo01143617687@gmail.com'
+EMAIL_HOST_PASSWORD = 'xxijdhyyqghjkcdq'
+DEFAULT_FROM_EMAIL = 'abdo@abdostore.com'
+
+# Frontend URL for email verification and password reset
+FRONTEND_URL = 'http://localhost:3000'  # Change this to your frontend URL
+
+
+# Allauth settings
+# SITE_ID = 1
+
+# ACCOUNT_EMAIL_VERIFICATION = "none"
+# ACCOUNT_AUTHENTICATION_METHOD = "email"
+# ACCOUNT_EMAIL_REQUIRED = True
+
+# REST_USE_JWT = True
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': ['profile', 'email'],
+#         'AUTH_PARAMS': {'access_type': 'online'},
+#     },
+#     'facebook': {
+#         'METHOD': 'oauth2',
+#         'SCOPE': ['email', 'public_profile'],
+#         'FIELDS': [
+#             'id',
+#             'email',
+#             'name',
+#             'first_name',
+#             'last_name',
+#             'picture',
+#         ],
+#     },
+# }
