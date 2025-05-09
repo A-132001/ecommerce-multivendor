@@ -18,6 +18,9 @@ from rest_framework.throttling import UserRateThrottle
 from rest_framework.decorators import throttle_classes
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 
+import requests
+from django.contrib.auth import get_user_model
+
 logger = logging.getLogger(__name__)
 
 class LoginRateThrottle(UserRateThrottle):
@@ -181,3 +184,84 @@ def change_password(request):
         user.save()
         return Response({'message': 'Password changed successfully'})
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Google Login
+User = get_user_model()
+@api_view(['POST'])
+def google_login(request):
+    token = request.data.get('access_token')
+    if not token:
+        return Response({'error': 'Access token is required'}, status=400)
+
+    # Verify token with Google
+    google_url = f"https://www.googleapis.com/oauth2/v3/tokeninfo?id_token={token}"
+    response = requests.get(google_url)
+
+    if response.status_code != 200:
+        return Response({'error': 'Invalid Google token'}, status=400)
+
+    data = response.json()
+    email = data.get('email')
+    name = data.get('name')
+
+    if not email:
+        return Response({'error': 'Email not available from Google'}, status=400)
+
+    user, created = User.objects.get_or_create(email=email, defaults={
+        'username': email.split('@')[0],
+        'name': name,
+        'is_verified': True,
+        'user_type': 'customer',  # or any default
+    })
+
+    # Generate tokens
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+        'user': {
+            'id': user.id,
+            'email': user.email,
+            'name': user.name,
+            'username': user.username
+        }
+    })
+
+@api_view(['POST'])
+def facebook_login(request):
+    token = request.data.get('access_token')
+    if not token:
+        return Response({'error': 'Access token is required'}, status=400)
+
+    fb_url = f"https://graph.facebook.com/me?fields=id,name,email&access_token={token}"
+    response = requests.get(fb_url)
+
+    if response.status_code != 200:
+        return Response({'error': 'Invalid Facebook token'}, status=400)
+
+    data = response.json()
+    email = data.get('email')
+    name = data.get('name')
+
+    if not email:
+        return Response({'error': 'Email not available from Facebook'}, status=400)
+
+    user, created = User.objects.get_or_create(email=email, defaults={
+        'username': email.split('@')[0],
+        'name': name,
+        'is_verified': True,
+        'user_type': 'customer',
+    })
+
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+        'user': {
+            'id': user.id,
+            'email': user.email,
+            'name': user.name,
+            'username': user.username
+        }
+    })
