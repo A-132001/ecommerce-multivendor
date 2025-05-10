@@ -82,8 +82,16 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ecommerce-db',
+        'USER': 'neondb_owner',
+        'PASSWORD': 'npg_ODXQBC1hnpK7',
+        'HOST': 'ep-spring-rice-a88kkroe-pooler.eastus2.azure.neon.tech',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
+        # 'HOST': 'postgresql://neondb_owner:npg_ODXQBC1hnpK7@ep-spring-rice-a88kkroe-pooler.eastus2.azure.neon.tech/ecommerce-db?sslmode=require',
     }
 }
 
