@@ -203,3 +203,10 @@ BACKEND_URL = 'http://localhost:8000'
 # }
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+ #  For development only
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+
+
