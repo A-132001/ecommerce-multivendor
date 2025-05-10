@@ -80,8 +80,16 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ecommerce-db',
+        'USER': 'neondb_owner',
+        'PASSWORD': 'npg_ODXQBC1hnpK7',
+        'HOST': 'ep-spring-rice-a88kkroe-pooler.eastus2.azure.neon.tech',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
+        # 'HOST': 'postgresql://neondb_owner:npg_ODXQBC1hnpK7@ep-spring-rice-a88kkroe-pooler.eastus2.azure.neon.tech/ecommerce-db?sslmode=require',
     }
 }
 
@@ -140,8 +148,8 @@ REST_FRAMEWORK = {
 # JWT Settings
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
 }
@@ -149,7 +157,11 @@ SIMPLE_JWT = {
 # Allow to access API from frontend
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+   
 ]
+#  For development only
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -160,9 +172,9 @@ EMAIL_HOST_USER = 'abdo01143617687@gmail.com'
 EMAIL_HOST_PASSWORD = 'xxijdhyyqghjkcdq'
 DEFAULT_FROM_EMAIL = 'abdo@abdostore.com'
 
-# Frontend URL for email verification and password reset
-FRONTEND_URL = 'http://localhost:3000'  # Change this to your frontend URL
 
+FRONTEND_URL = 'http://localhost:3000' 
+BACKEND_URL = 'http://localhost:8000'  
 
 # Allauth settings
 # SITE_ID = 1
@@ -191,3 +203,13 @@ FRONTEND_URL = 'http://localhost:3000'  # Change this to your frontend URL
 #         ],
 #     },
 # }
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+ #  For development only
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+
+
+

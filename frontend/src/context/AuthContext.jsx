@@ -1,48 +1,74 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getUserProfile, setTokens, clearTokens, isAuthenticated } from '../api/api';
+import { getCurrentUser, login as apiLogin, register as apiRegister, logout as apiLogout } from '../api/api';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const loadUser = async () => {
-            if (isAuthenticated()) {
-                try {
-                    const response = await getUserProfile();
+        const initAuth = async () => {
+            try {
+                const token = localStorage.getItem('access_token');
+                if (token) {
+                    const response = await getCurrentUser();
                     setUser(response.data);
-                } catch (error) {
-                    clearTokens();
+                    setIsAuthenticated(true);
                 }
+            } catch (error) {
+                console.error('Auth initialization error:', error);
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+            } finally {
+                setIsLoading(false);
             }
-            setLoading(false);
         };
-        loadUser();
+
+        initAuth();
     }, []);
 
-    const login = (userData, tokens) => {
-        setUser(userData);
-        setTokens(tokens.access, tokens.refresh);
+    const login = async (credentials) => {
+        try {
+            const response = await apiLogin(credentials);
+            const userResponse = await getCurrentUser();
+            setUser(userResponse.data);
+            setIsAuthenticated(true);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const register = async (userData) => {
+        try {
+            const response = await apiRegister(userData);
+            return response;
+        } catch (error) {
+            throw error;
+        }
     };
 
     const logout = () => {
+        apiLogout();
         setUser(null);
-        clearTokens();
+        setIsAuthenticated(false);
+        window.location.href = '/';
     };
 
     const value = {
         user,
-        loading,
+        isAuthenticated,
+        isLoading,
         login,
-        logout,
-        isAuthenticated: !!user
+        register,
+        logout
     };
 
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children}
+            {!isLoading && children}
         </AuthContext.Provider>
     );
 };
