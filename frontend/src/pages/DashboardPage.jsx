@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import DashboardSidebar from '../components/dashboard/DashboardSidebar';
 import AddProductForm from '../components/dashboard/AddProductForm';
 import ProductManagementTable from '../components/dashboard/ProductManagementTable';
@@ -68,6 +69,13 @@ export default function DashboardPage() {
           </div>
           <div>
             <OrdersList orders={orders} onDelete={deleteOrder} onEdit={editOrder} />
+          </div>
+          <div>
+            <h1>Dashboard</h1>
+            <ul>
+              <li><Link to="/products">View All Products</Link></li>
+              <li><Link to="/product-management">Manage Products</Link></li>
+            </ul>
           </div>
         </div>
       </div>
