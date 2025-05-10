@@ -16,10 +16,19 @@ class LoginRateThrottle(UserRateThrottle):
     rate = '50/minute'
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = ProductSerializer
     throttle_classes = [UserRateThrottle]
     logger = logging.getLogger(__name__)
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Product.objects.all()
+        
+        # Vendor sees only their own products
+        return Product.objects.filter(vendor__user=user)
+
+    
 
 
