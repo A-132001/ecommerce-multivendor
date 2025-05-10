@@ -15,21 +15,11 @@ from .models import Product, Category
 class LoginRateThrottle(UserRateThrottle):
     rate = '50/minute'
 
-# class ProductViewSet(viewsets.ModelViewSet):
-#     queryset = Product.objects.all()
-#     permission_classes = [IsAuthenticated]
-#     serializer_class = ProductSerializer
-#     throttle_classes = [UserRateThrottle]
-#     logger = logging.getLogger(__name__)
-
 class ProductViewSet(viewsets.ModelViewSet):
-    serializer_class = ProductSerializer
+    queryset = Product.objects.all()
     permission_classes = [IsAuthenticated]
+    serializer_class = ProductSerializer
     throttle_classes = [UserRateThrottle]
+    logger = logging.getLogger(__name__)
 
-    def get_queryset(self):
-        store_id = self.request.query_params.get('store_id')
-        if store_id:
-            return Product.objects.filter(vendor__id=store_id)
-        return Product.objects.all()
 
