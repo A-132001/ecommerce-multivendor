@@ -69,11 +69,11 @@ def login_user(request):
             password=serializer.validated_data['password']
         )
         if user:
-            if not user.is_verified:
-                return Response(
-                    {'error': 'Please verify your email before logging in.'},
-                    status=status.HTTP_401_UNAUTHORIZED
-                )
+            # if not user.is_verified:
+            #     return Response(
+            #         {'error': 'Please verify your email before logging in.'},
+            #         status=status.HTTP_401_UNAUTHORIZED
+            #     )
             refresh = RefreshToken.for_user(user)
             return Response({
                 'user': UserSerializer(user).data,
