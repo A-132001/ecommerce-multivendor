@@ -28,21 +28,19 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'users',
-    'shops',
     'orders',
     'vendors',
     'products',
     'cart',
     'payment',
-    # 'rest_framework.authtoken',
-    # 'dj_rest_auth',
-    # 'dj_rest_auth.registration',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
     # 'allauth',
     # 'allauth.account',
     # 'allauth.socialaccount',
     # 'allauth.socialaccount.providers.google',
     # 'allauth.socialaccount.providers.facebook',
-
 ]
 
 MIDDLEWARE = [
