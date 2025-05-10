@@ -15,6 +15,11 @@ import EmailVerification from './components/pages/EmailVerification';
 import ResetPassword from './components/pages/ResetPassword';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import Home from './components/pages/Home';
+import Login from './components/pages/Login';
+import Register from './components/pages/Register';
+import Store from './components/pages/Store';
+
 function App() {
   const [count, setCount] = useState(0);
 
@@ -42,9 +47,8 @@ function App() {
 
   return (
     <Router>
-      <Navbar />
       <AuthProvider>
-        <Router>
+        
           <div className="min-h-screen bg-gray-50">
             <Navbar />
             <main className="container mx-auto px-4 py-8">
@@ -63,7 +67,6 @@ function App() {
               </Routes>
             </main>
           </div>
-        </Router>
       </AuthProvider>
       <Footer />
     </Router>

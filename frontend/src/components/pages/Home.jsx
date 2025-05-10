@@ -3,7 +3,7 @@ import Hero from '../Hero';
 import ShopCard from '../ShopCard';
 import Footer from '../Footer';
 
-
+ 
 function Home() {
   // Mock static data for shops
   const shops = [
