@@ -40,7 +40,6 @@ function App() {
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/products", element: <Products /> },
     { path: "/product-management", element: <ProductManagementTable /> },
-    { path: "/", element: <Navigate to="/login" replace /> },
     { path: "/product/:product_id", element: <ProductDetailsPage /> },
 
   ];
