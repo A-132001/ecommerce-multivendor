@@ -1,10 +1,10 @@
 import { useState } from 'react'
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
-// import './App.css'
+import './App.css'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
+import Navigation from './components/Navbar';
+import Footer from './components/Footer';
 import StorePage from './pages/StorePage';
 import DashboardPage from './pages/DashboardPage';
 import AuthForm from './components/AuthForm';
@@ -49,7 +49,7 @@ function App() {
     <Router>
       <AuthProvider>
           <div className="min-h-screen bg-gray-50">
-            <Navbar />
+            <Navigation />
             <main className="container mx-auto px-4 py-8">
               <Routes>
                 {publicRoutes.map(({ path, element }) => (
