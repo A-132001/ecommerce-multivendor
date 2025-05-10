@@ -201,3 +201,5 @@ BACKEND_URL = 'http://localhost:8000'
 #         ],
 #     },
 # }
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
