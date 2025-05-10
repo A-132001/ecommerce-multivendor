@@ -18,10 +18,13 @@ urlpatterns = [
     path("api/auth/", include("users.urls")),
     path("api/vendors/", include("vendors.urls")),
     path("api/products/", include("products.urls")),
-    path("api/", include(router.urls)),
-    # path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    # path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path('api/payment/', include('payment.urls')),
+    path("api/orders/", include("orders.urls")),
     path("api/cart/", include("cart.urls")),
+
+
+
+
 ]
 
 if settings.DEBUG:

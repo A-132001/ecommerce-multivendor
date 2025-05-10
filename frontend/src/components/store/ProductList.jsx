@@ -7,8 +7,14 @@ export default function ProductList({ storeId }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = localStorage.getItem('token'); 
+
     axios
-      .get(`http://localhost:8000/api/products/?store_id=${storeId}`)
+      .get(`http://localhost:8000/api/products/?store_id=${storeId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,  
+        }
+      })
       .then((response) => {
         setProducts(response.data);
         setLoading(false);
