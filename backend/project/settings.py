@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'products',
     'cart',
     'payment',
+    'payments_method',
     # 'rest_framework.authtoken',
     # 'dj_rest_auth',
     # 'dj_rest_auth.registration',
@@ -159,7 +160,11 @@ SIMPLE_JWT = {
 # Allow to access API from frontend
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+   
 ]
+#  For development only
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -208,5 +213,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
+
 
 
