@@ -159,7 +159,11 @@ SIMPLE_JWT = {
 # Allow to access API from frontend
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+   
 ]
+#  For development only
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
