@@ -17,9 +17,7 @@ build/
 db.sqlite3
 # media/
 staticfiles/
-.env
-.env.local
-.env.*.local
+
 
 # Virtual Environment
 venv/
@@ -39,8 +37,6 @@ yarn-debug.log*
 yarn-error.log*
 coverage/
 .DS_Store
-.env.development
-.env.production
 
 # Others
 *.bak
