@@ -4,12 +4,12 @@ from products.models import Product
 
 
 class Cart(models.Model):
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="cart",
-        null=False,
-        blank=True,
+        related_name="carts",
+        null=True,  # Allow NULL values
+        blank=True,  # Allow blank values in forms
     )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
