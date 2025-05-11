@@ -1,7 +1,7 @@
 import { Navbar, Container, Nav, NavDropdown, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { FaShoppingCart, FaUser, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaSearch } from 'react-icons/fa';
+import { FaShoppingCart, FaUser, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaSearch, FaStore } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import React, { useMemo, useState } from 'react';
 
@@ -79,6 +79,7 @@ function Navigation() {
   const userMenuItems = useMemo(() => [
     { path: "/profile", label: "Profile", icon: <FaUser className="me-2" size={16} /> },
     { path: "/orders", label: "My Orders", icon: <FaShoppingCart className="me-2" size={16} /> },
+   { path: "/new-vendor", label: "Become a Vendor", icon: <FaStore className="me-2" size={16} /> },
     { action: handleLogout, label: "Logout", icon: <FaSignOutAlt className="me-2" size={16} /> }
   ], []);
 
