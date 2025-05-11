@@ -1,26 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ProductCard from './ProductCard';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProductList({ storeId }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
 
-    
     if (!token) {
       setError('No authentication token found.');
       setLoading(false);
+      navigate('/login'); 
       return;
     }
 
     axios
       .get(`http://localhost:8000/api/products/?store_id=${storeId}`, {
         headers: {
-          Authorization: `Token ${token}`,
+          Authorization: `Token ${token}`, 
         },
       })
       .then((response) => {
@@ -31,12 +33,12 @@ export default function ProductList({ storeId }) {
         const errorMessage = error.response
           ? error.response.data.detail || error.response.data.message || 'An error occurred.'
           : 'Error fetching products. Please try again later.';
-        
+
         console.error('Error fetching products:', errorMessage);
         setError(errorMessage);
         setLoading(false);
       });
-  }, [storeId]);
+  }, [storeId, navigate]);
 
   if (loading) return <p>Loading products...</p>;
 
