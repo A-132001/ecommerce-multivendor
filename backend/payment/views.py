@@ -9,9 +9,6 @@ from django.http import JsonResponse
 import requests
 import json
 
-# ========================
-# REST API ViewSets
-# ========================
 
 class PaymentMethodViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentMethodSerializer
@@ -34,18 +31,16 @@ class PaymentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-# ========================
-# Paymob Integration
-# ========================
 
-# Step 1: Get authentication token
+
+#  Get authentication token
 def get_paymob_token():
     url = "https://accept.paymob.com/api/auth/tokens"
     payload = { "api_key": settings.PAYMOB_API_KEY }
     res = requests.post(url, json=payload)
     return res.json()['token']
 
-# Step 2: Create order on Paymob
+#  Create order on Paymob
 def create_order(auth_token, amount_cents):
     url = "https://accept.paymob.com/api/ecommerce/orders"
     payload = {
@@ -58,7 +53,7 @@ def create_order(auth_token, amount_cents):
     res = requests.post(url, json=payload)
     return res.json()['id']
 
-# Step 3: Generate payment key
+# Generate payment key
 def generate_payment_key(auth_token, amount_cents, order_id, phone_number):
     url = "https://accept.paymob.com/api/acceptance/payment_keys"
     payload = {
@@ -87,24 +82,24 @@ def generate_payment_key(auth_token, amount_cents, order_id, phone_number):
     res = requests.post(url, json=payload)
     return res.json()['token']
 
-# Step 4: Handle Payment Process (Vodafone Cash)
+# Handle Payment Process (Vodafone Cash)
 def pay_with_vodafone_cash(request):
-    amount = 10000  # in cents (100.00 EGP)
+    amount = 10000  
     phone = "01000000000"
 
-    # Step 1: get auth token
+    #  get auth token
     token = get_paymob_token()
 
-    # Step 2: create order in Paymob
+    # create order in Paymob
     paymob_order_id = create_order(token, amount)
 
-    # Step 3: create local order (or retrieve existing)
+    #  create local order (or retrieve existing)
     order = Order.objects.create(
         user=request.user,
         status='pending',
     )
 
-    # Step 4: create or get payment method
+    #  create or get payment method
     payment_method, _ = PaymentMethod.objects.get_or_create(
         user=request.user,
         payment_type='cash_on_delivery',
@@ -112,28 +107,26 @@ def pay_with_vodafone_cash(request):
         defaults={'description': 'Vodafone Cash via Paymob'}
     )
 
-    # Step 5: create local payment record
+    #  create local payment record
     Payment.objects.create(
     user=request.user,
     amount=amount / 100,
     status='pending',
     order=order,
     method=payment_method,
-    paymob_order_id=paymob_order_id  # أضفنا دي
+    paymob_order_id=paymob_order_id  
 )
 
 
-    # Step 6: get iframe payment token
+    #  get iframe payment token
     payment_token = generate_payment_key(token, amount, paymob_order_id, phone)
 
-    # Step 7: redirect to iframe
+    #  redirect to iframe
     iframe_url = f"https://accept.paymobsolutions.com/api/acceptance/iframes/{settings.PAYMOB_IFRAME_ID_VF_CASH}?payment_token={payment_token}"
     return render(request, "payment.html", {"iframe_url": iframe_url})
 
 
-# ========================
-# Webhook & Callback Handlers
-# ========================
+
 
 @csrf_exempt
 def paymob_webhook(request):
@@ -169,7 +162,6 @@ def payment_callback(request):
         # Log data
         print("Callback Data Received:", data)
 
-        # Example: Extract transaction info
         success = data.get("success", False)
         order_id = data.get("order", {}).get("id")
 
