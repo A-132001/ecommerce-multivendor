@@ -1,37 +1,77 @@
-import React from 'react';
+// Home.jsx
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import Hero from '../Hero';
 import ShopCard from '../ShopCard';
-import Footer from '../Footer';
+import { listStores } from '../../api/api';
 
- 
 function Home() {
-  // Mock static data for shops
-  const shops = [
-    { id: 1, name: 'Vintage Boutique', description: 'A stylish boutique for trendy fashion.', image: 'https://via.placeholder.com/400x300?text=Vintage+Boutique' },
-    { id: 2, name: 'Electronics Hub', description: 'Your one-stop shop for the latest gadgets.', image: 'https://via.placeholder.com/400x300?text=Electronics+Hub' },
-    { id: 3, name: 'Organic Foods', description: 'Fresh, organic produce and groceries.', image: 'https://via.placeholder.com/400x300?text=Organic+Foods' },
-    { id: 4, name: 'Pet Paradise', description: 'Everything for your furry friends.', image: 'https://via.placeholder.com/400x300?text=Pet+Paradise' },
-    { id: 5, name: 'Artisan Crafts', description: 'Handmade crafts and gifts by local artists.', image: 'https://via.placeholder.com/400x300?text=Artisan+Crafts' },
-    { id: 6, name: 'Sports Gear', description: 'All the equipment you need to stay active.', image: 'https://via.placeholder.com/400x300?text=Sports+Gear' },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [stores, setStores] = useState([]);
+
+  useEffect(() => {
+    const fetchStores = async () => {
+      try {
+        setLoading(true);
+        const response = await listStores();
+        setStores(response.data);
+      } catch (error) {
+        console.error('Error fetching stores:', error);
+        setError('Failed to load stores. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStores();
+  }, []);
 
   return (
-    <div>
-      {/* Hero Section */}
+    <div className="home-page">
       <Hero />
-      {/* Shop Cards Grid */}
-      <section id="stores" className="py-12 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6">Featured Shops</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {shops.map((shop) => (
-              <ShopCard key={shop.id} shop={shop} />
-            ))}
-          </div>
-        </div>
+      
+      <section id="stores" className="py-5 bg-light">
+        <Container>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-center mb-5 display-5 fw-bold">All Active Vendors</h2>
+            
+            {loading ? (
+              <div className="text-center py-5">
+                <Spinner animation="border" variant="warning" />
+                <p className="mt-3">Loading shops...</p>
+              </div>
+            ) : error ? (
+              <Alert variant="danger" className="text-center">
+                {error}
+              </Alert>
+            ) : stores.length === 0 ? (
+              <Alert variant="info" className="text-center">
+                No shops available at the moment.
+              </Alert>
+            ) : (
+              <Row xs={1} md={2} lg={3} className="g-4">
+                {stores.map((shop, index) => (
+                  <Col key={shop.id}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                      <ShopCard shop={shop} />
+                    </motion.div>
+                  </Col>
+                ))}
+              </Row>
+            )}
+          </motion.div>
+        </Container>
       </section>
-      {/* Footer Section */}
-      <Footer />
     </div>
   );
 }

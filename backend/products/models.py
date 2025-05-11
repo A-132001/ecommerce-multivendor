@@ -22,12 +22,13 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    original_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     stock = models.IntegerField()
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE, blank=False, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    image = models.ImageField(upload_to=get_upload_path, blank=True, null=True) 
-    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    image = models.ImageField(upload_to=get_upload_path) 
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -40,3 +41,13 @@ class Product(models.Model):
             raise ValidationError("Stock cannot be negative.")
         if self.discount < 0 or self.discount > 100:
             raise ValidationError("Discount must be between 0 and 100.")
+
+
+        def save(self, *args, **kwargs):
+            if self.discount > 0:
+                if not self.original_price or self.original_price == 0:
+                    self.original_price = self.price
+                discount_amount = (self.original_price * self.discount) / Decimal(100)
+                self.price = self.original_price - discount_amount
+           
+            super().save(*args, **kwargs)

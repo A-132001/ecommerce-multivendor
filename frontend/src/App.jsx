@@ -40,7 +40,6 @@ function App() {
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/products", element: <Products /> },
     { path: "/product-management", element: <ProductManagementTable /> },
-    { path: "/", element: <Navigate to="/login" replace /> },
     { path: "/product/:product_id", element: <ProductDetailsPage /> },
 
   ];
@@ -48,9 +47,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-          <div className="min-h-screen bg-gray-50">
+          <div>
             <Navigation />
-            <main className="container mx-auto px-4 py-8">
+            <main>
               <Routes>
                 {publicRoutes.map(({ path, element }) => (
                   <Route key={path} path={path} element={element} />

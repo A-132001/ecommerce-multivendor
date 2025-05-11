@@ -105,26 +105,29 @@ export const changePassword = async (passwords) => {
 
 // Store API calls
 export const createStore = async (storeData) => {
-    return await api.post('/stores/', storeData);
+    return await api.post('/vendors/', storeData);
 };
 
 export const getStore = async (storeId) => {
-    return await api.get(`/stores/${storeId}/`);
+    return await api.get(`/vendors/${storeId}/`);
 };
 
 export const updateStore = async (storeId, storeData) => {
-    return await api.put(`/stores/${storeId}/`, storeData);
+    return await api.put(`/vendors/${storeId}/`, storeData);
 };
 
 export const deleteStore = async (storeId) => {
-    return await api.delete(`/stores/${storeId}/`);
+    return await api.delete(`/vendors/${storeId}/`);
 };
 
 export const listStores = async () => {
-    return await api.get('/stores/');
+    return await api.get('/vendors/');
 };
 
 // Product API calls
+export const getStoreProducts = async (storeId) => {
+    return await api.get(`/products/?store_id=${storeId}`);
+}
 export const createProduct = async (productData) => {
     return await api.post('/products/', productData);
 };
