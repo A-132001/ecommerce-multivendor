@@ -17,7 +17,9 @@ class VendorViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = VendorSerializer
 
-
+    def perform_create(self, serializer):
+        # Automatically link the logged-in user
+        serializer.save(user=self.request.user)
 
 class LoginRateThrottle(UserRateThrottle):
     rate = '5/minute'
@@ -75,3 +77,7 @@ class VendorAdminViewSet(viewsets.ModelViewSet):
         vendor.is_verified = False
         vendor.save()
         return Response({'status': 'vendor rejected successfully!'}, status=status.HTTP_200_OK)
+    
+    def perform_create(self, serializer):
+        # Automatically link the logged-in user
+        serializer.save(user=self.request.user)
