@@ -14,7 +14,7 @@ import Home from './components/pages/Home';
 import Login from './components/pages/Login';
 import Register from './components/pages/Register';
 import Store from './components/pages/Store';
-
+import ListStores from './components/pages/listStores';
 function App() {
   const publicRoutes = [
     { path: '/', element: <Home /> },
@@ -25,6 +25,7 @@ function App() {
   ];
 
   const protectedRoutes = [
+    {  path: '/list-stores', element: <ListStores /> },
     { path: '/store', element: <Store /> },
     { path: '/store/:store_id', element: <StorePage /> },
     { path: '/dashboard', element: <DashboardPage /> },

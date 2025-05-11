@@ -4,7 +4,7 @@ import { Container, Row, Col, Card, Spinner, Alert, Image } from 'react-bootstra
 import { motion } from 'framer-motion';
 import ProductList from '../components/store/ProductList';
 import { FaStore, FaInfoCircle } from 'react-icons/fa';
-
+ 
 export default function StorePage() {
   const { store_id } = useParams();
   const location = useLocation();

@@ -24,11 +24,11 @@ const ContactCTA = () => {
                 </div>
                 <div className="d-flex align-items-center gap-3">
                   <FaPhoneAlt className="text-yellow-600" />
-                  <span>(555) 123-4567</span>
+                  <span>(+20) 1009356321</span>
                 </div>
                 <div className="d-flex align-items-center gap-3">
                   <FaMapMarkerAlt className="text-yellow-600" />
-                  <span>123 Business Ave, Suite 100</span>
+                  <span>Cairo, Egypt</span>
                 </div>
               </div>
               <motion.a

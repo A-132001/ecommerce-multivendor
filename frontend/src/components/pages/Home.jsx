@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
-import Hero from '../Hero';
+import Hero from '../homeComponents/Hero';
 import ShopCard from '../ShopCard';
 import { listStores } from '../../api/api';
 import AboutOverview from '../homeComponents/AboutOverview';

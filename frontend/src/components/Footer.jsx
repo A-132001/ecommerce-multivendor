@@ -25,10 +25,9 @@ function Footer() {
               Connecting buyers with trusted vendors since 2023. Your premier marketplace for quality products and services.
             </p>
             <div className="d-flex mt-4">
-              <a href="#" className="text-gray-400 hover:text-yellow-500 me-3 transition-colors duration-200"><FaFacebookF /></a>
-              <a href="#" className="text-gray-400 hover:text-yellow-500 me-3 transition-colors duration-200"><FaTwitter /></a>
-              <a href="#" className="text-gray-400 hover:text-yellow-500 me-3 transition-colors duration-200"><FaInstagram /></a>
-              <a href="#" className="text-gray-400 hover:text-yellow-500 transition-colors duration-200"><FaLinkedinIn /></a>
+              <a href="https://www.facebook.com" className="text-gray-400 hover:text-yellow-500 me-3 transition-colors duration-200"><FaFacebookF /></a>
+              <a href="https://www.x.com" className="text-gray-400 hover:text-yellow-500 me-3 transition-colors duration-200"><FaTwitter /></a>
+              <a href="https://www.linkedin.com" className="text-gray-400 hover:text-yellow-500 transition-colors duration-200"><FaLinkedinIn /></a>
             </div>
           </Col>
 
@@ -36,9 +35,9 @@ function Footer() {
           <Col lg={2} md={6}>
             <h5 className="fw-bold mb-4 text-white">Quick Links</h5>
             <ul className="list-unstyled">
-              <li className="mb-2"><a href="#" className="text-gray-400 hover:text-yellow-500 transition-colors duration-200">Home</a></li>
-              <li className="mb-2"><a href="#" className="text-gray-400 hover:text-yellow-500 transition-colors duration-200">Products</a></li>
-              <li className="mb-2"><a href="#" className="text-gray-400 hover:text-yellow-500 transition-colors duration-200">Vendors</a></li>
+              <li className="mb-2"><a href="/" className="text-gray-400 hover:text-yellow-500 transition-colors duration-200">Home</a></li>
+              <li className="mb-2"><a href="/products" className="text-gray-400 hover:text-yellow-500 transition-colors duration-200">Products</a></li>
+              <li className="mb-2"><a href="/list-stores" className="text-gray-400 hover:text-yellow-500 transition-colors duration-200">Vendors</a></li>
               <li className="mb-2"><a href="#" className="text-gray-400 hover:text-yellow-500 transition-colors duration-200">Categories</a></li>
               <li className="mb-2"><a href="#" className="text-gray-400 hover:text-yellow-500 transition-colors duration-200">Deals</a></li>
             </ul>
