@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings  
 from products.models import Product  
 from vendors.models import Vendor  
-# Create your models here.
+
 
 class Address(models.Model):
     street = models.CharField(max_length=255)
@@ -19,6 +19,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=[('PENDING', 'Pending'), ('ACCEPTED', 'Accepted'), ('SHIPPED', 'Shipped'), ('DELIVERED', 'Delivered')], default='PENDING')
     tax = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     date = models.DateTimeField(auto_now_add=True)
+    paymob_order_id = models.CharField(max_length=100, blank=True, null=True)
 
 
 class OrderItem(models.Model):
