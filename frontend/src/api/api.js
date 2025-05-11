@@ -9,7 +9,7 @@ const api = axios.create({
     },
 });
 
-// Add request interceptor to add auth token
+
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('access_token');
@@ -48,8 +48,7 @@ api.interceptors.response.use(
         }
         return Promise.reject(error);
     }
-);
-
+); 
 // Auth API calls
 export const login = async (credentials) => {
     try {
@@ -66,7 +65,9 @@ export const login = async (credentials) => {
         if (error.response?.data?.error === 'Please verify your email before logging in.') {
             throw new Error('Please verify your email before logging in.');
         }
-        throw error;
+        throw new Error(
+            error.response?.data?.detail || 'Invalid email or password'
+        );
     }
 };
 
@@ -106,26 +107,29 @@ export const changePassword = async (passwords) => {
 
 // Store API calls
 export const createStore = async (storeData) => {
-    return await api.post('/stores/', storeData);
+    return await api.post('/vendors/', storeData);
 };
 
 export const getStore = async (storeId) => {
-    return await api.get(`/stores/${storeId}/`);
+    return await api.get(`/vendors/${storeId}/`);
 };
 
 export const updateStore = async (storeId, storeData) => {
-    return await api.put(`/stores/${storeId}/`, storeData);
+    return await api.put(`/vendors/${storeId}/`, storeData);
 };
 
 export const deleteStore = async (storeId) => {
-    return await api.delete(`/stores/${storeId}/`);
+    return await api.delete(`/vendors/${storeId}/`);
 };
 
 export const listStores = async () => {
-    return await api.get('/stores/');
+    return await api.get('/vendors/');
 };
 
 // Product API calls
+export const getStoreProducts = async (storeId) => {
+    return await api.get(`/products/?store_id=${storeId}`);
+}
 export const createProduct = async (productData) => {
     return await api.post('/products/', productData);
 };

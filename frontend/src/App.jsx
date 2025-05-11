@@ -1,13 +1,8 @@
-import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-// import './App.css'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
+import Navigation from './components/Navbar';
+import Footer from './components/Footer';
 import StorePage from './pages/StorePage';
 import DashboardPage from './pages/DashboardPage';
-import AuthForm from './components/AuthForm';
 import ProductDetailsPage from './pages/ProductDetailsPage';
 import Products from './pages/Products';
 import ProductManagementTable from './pages/ProductManagementTable';
@@ -19,57 +14,49 @@ import Home from './components/pages/Home';
 import Login from './components/pages/Login';
 import Register from './components/pages/Register';
 import Store from './components/pages/Store';
-
+import ListStores from './components/pages/listStores';
+import NewVendor from './pages/NewVendor';
 function App() {
-  const [count, setCount] = useState(0);
-
-  // Public routes
   const publicRoutes = [
     { path: '/', element: <Home /> },
     { path: '/login', element: <Login /> },
     { path: '/register', element: <Register /> },
     { path: '/verify-email/:uid/:token', element: <EmailVerification /> },
     { path: '/reset-password', element: <ResetPassword /> },
-    
   ];
 
-  // Protected routes
   const protectedRoutes = [
+    { path: '/new-vendor', element: <NewVendor /> },
+    { path: '/list-stores', element: <ListStores /> },
     { path: '/store', element: <Store /> },
-    { path: "/store/:store_id", element: <StorePage /> },
-    { path: "/dashboard", element: <DashboardPage /> },
-    { path: "/products", element: <Products /> },
-    { path: "/product-management", element: <ProductManagementTable /> },
-    { path: "/", element: <Navigate to="/login" replace /> },
-    { path: "/product/:product_id", element: <ProductDetailsPage /> },
-
+    { path: '/store/:store_id', element: <StorePage /> },
+    { path: '/dashboard', element: <DashboardPage /> },
+    { path: '/products', element: <Products /> },
+    { path: '/product-management', element: <ProductManagementTable /> },
+    { path: '/product/:product_id', element: <ProductDetailsPage /> },
   ];
 
   return (
     <Router>
       <AuthProvider>
-          <div className="min-h-screen bg-gray-50">
-            <Navbar />
-            <main className="container mx-auto px-4 py-8">
-              <Routes>
-                {publicRoutes.map(({ path, element }) => (
-                  <Route key={path} path={path} element={element} />
-                ))}
-                {protectedRoutes.map(({ path, element }) => (
-                  <Route
-                    key={path}
-                    path={path}
-                    element={<ProtectedRoute>{element}</ProtectedRoute>}
-                  />
-                ))}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </main>
-          </div>
+        <Navigation />
+        <Routes>
+          {publicRoutes.map(({ path, element }) => (
+            <Route key={path} path={path} element={element} />
+          ))}
+          {protectedRoutes.map(({ path, element }) => (
+            <Route
+              key={path}
+              path={path}
+              element={<ProtectedRoute>{element}</ProtectedRoute>}
+            />
+          ))}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        <Footer />
       </AuthProvider>
-      <Footer />
     </Router>
-  )
+  );
 }
 
 export default App;

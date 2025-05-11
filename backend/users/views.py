@@ -10,6 +10,8 @@ from django.conf import settings
 from django.utils.crypto import get_random_string
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_str
+
 from django.utils.encoding import force_bytes
 from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer, PasswordResetSerializer, PasswordChangeSerializer
 from .models import User
@@ -69,11 +71,11 @@ def login_user(request):
             password=serializer.validated_data['password']
         )
         if user:
-            # if not user.is_verified:
-            #     return Response(
-            #         {'error': 'Please verify your email before logging in.'},
-            #         status=status.HTTP_401_UNAUTHORIZED
-            #     )
+            if not user.is_verified:
+                return Response(
+                    {'error': 'Please verify your email before logging in.'},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
             refresh = RefreshToken.for_user(user)
             return Response({
                 'user': UserSerializer(user).data,
@@ -110,7 +112,7 @@ def reset_password(request):
     serializer = PasswordResetSerializer(data=request.data)
     if serializer.is_valid():
         try:
-            user = User.objects.get(pk=urlsafe_base64_decode(serializer.validated_data['uid']))
+            user = User.objects.get(pk=force_str(urlsafe_base64_decode(serializer.validated_data['uid'])))
             if default_token_generator.check_token(user, serializer.validated_data['token']):
                 user.set_password(serializer.validated_data['new_password'])
                 user.save()
@@ -130,7 +132,7 @@ def get_user_profile(request):
 @permission_classes([AllowAny])
 def verify_email(request, uid, token):
     try:
-        user = User.objects.get(pk=urlsafe_base64_decode(uid))
+        user = User.objects.get(pk=force_str(urlsafe_base64_decode(uid)))
         if default_token_generator.check_token(user, token):
             user.is_verified = True
             user.save()
@@ -216,44 +218,6 @@ def google_login(request):
     })
 
     # Generate tokens
-    refresh = RefreshToken.for_user(user)
-    return Response({
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-        'user': {
-            'id': user.id,
-            'email': user.email,
-            'name': user.name,
-            'username': user.username
-        }
-    })
-
-@api_view(['POST'])
-def facebook_login(request):
-    token = request.data.get('access_token')
-    if not token:
-        return Response({'error': 'Access token is required'}, status=400)
-
-    fb_url = f"https://graph.facebook.com/me?fields=id,name,email&access_token={token}"
-    response = requests.get(fb_url)
-
-    if response.status_code != 200:
-        return Response({'error': 'Invalid Facebook token'}, status=400)
-
-    data = response.json()
-    email = data.get('email')
-    name = data.get('name')
-
-    if not email:
-        return Response({'error': 'Email not available from Facebook'}, status=400)
-
-    user, created = User.objects.get_or_create(email=email, defaults={
-        'username': email.split('@')[0],
-        'name': name,
-        'is_verified': True,
-        'user_type': 'customer',
-    })
-
     refresh = RefreshToken.for_user(user)
     return Response({
         'refresh': str(refresh),

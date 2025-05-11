@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { requestPasswordReset, resetPassword } from '../../api/api';
+import { FaLock, FaEnvelope, FaCheckCircle, FaArrowLeft } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { Container, Form, Button, Alert, Spinner, Card } from 'react-bootstrap';
 
 const ResetPassword = () => {
     const [email, setEmail] = useState('');
@@ -15,18 +18,27 @@ const ResetPassword = () => {
 
     const isResetForm = !!uid && !!token;
 
+    const validatePassword = (password) => {
+        return password.length >= 8;
+    };
+
     const handleRequestReset = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
-        setIsLoading(true);
+        
+        if (!email) {
+            setError('Email is required');
+            return;
+        }
 
+        setIsLoading(true);
         try {
             await requestPasswordReset(email);
             setSuccess('Password reset instructions have been sent to your email.');
             setEmail('');
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to send reset instructions');
+            setError(err.response?.data?.error || 'Failed to send reset instructions. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -36,6 +48,16 @@ const ResetPassword = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
+
+        if (!newPassword || !confirmPassword) {
+            setError('Please fill in all fields');
+            return;
+        }
+
+        if (!validatePassword(newPassword)) {
+            setError('Password must be at least 8 characters');
+            return;
+        }
 
         if (newPassword !== confirmPassword) {
             setError('Passwords do not match');
@@ -50,103 +72,135 @@ const ResetPassword = () => {
                 new_password: newPassword,
                 new_password2: confirmPassword
             });
-            setSuccess('Password has been reset successfully');
+            setSuccess('Password has been reset successfully. Redirecting to login...');
             setTimeout(() => navigate('/login'), 3000);
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to reset password');
+            setError(err.response?.data?.error || 'Failed to reset password. The link may have expired.');
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                        {isResetForm ? 'Reset Your Password' : 'Forgot Your Password?'}
-                    </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        {isResetForm 
-                            ? 'Enter your new password below'
-                            : 'Enter your email address and we will send you instructions to reset your password.'
-                        }
-                    </p>
-                </div>
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-light min-vh-100 d-flex align-items-center py-5"
+        >
+            <Container className="col-md-8 col-lg-6 col-xl-5">
+                <Card className="shadow-lg border-0 rounded-4 overflow-hidden">
+                    <Card.Header className="bg-warning text-white p-4">
+                        <div className="d-flex align-items-center gap-3">
+                            <FaLock size={24} />
+                            <h2 className="mb-0">
+                                {isResetForm ? 'Reset Your Password' : 'Forgot Password?'}
+                            </h2>
+                        </div>
+                    </Card.Header>
 
-                {error && (
-                    <div className="rounded-md bg-red-50 p-4">
-                        <div className="text-sm text-red-700">{error}</div>
-                    </div>
-                )}
-
-                {success && (
-                    <div className="rounded-md bg-green-50 p-4">
-                        <div className="text-sm text-green-700">{success}</div>
-                    </div>
-                )}
-
-                <form className="mt-8 space-y-6" onSubmit={isResetForm ? handleResetPassword : handleRequestReset}>
-                    <div className="rounded-md shadow-sm -space-y-px">
-                        {!isResetForm ? (
-                            <div>
-                                <label htmlFor="email" className="sr-only">Email address</label>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    required
-                                    className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                    placeholder="Email address"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                        ) : (
-                            <>
-                                <div className="mb-4">
-                                    <label htmlFor="new-password" className="sr-only">New Password</label>
-                                    <input
-                                        id="new-password"
-                                        name="new-password"
-                                        type="password"
-                                        required
-                                        className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                        placeholder="New password"
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="confirm-password" className="sr-only">Confirm Password</label>
-                                    <input
-                                        id="confirm-password"
-                                        name="confirm-password"
-                                        type="password"
-                                        required
-                                        className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                        placeholder="Confirm new password"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                    />
-                                </div>
-                            </>
+                    <Card.Body className="p-4 p-md-5">
+                        {error && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                            >
+                                <Alert variant="danger" className="rounded-3">
+                                    {error}
+                                </Alert>
+                            </motion.div>
                         )}
-                    </div>
 
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                        >
-                            {isLoading ? 'Processing...' : (isResetForm ? 'Reset Password' : 'Send Reset Instructions')}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                        {success && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                            >
+                                <Alert variant="success" className="rounded-3 d-flex align-items-center gap-2">
+                                    <FaCheckCircle size={18} />
+                                    {success}
+                                </Alert>
+                            </motion.div>
+                        )}
+
+                        <Form onSubmit={isResetForm ? handleResetPassword : handleRequestReset}>
+                            {!isResetForm ? (
+                                <Form.Group className="mb-4">
+                                    <Form.Label className="d-flex align-items-center gap-2">
+                                        <FaEnvelope /> Email Address
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="your@email.com"
+                                        required
+                                    />
+                                </Form.Group>
+                            ) : (
+                                <>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="d-flex align-items-center gap-2">
+                                            <FaLock /> New Password
+                                        </Form.Label>
+                                        <Form.Control
+                                            type="password"
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            placeholder="At least 8 characters"
+                                            required
+                                            isInvalid={newPassword && !validatePassword(newPassword)}
+                                        />
+                                        <Form.Text className="text-muted">
+                                            Password must be at least 8 characters
+                                        </Form.Text>
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-4">
+                                        <Form.Label className="d-flex align-items-center gap-2">
+                                            <FaLock /> Confirm Password
+                                        </Form.Label>
+                                        <Form.Control
+                                            type="password"
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            placeholder="Confirm your password"
+                                            required
+                                            isInvalid={confirmPassword && newPassword !== confirmPassword}
+                                        />
+                                    </Form.Group>
+                                </>
+                            )}
+
+                            <Button
+                                variant="warning"
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-100 py-3 fw-bold mt-3"
+                            >
+                                {isLoading ? (
+                                    <Spinner animation="border" size="sm" />
+                                ) : isResetForm ? (
+                                    'Reset Password'
+                                ) : (
+                                    'Send Reset Link'
+                                )}
+                            </Button>
+
+                            <div className="text-center mt-4 pt-3 border-top">
+                                <Button 
+                                    variant="link" 
+                                    onClick={() => navigate('/login')}
+                                    className="text-decoration-none d-flex align-items-center justify-content-center gap-2"
+                                >
+                                    <FaArrowLeft /> Back to Login
+                                </Button>
+                            </div>
+                        </Form>
+                    </Card.Body>
+                </Card>
+            </Container>
+        </motion.div>
     );
 };
 
-export default ResetPassword; 
+export default ResetPassword;

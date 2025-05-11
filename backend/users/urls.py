@@ -11,5 +11,5 @@ urlpatterns = [
     path('password-reset/confirm/', views.reset_password, name='password_reset_confirm'),
     path('verify-email/<str:uid>/<str:token>/', views.verify_email, name='verify_email'),
     path('google/', views.google_login, name='google_login'),
-    path('facebook/', views.facebook_login, name='facebook_login'),
+    path('logout/', views.logout_user, name='logout'),
 ] 

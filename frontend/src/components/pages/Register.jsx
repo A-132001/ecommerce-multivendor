@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AuthForm from '../AuthForm';
 
+
 const Register = () => {
     const [formData, setFormData] = useState({
         name: '',
@@ -102,6 +103,7 @@ const Register = () => {
                             Sign in
                         </Link>
                     </p>
+                  
                 </div>
 
                 <AuthForm

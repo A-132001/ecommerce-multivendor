@@ -1,0 +1,38 @@
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bg-yellow-600 {
+  background-color: #d4a017;
+}
+
+.btn-yellow-600 {
+  background-color: #d4a017;
+  border-color: #d4a017;
+}
+
+.btn-yellow-600:hover {
+  background-color: #b78a14;
+  border-color: #b78a14;
+}
+
+.text-yellow-600 {
+  color: #d4a017;
+}
+
+.btn-yellow-600:hover {
+  background-color: #b78a14;
+  border-color: #b78a14;
+}
+
+.btn-outline-yellow-600 {
+  color: #d4a017;
+  border-color: #d4a017;
+}
+
+.btn-outline-yellow-600:hover {
+  background-color: #f8f4e6;
+}
