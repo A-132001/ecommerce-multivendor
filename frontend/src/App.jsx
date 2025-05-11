@@ -15,6 +15,7 @@ import Login from './components/pages/Login';
 import Register from './components/pages/Register';
 import Store from './components/pages/Store';
 import ListStores from './components/pages/listStores';
+import NewVendor from './pages/NewVendor';
 function App() {
   const publicRoutes = [
     { path: '/', element: <Home /> },
@@ -25,7 +26,8 @@ function App() {
   ];
 
   const protectedRoutes = [
-    {  path: '/list-stores', element: <ListStores /> },
+    { path: '/new-vendor', element: <NewVendor /> },
+    { path: '/list-stores', element: <ListStores /> },
     { path: '/store', element: <Store /> },
     { path: '/store/:store_id', element: <StorePage /> },
     { path: '/dashboard', element: <DashboardPage /> },
@@ -37,21 +39,21 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-          <Navigation />
-            <Routes>
-              {publicRoutes.map(({ path, element }) => (
-                <Route key={path} path={path} element={element} />
-              ))}
-              {protectedRoutes.map(({ path, element }) => (
-                <Route
-                  key={path}
-                  path={path}
-                  element={<ProtectedRoute>{element}</ProtectedRoute>}
-                />
-              ))}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          <Footer />
+        <Navigation />
+        <Routes>
+          {publicRoutes.map(({ path, element }) => (
+            <Route key={path} path={path} element={element} />
+          ))}
+          {protectedRoutes.map(({ path, element }) => (
+            <Route
+              key={path}
+              path={path}
+              element={<ProtectedRoute>{element}</ProtectedRoute>}
+            />
+          ))}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        <Footer />
       </AuthProvider>
     </Router>
   );
