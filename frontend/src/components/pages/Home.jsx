@@ -4,6 +4,11 @@ import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
 import Hero from '../Hero';
 import ShopCard from '../ShopCard';
 import { listStores } from '../../api/api';
+import AboutOverview from '../homeComponents/AboutOverview';
+import ServicesPreview from '../homeComponents/ServicesPreview';
+import ContactCTA from '../homeComponents/ContactCTA';
+import Testimonials from '../homeComponents/Testimonials';
+
 
 function Home() {
   const [loading, setLoading] = useState(true);
@@ -34,7 +39,8 @@ function Home() {
   return (
     <div className="home-page">
       <Hero />
-      
+      <AboutOverview />
+      {/* All Active Vendors Section */}
       <section id="stores" className="py-5 bg-light">
         <Container>
           <motion.div
@@ -75,6 +81,9 @@ function Home() {
           </motion.div>
         </Container>
       </section>
+      <ServicesPreview />
+      <Testimonials />
+      <ContactCTA />
     </div>
   );
 }
