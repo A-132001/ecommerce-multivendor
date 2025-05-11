@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AuthForm from '../AuthForm';
+import { motion } from 'framer-motion';
+import { FaSignInAlt, FaUserPlus, FaKey } from 'react-icons/fa';
+import { Container, Alert, Spinner } from 'react-bootstrap';
 
 const Login = () => {
     const [formData, setFormData] = useState({ 
@@ -13,7 +16,7 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const { login, isAuthenticated } = useAuth();
+    const { login, isAuthenticated, user } = useAuth();
 
     // Redirect if already authenticated
     useEffect(() => {
@@ -38,18 +41,15 @@ const Login = () => {
 
         try {
             await login(formData);
-            const from = location.state?.from?.pathname || '/dashboard';
-            navigate(from, { replace: true });
+            // Navigation is handled by the useEffect when isAuthenticated changes
         } catch (err) {
-            let errorMessage = 'Login failed';
-            if (err.response?.data) {
-                if (typeof err.response.data === 'string') {
-                    errorMessage = err.response.data;
-                } else if (err.response.data.error) {
-                    errorMessage = err.response.data.error;
-                } else if (err.response.data.detail) {
-                    errorMessage = err.response.data.detail;
-                }
+            let errorMessage = 'Login failed. Please try again.';
+            if (err.message.includes('verify your email')) {
+                errorMessage = 'Please verify your email before logging in.';
+            } else if (err.response?.data?.detail) {
+                errorMessage = err.response.data.detail;
+            } else if (err.message) {
+                errorMessage = err.message;
             }
             setError(errorMessage);
         } finally {
@@ -58,43 +58,47 @@ const Login = () => {
     };
 
     if (isAuthenticated) {
-        return null; // or a loading spinner
+        return (
+            <div className="d-flex justify-content-center align-items-center vh-100">
+                <Spinner animation="border" variant="primary" />
+            </div>
+        );
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                        Sign in to your account
-                    </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        Or{' '}
-                        <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-                            create a new account
-                        </Link>
-                    </p>
-                </div>
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="bg-light min-vh-100 d-flex align-items-center py-5 justify-content-center"
+        >
+        
+  
 
-                <AuthForm
-                    type="login"
-                    formData={formData}
-                    handleChange={handleChange}
-                    handleSubmit={handleSubmit}
-                    error={error}
-                    isLoading={isLoading}
-                />
+                    
+                    <div className="card-body p-4 p-md-5">
+                        {error && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                            >
+                                <Alert variant="danger" className="rounded-3">
+                                    {error}
+                                </Alert>
+                            </motion.div>
+                        )}
 
-                <div className="text-center">
-                    <Link
-                        to="/reset-password"
-                        className="font-medium text-indigo-600 hover:text-indigo-500"
-                    >
-                        Forgot your password?
-                    </Link>
-                </div>
-            </div>
-        </div>
+                        <AuthForm
+                            type="login"
+                            formData={formData}
+                            handleChange={handleChange}
+                            handleSubmit={handleSubmit}
+                            isLoading={isLoading}
+                        />
+                    </div>
+                </motion.div>
+        
+   
     );
 };
 

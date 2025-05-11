@@ -92,7 +92,17 @@ function Navigation() {
     >
       <Container fluid>
         <Navbar.Brand as={Link} to="/" className="fw-bold text-white me-4 hover:scale-105 transition-transform duration-200">
-          {logo}
+          <div className="relative">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary 
+            via-secondary to-accent flex items-center justify-center shadow-glow transition-shadow 
+            duration-300 group-hover:shadow-glow-lg"
+            style={{color: '#d4a017'}}
+            >
+              <i className="fas fa-bolt text-2xl"></i>
+              <span className='mx-1'>VendorHub</span>
+            </div>
+
+          </div>
         </Navbar.Brand>
 
         <div className="d-flex align-items-center order-lg-2 ms-auto">

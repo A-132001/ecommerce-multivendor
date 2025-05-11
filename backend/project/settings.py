@@ -142,8 +142,8 @@ REST_FRAMEWORK = {
 
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
 }
@@ -153,9 +153,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
    
 ]
-#  For development only
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
 
 # Email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -168,7 +165,7 @@ DEFAULT_FROM_EMAIL = "abdo@abdostore.com"
 
 
 FRONTEND_URL = "http://localhost:5173"
-# BACKEND_URL = "http://localhost:8000"
+BACKEND_URL = "http://localhost:8000"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

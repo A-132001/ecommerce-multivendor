@@ -9,24 +9,17 @@ function Footer() {
           {/* Brand Column */}
           <Col lg={4} md={6}>
             <div className="d-flex align-items-center mb-3">
-              <svg width="36" height="36" viewBox="0 0 36 36" className="me-2">
-                <path
-                  d="M12 18C12 13 15 10 20 10C25 10 28 13 28 18C28 23 25 26 20 26C15 26 12 23 12 18M20 26V31M20 10V5M5 18H0M35 18H30"
-                  stroke="url(#logoGradient)"
-                  strokeWidth="2.5"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <defs>
-                  <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#d4a017" />
-                    <stop offset="50%" stopColor="#ffd700" />
-                    <stop offset="100%" stopColor="#d4a017" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <span className="h4 mb-0 fw-bold text-white">VendorHub</span>
+              <div className="relative">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary 
+            via-secondary to-accent flex items-center justify-center shadow-glow transition-shadow 
+            duration-300 group-hover:shadow-glow-lg"
+                  style={{ color: '#d4a017' }}
+                >
+                  <i className="fas fa-bolt text-2xl"></i>
+                  <span className='mx-1'>VendorHub</span>
+                </div>
+
+              </div>
             </div>
             <p className="text-gray-400">
               Connecting buyers with trusted vendors since 2023. Your premier marketplace for quality products and services.

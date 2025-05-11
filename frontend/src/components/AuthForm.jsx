@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
+import { FaUser, FaEnvelope, FaLock, FaPhone, FaMapMarkerAlt, FaStore, FaSignInAlt, FaUserPlus ,FaKey} from 'react-icons/fa';
+import { Container, Form, Button, Alert, Spinner, Card, Row, Col } from 'react-bootstrap';
+import GoogleLoginButton from './GoogleButton';
 
-const AuthForm = ({ type, onSubmit, isLoading }) => {
+const AuthForm = ({ type, isLoading }) => {
     const navigate = useNavigate();
     const { login, register } = useAuth();
     const [formData, setFormData] = useState({
@@ -14,8 +18,34 @@ const AuthForm = ({ type, onSubmit, isLoading }) => {
         phone_number: '',
         address: ''
     });
-    const [error, setError] = useState('');
     const [password2, setPassword2] = useState('');
+    const [errors, setErrors] = useState({});
+    const [formError, setFormError] = useState('');
+
+    const validateForm = () => {
+        const newErrors = {};
+
+        if (!formData.email) {
+            newErrors.email = 'Email is required';
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = 'Email is invalid';
+        }
+
+        if (!formData.password) {
+            newErrors.password = 'Password is required';
+        } else if (formData.password.length < 8) {
+            newErrors.password = 'Password must be at least 8 characters';
+        }
+
+        if (type === 'register') {
+            if (!formData.name) newErrors.name = 'Full name is required';
+            if (password2 !== formData.password) newErrors.password2 = 'Passwords do not match';
+            if (!password2) newErrors.password2 = 'Please confirm your password';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -23,6 +53,13 @@ const AuthForm = ({ type, onSubmit, isLoading }) => {
             ...prev,
             [name]: value
         }));
+
+        // Clear error when user types
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+
+        // Auto-generate username from email
         if (name === 'email' && type === 'register') {
             setFormData(prev => ({
                 ...prev,
@@ -33,185 +70,252 @@ const AuthForm = ({ type, onSubmit, isLoading }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
+        setFormError('');
+
+        if (!validateForm()) return;
 
         try {
             if (type === 'login') {
-                const response = await login({
-                    email: formData.email,
-                    password: formData.password
-                });
-                console.log('Login response:', response);
-                return;
-                // if (response.data.access) {
-                //     navigate('/');
-                // }
+                await login(formData);
+                navigate('/');
             } else {
-                if (formData.password !== password2) {
-                    setError('Passwords do not match');
-                    return;
-                }
-                const response = await register({
-                    ...formData,
-                    password2: password2
+                await register({ ...formData, password2 });
+                navigate('/login', {
+                    state: {
+                        message: 'Registration successful! Please check your email for verification.',
+                        variant: 'success'
+                    }
                 });
-                if (response.data.message) {
-                    navigate('/login', { state: { message: 'Registration successful! Please check your email for verification.' } });
-                }
             }
         } catch (err) {
-            console.error('Auth error:', err.response?.data);
-            setError(err.message || err.response?.data?.detail || err.response?.data?.message || 'An error occurred');
+            console.error('Auth error:', err);
+            const errorMessage = err.response?.data?.detail ||
+                err.response?.data?.message ||
+                err.message ||
+                'An error occurred during authentication';
+            setFormError(errorMessage);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
+        <Container className="py-5">
+            <Row className="justify-content-center">
                 <div>
-
-                </div>
-                <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    <div className="rounded-md shadow-sm -space-y-px">
-                        {type === 'register' && (
-                            <>
-                                <div>
-                                    <label htmlFor="name" className="sr-only">Full Name</label>
-                                    <input
-                                        id="name"
-                                        name="name"
-                                        type="text"
-                                        required
-                                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                        placeholder="Full Name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                    />
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <Card className="shadow-lg border-0 rounded-4 overflow-hidden">
+                            <Card.Header className={`bg-warning text-white p-4`}>
+                                <div className="d-flex align-items-center gap-3">
+                                    {type === 'login' ? (
+                                        <FaSignInAlt size={24} />
+                                    ) : (
+                                        <FaUserPlus size={24} />
+                                    )}
+                                    <h2 className="mb-0">
+                                        {type === 'login' ? 'Sign In to Your Account' : 'Create New Account'}
+                                    </h2>
                                 </div>
-                                <div>
-                                    <label htmlFor="user_type" className="sr-only">User Type</label>
-                                    <select
-                                        id="user_type"
-                                        name="user_type"
-                                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                        value={formData.user_type}
-                                        onChange={handleChange}
+                            </Card.Header>
+
+                            <Card.Body className="p-4 p-md-5">
+                                {formError && (
+                                    <Alert variant="danger" className="rounded-3">
+                                        {formError}
+                                    </Alert>
+                                )}
+
+                                <Form onSubmit={handleSubmit}>
+                                    {type === 'register' && (
+                                        <>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label className="d-flex align-items-center gap-2">
+                                                    <FaUser /> Full Name
+                                                </Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    name="name"
+                                                    value={formData.name}
+                                                    onChange={handleChange}
+                                                    isInvalid={!!errors.name}
+                                                    placeholder="John Doe"
+                                                />
+                                                <Form.Control.Feedback type="invalid">
+                                                    {errors.name}
+                                                </Form.Control.Feedback>
+                                            </Form.Group>
+
+                                            <Form.Group className="mb-3">
+                                                <Form.Label className="d-flex align-items-center gap-2">
+                                                    <FaStore /> Account Type
+                                                </Form.Label>
+                                                <Form.Select
+                                                    name="user_type"
+                                                    value={formData.user_type}
+                                                    onChange={handleChange}
+                                                >
+                                                    <option value="customer">Customer</option>
+                                                    <option value="vendor">Vendor</option>
+                                                </Form.Select>
+                                            </Form.Group>
+
+                                            <Form.Group className="mb-3">
+                                                <Form.Label className="d-flex align-items-center gap-2">
+                                                    <FaPhone /> Phone Number
+                                                </Form.Label>
+                                                <Form.Control
+                                                    type="tel"
+                                                    name="phone_number"
+                                                    value={formData.phone_number}
+                                                    onChange={handleChange}
+                                                    placeholder="+1234567890"
+                                                />
+                                            </Form.Group>
+
+                                            <Form.Group className="mb-3">
+                                                <Form.Label className="d-flex align-items-center gap-2">
+                                                    <FaMapMarkerAlt /> Address
+                                                </Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    name="address"
+                                                    value={formData.address}
+                                                    onChange={handleChange}
+                                                    placeholder="123 Main St, City"
+                                                />
+                                            </Form.Group>
+                                        </>
+                                    )}
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="d-flex align-items-center gap-2">
+                                            <FaEnvelope /> Email Address
+                                        </Form.Label>
+                                        <Form.Control
+                                            type="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            isInvalid={!!errors.email}
+                                            placeholder="your@email.com"
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.email}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="d-flex align-items-center gap-2">
+                                            <FaLock /> Password
+                                        </Form.Label>
+                                        <Form.Control
+                                            type="password"
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            isInvalid={!!errors.password}
+                                            placeholder="At least 8 characters"
+                                        />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.password}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    {type === 'register' && (
+                                        <Form.Group className="mb-4">
+                                            <Form.Label className="d-flex align-items-center gap-2">
+                                                <FaLock /> Confirm Password
+                                            </Form.Label>
+                                            <Form.Control
+                                                type="password"
+                                                name="password2"
+                                                value={password2}
+                                                onChange={(e) => setPassword2(e.target.value)}
+                                                isInvalid={!!errors.password2}
+                                                placeholder="Confirm your password"
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.password2}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+                                    )}
+
+                                    {type === 'login' && (
+                                        <div className="d-flex justify-content-between align-items-center mt-4">
+                                            <div className="form-check">
+                                                <input
+                                                    className="form-check-input"
+                                                    type="checkbox"
+                                                    id="rememberMe"
+                                                    name="rememberMe"
+                                                    checked={formData.rememberMe}
+                                                    onChange={handleChange}
+                                                />
+                                                <label className="form-check-label small" htmlFor="rememberMe">
+                                                    Remember me
+                                                </label>
+                                            </div>
+
+                                            <Link
+                                                to="/reset-password"
+                                                className="text-decoration-none small d-flex align-items-center gap-2"
+                                            >
+                                                <FaKey size={14} />
+                                                Forgot password?
+                                            </Link>
+                                        </div>
+                                    )}
+
+                                    <Button
+                                        variant='warning'
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className="w-100 py-3 fw-bold"
                                     >
-                                        <option value="customer">Customer</option>
-                                        <option value="vendor">Vendor</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label htmlFor="phone_number" className="sr-only">Phone Number</label>
-                                    <input
-                                        id="phone_number"
-                                        name="phone_number"
-                                        type="tel"
-                                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                        placeholder="Phone Number"
-                                        value={formData.phone_number}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="address" className="sr-only">Address</label>
-                                    <input
-                                        id="address"
-                                        name="address"
-                                        type="text"
-                                        className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                        placeholder="Address"
-                                        value={formData.address}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </>
-                        )}
-                        <div>
-                            <label htmlFor="email" className="sr-only">Email address</label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                placeholder="Email address"
-                                value={formData.email}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="password" className="sr-only">Password</label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autoComplete="current-password"
-                                required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                placeholder="Password"
-                                value={formData.password}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        {type === 'register' && (
-                            <div>
-                                <label htmlFor="password2" className="sr-only">Confirm Password</label>
-                                <input
-                                    id="password2"
-                                    name="password2"
-                                    type="password"
-                                    required
-                                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                    placeholder="Confirm Password"
-                                    value={password2}
-                                    onChange={(e) => setPassword2(e.target.value)}
-                                />
-                            </div>
-                        )}
-                    </div>
+                                        {isLoading ? (
+                                            <Spinner animation="border" size="sm" />
+                                        ) : (
+                                            type === 'login' ? 'Sign In' : 'Register'
+                                        )}
+                                    </Button>
+                                </Form>
 
-                    {error && (
-                        <div className="text-red-500 text-sm text-center">
-                            {error}
-                        </div>
-                    )}
-
-                    <div>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                            {isLoading ? (
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                            ) : (
-                                type === 'login' ? 'Sign in' : 'Sign up'
-                            )}
-                        </button>
-                    </div>
-
-                    <div className="text-sm text-center">
-                        {type === 'login' ? (
-                            <>
-                                <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                    Don't have an account? Sign up
-                                </Link>
-                                <br />
-                                <Link to="/reset-password" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                    Forgot your password?
-                                </Link>
-                            </>
-                        ) : (
-                            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                Already have an account? Sign in
-                            </Link>
-                        )}
-                    </div>
-                </form>
-            </div>
-        </div>
+                                <div className="text-center mt-4 pt-3 border-top">
+                                    <p className="small mb-0">
+                                        {type === 'login' ? (
+                                            <>
+                                                <div className="text-center mt-4 pt-3 border-top">
+                                                    <p className="small mb-0">
+                                                        Don't have an account?{' '}
+                                                        <Link
+                                                            to="/register"
+                                                            className="text-decoration-none fw-bold d-inline-flex align-items-center gap-2"
+                                                        >
+                                                            <FaUserPlus size={14} />
+                                                            Register now
+                                                        </Link>
+                                                    </p>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                Already have an account?{' '}
+                                                <Link to="/login" className="text-decoration-none fw-bold">
+                                                    Sign in
+                                                </Link>
+                                            </>
+                                        )}
+                                    </p>
+                                      <GoogleLoginButton ></GoogleLoginButton>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </motion.div>
+                </div>
+            </Row>
+        </Container>
     );
 };
 

@@ -1,4 +1,3 @@
-// Home.jsx
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap';

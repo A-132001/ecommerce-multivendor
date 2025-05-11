@@ -65,7 +65,9 @@ export const login = async (credentials) => {
         if (error.response?.data?.error === 'Please verify your email before logging in.') {
             throw new Error('Please verify your email before logging in.');
         }
-        throw error;
+        throw new Error(
+            error.response?.data?.detail || 'Invalid email or password'
+        );
     }
 };
 
