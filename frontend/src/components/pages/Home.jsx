@@ -19,7 +19,11 @@ function Home() {
         setStores(response.data);
       } catch (error) {
         console.error('Error fetching stores:', error);
-        setError('Failed to load stores. Please try again later.');
+        setError(
+          error.response
+            ? error.response.data.detail || error.response.data.message || 'An error occurred.'
+            : 'Error fetching stores. Please try again later.'
+        );
       } finally {
         setLoading(false);
       }
