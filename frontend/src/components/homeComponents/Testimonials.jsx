@@ -31,10 +31,10 @@ const Testimonials = () => {
             What Our <span className="text-yellow-600">Customers Say</span>
           </h2>
         </motion.div>
-        
+
         <Row className="g-4 justify-content-center">
           {testimonials.map((testimonial, index) => (
-            <Col lg={6} key={index} className="align-items-stretch ">
+            <Col lg={6} key={index} className="d-flex align-items-stretch">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -47,20 +47,27 @@ const Testimonials = () => {
                     <blockquote className="mb-4">
                       <p className="lead fst-italic">"{testimonial.quote}"</p>
                     </blockquote>
-                    <div className="d-flex align-items-center">
-                      <img 
-                        src={testimonial.image} 
-                        alt={testimonial.author}
-                        className="rounded-circle me-3"
-                        width="60"
-                        height="60"
-                      />
-                      <div>
-                        <h5 className="mb-1">{testimonial.author}</h5>
-                        <p className="text-muted small mb-0">{testimonial.role}</p>
-                      </div>
-                    </div>
+
                   </Card.Body>
+<Card.Footer className="bg-white border-0 d-flex align-items-center">
+  <div 
+    className="rounded-circle me-3 d-flex align-items-center justify-content-center"
+    style={{
+      width: '50px',
+      height: '50px',
+      backgroundColor: '#f0f0f0',
+      color: '#d4a017',
+      fontSize: '20px',
+      fontWeight: 'bold'
+    }}
+  >
+    {testimonial.author.split(' ').map(name => name[0]).join('')}
+  </div>
+  <div>
+    <h5 className="mb-0">{testimonial.author}</h5>
+    <small className="text-muted">{testimonial.role}</small>
+  </div>
+</Card.Footer>
                 </Card>
               </motion.div>
             </Col>
