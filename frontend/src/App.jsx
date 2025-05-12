@@ -21,6 +21,7 @@ function App() {
     { path: '/', element: <Home /> },
     { path: '/login', element: <Login /> },
     { path: '/register', element: <Register /> },
+    { path: '/verify-email', element: <EmailVerification /> },
     { path: '/verify-email/:uid/:token', element: <EmailVerification /> },
     { path: '/reset-password', element: <ResetPassword /> },
     { path: '/api/auth/verify-email/:uid/:token', element: <EmailVerification /> },

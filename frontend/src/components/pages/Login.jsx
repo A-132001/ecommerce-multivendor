@@ -13,6 +13,7 @@ const Login = () => {
         rememberMe: false 
     });
     const [error, setError] = useState('');
+    const [errorList, setErrorList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
@@ -37,6 +38,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setErrorList([]);
         setIsLoading(true);
 
         try {
@@ -44,14 +46,32 @@ const Login = () => {
             // Navigation is handled by the useEffect when isAuthenticated changes
         } catch (err) {
             let errorMessage = 'Login failed. Please try again.';
-            if (err.message.includes('verify your email')) {
-                errorMessage = 'Please verify your email before logging in.';
-            } else if (err.response?.data?.detail) {
-                errorMessage = err.response.data.detail;
+            let errors = [];
+            if (err.response?.data) {
+                const data = err.response.data;
+                if (typeof data === 'string') {
+                    errors.push(data);
+                } else if (data.error) {
+                    errors.push(data.error);
+                } else if (data.detail) {
+                    errors.push(data.detail);
+                } else {
+                    // Collect all field errors
+                    for (const key in data) {
+                        if (Array.isArray(data[key])) {
+                            errors = errors.concat(data[key]);
+                        } else if (typeof data[key] === 'string') {
+                            errors.push(data[key]);
+                        }
+                    }
+                }
             } else if (err.message) {
-                errorMessage = err.message;
+                errors.push(err.message);
+            } else {
+                errors.push(errorMessage);
             }
-            setError(errorMessage);
+            setError(errors[0] || errorMessage);
+            setErrorList(errors.length > 1 ? errors : []);
         } finally {
             setIsLoading(false);
         }
@@ -86,13 +106,20 @@ const Login = () => {
 
                     
                     <div className="card-body p-4 p-md-5">
-                        {error && (
+                        {(error || errorList.length > 0) && (
                             <motion.div
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                             >
                                 <Alert variant="danger" className="rounded-3">
-                                    {error}
+                                    {error && <div>{error}</div>}
+                                    {errorList.length > 0 && (
+                                        <ul className="mb-0">
+                                            {errorList.map((err, idx) => (
+                                                <li key={idx}>{err}</li>
+                                            ))}
+                                        </ul>
+                                    )}
                                 </Alert>
                             </motion.div>
                         )}
