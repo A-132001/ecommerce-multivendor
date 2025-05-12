@@ -4,8 +4,14 @@ import DashboardSidebar from '../components/dashboard/DashboardSidebar';
 import AddProductForm from '../components/dashboard/AddProductForm';
 import ProductManagementTable from '../components/dashboard/ProductManagementTable';
 import OrdersList from '../components/dashboard/OrdersList';
+import Swal from 'sweetalert2';
+import { FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
+import { createProduct, getStoreProducts, getProduct, updateProduct, deleteProduct } from '../api/api';
 
 export default function DashboardPage() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [products, setProducts] = useState(() => {
     const savedProducts = localStorage.getItem('products');
     return savedProducts ? JSON.parse(savedProducts) : [];
@@ -16,19 +22,62 @@ export default function DashboardPage() {
     return savedOrders ? JSON.parse(savedOrders) : [];
   });
 
-  const addProduct = (newProduct) => {
-    const updatedProducts = [
-      ...products,
-      { id: products.length + 1, ...newProduct },
-    ];
-    setProducts(updatedProducts);
-    localStorage.setItem('products', JSON.stringify(updatedProducts)); 
+  const addProduct = async (newProduct) => {
+    try {
+      const response = await createProduct(newProduct);
+      if (response.status !== 201) {
+        Swal.fire({
+          title: 'Error',
+          text: 'Failed to add product',
+          icon: 'error',
+          background: '#0f172a',
+          color: '#f8fafc',
+          confirmButtonColor: '#d4a017',
+          customClass: {
+            popup: 'shadow-lg border border-gray-700'
+          }
+        });
+
+        const updatedProducts = [
+          ...products,
+          { id: products.length + 1, ...newProduct },
+        ];
+        setProducts(updatedProducts);
+        localStorage.setItem('products', JSON.stringify(updatedProducts));
+        return;
+      }
+    } catch (error) {
+      let backendErrorMessage = "An error occurred while registering the vendor.";
+      const errData = error?.response?.data;
+
+      if (typeof errData === "string") {
+        backendErrorMessage = errData;
+      } else if (errData?.detail) {
+        backendErrorMessage = errData.detail;
+      } else if (errData?.message) {
+        backendErrorMessage = errData.message;
+      } else if (typeof errData === "object") {
+        backendErrorMessage = Object.entries(errData)
+          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : value}`)
+          .join(" - ");
+
+      }
+
+
+      setError(backendErrorMessage);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: backendErrorMessage,
+      });
+    }
   };
 
   const deleteProduct = (id) => {
     const updatedProducts = products.filter((product) => product.id !== id);
     setProducts(updatedProducts);
-    localStorage.setItem('products', JSON.stringify(updatedProducts)); 
+    localStorage.setItem('products', JSON.stringify(updatedProducts));
   };
 
   const editProduct = (id, updatedProduct) => {
@@ -36,13 +85,13 @@ export default function DashboardPage() {
       product.id === id ? { ...product, ...updatedProduct } : product
     );
     setProducts(updatedProducts);
-    localStorage.setItem('products', JSON.stringify(updatedProducts)); 
+    localStorage.setItem('products', JSON.stringify(updatedProducts));
   };
 
   const deleteOrder = (id) => {
     const updatedOrders = orders.filter((order) => order.id !== id);
     setOrders(updatedOrders);
-    localStorage.setItem('orders', JSON.stringify(updatedOrders)); 
+    localStorage.setItem('orders', JSON.stringify(updatedOrders));
   };
 
   const editOrder = (id, updatedOrder) => {
@@ -50,7 +99,7 @@ export default function DashboardPage() {
       order.id === id ? { ...order, ...updatedOrder } : order
     );
     setOrders(updatedOrders);
-    localStorage.setItem('orders', JSON.stringify(updatedOrders)); 
+    localStorage.setItem('orders', JSON.stringify(updatedOrders));
   };
 
   return (

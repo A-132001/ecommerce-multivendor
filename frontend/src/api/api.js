@@ -120,7 +120,7 @@ export const updateStore = async (storeId, storeData) => {
 export const deleteStore = async (storeId) => {
     return await api.delete(`/vendors/${storeId}/`);
 };
-
+ 
 export const listStores = async () => {
     return await api.get('/vendors/');
 };
