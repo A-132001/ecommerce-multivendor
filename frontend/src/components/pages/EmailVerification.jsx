@@ -1,76 +1,85 @@
-import React, { useEffect, useState } from 'react';
+// frontend/src/components/EmailVerification.jsx
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { verifyEmail } from '../../api/api';
+import { motion } from 'framer-motion';
+import { Container, Card, Alert, Spinner } from 'react-bootstrap';
+import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 const EmailVerification = () => {
     const { uid, token } = useParams();
     const navigate = useNavigate();
-    const [status, setStatus] = useState('verifying');
-    const [error, setError] = useState('');
+    const [status, setStatus] = useState('verifying'); // 'verifying', 'success', 'error'
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         const verifyUserEmail = async () => {
             try {
-                // Make sure uid is properly formatted for base64 decoding
-                const formattedUid = uid.replace(/-/g, '+').replace(/_/g, '/');
-                const response = await verifyEmail(formattedUid, token);
+                await verifyEmail(uid, token);
                 setStatus('success');
-                setTimeout(() => {
-                    navigate('/login', { 
-                        state: { message: 'Email verified successfully! You can now log in.' }
-                    });
-                }, 3000);
-            } catch (err) {
-                console.error('Verification error:', err);
+                setMessage('Email verified successfully! Redirecting to login...');
+                setTimeout(() => navigate('/login'), 3000);
+            } catch (error) {
                 setStatus('error');
-                setError(err.response?.data?.error || 'Failed to verify email. Please try again.');
+                setMessage(error.response?.data?.error || 'Failed to verify email. The link may have expired.');
             }
         };
 
-        if (uid && token) {
-            verifyUserEmail();
-        } else {
-            setStatus('error');
-            setError('Invalid verification link');
-        }
+        verifyUserEmail();
     }, [uid, token, navigate]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                        Email Verification
-                    </h2>
-                </div>
-                <div className="mt-8 space-y-6">
-                    {status === 'verifying' && (
-                        <div className="text-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-                            <p className="mt-4 text-gray-600">Verifying your email...</p>
-                        </div>
-                    )}
-                    {status === 'success' && (
-                        <div className="text-center text-green-600">
-                            <p>Email verified successfully!</p>
-                            <p className="mt-2">Redirecting to login page...</p>
-                        </div>
-                    )}
-                    {status === 'error' && (
-                        <div className="text-center text-red-600">
-                            <p>{error}</p>
-                            <button
-                                onClick={() => navigate('/login')}
-                                className="mt-4 text-indigo-600 hover:text-indigo-500"
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-light min-vh-100 d-flex align-items-center py-5"
+        >
+            <Container className="col-md-8 col-lg-6 col-xl-5">
+                <Card className="shadow-lg border-0 rounded-4 overflow-hidden">
+                    <Card.Body className="p-4 p-md-5 text-center">
+                        {status === 'verifying' && (
+                            <div className="py-5">
+                                <Spinner animation="border" variant="primary" />
+                                <p className="mt-3">Verifying your email...</p>
+                            </div>
+                        )}
+
+                        {status === 'success' && (
+                            <motion.div
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className="py-4"
                             >
-                                Return to Login
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
+                                <FaCheckCircle size={64} className="text-success mb-3" />
+                                <h3 className="mb-3">Email Verified!</h3>
+                                <p className="text-muted">{message}</p>
+                            </motion.div>
+                        )}
+
+                        {status === 'error' && (
+                            <motion.div
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className="py-4"
+                            >
+                                <FaTimesCircle size={64} className="text-danger mb-3" />
+                                <h3 className="mb-3">Verification Failed</h3>
+                                <Alert variant="danger" className="mt-3">
+                                    {message}
+                                </Alert>
+                                <button
+                                    className="btn btn-primary mt-3"
+                                    onClick={() => navigate('/login')}
+                                >
+                                    Go to Login
+                                </button>
+                            </motion.div>
+                        )}
+                    </Card.Body>
+                </Card>
+            </Container>
+        </motion.div>
     );
 };
 
-export default EmailVerification; 
+export default EmailVerification;

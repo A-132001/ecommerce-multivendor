@@ -3,7 +3,7 @@ import { getCurrentUser, login as apiLogin, register as apiRegister, logout as a
 
 const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => { 
+export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);

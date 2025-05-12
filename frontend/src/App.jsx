@@ -23,6 +23,8 @@ function App() {
     { path: '/register', element: <Register /> },
     { path: '/verify-email/:uid/:token', element: <EmailVerification /> },
     { path: '/reset-password', element: <ResetPassword /> },
+    { path: '/api/auth/verify-email/:uid/:token', element: <EmailVerification /> },
+    { path: '/api/auth/reset-password/:uid/:token', element: <ResetPassword /> },
   ];
 
   const protectedRoutes = [
