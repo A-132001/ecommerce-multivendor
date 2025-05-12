@@ -10,7 +10,7 @@ from django.conf import settings
 from django.utils.crypto import get_random_string
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_str
+# from django.utils.encoding import force_str
 
 from django.utils.encoding import force_bytes
 from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer, PasswordResetSerializer, PasswordChangeSerializer
@@ -39,7 +39,7 @@ def register_user(request):
         # Generate verification token
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        verification_url = f"{settings.BACKEND_URL}/api/auth/verify-email/{uid}/{token}"
+        verification_url = f"{settings.FRONTEND_URL}/api/auth/verify-email/{uid}/{token}"
         
         # Send verification email
         send_mail(
@@ -93,7 +93,7 @@ def request_password_reset(request):
         user = User.objects.get(email=email)
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        reset_url = f"{settings.BACKEND_URL}/api/auth/reset-password/{uid}/{token}"
+        reset_url = f"{settings.FRONTEND_URL}/api/auth/reset-password/{uid}/{token}"
         
         send_mail(
             'Password Reset Request',
@@ -112,7 +112,7 @@ def reset_password(request):
     serializer = PasswordResetSerializer(data=request.data)
     if serializer.is_valid():
         try:
-            user = User.objects.get(pk=force_str(urlsafe_base64_decode(serializer.validated_data['uid'])))
+            user = User.objects.get(pk=urlsafe_base64_decode(serializer.validated_data['uid']))
             if default_token_generator.check_token(user, serializer.validated_data['token']):
                 user.set_password(serializer.validated_data['new_password'])
                 user.save()
@@ -132,7 +132,7 @@ def get_user_profile(request):
 @permission_classes([AllowAny])
 def verify_email(request, uid, token):
     try:
-        user = User.objects.get(pk=force_str(urlsafe_base64_decode(uid)))
+        user = User.objects.get(pk=urlsafe_base64_decode(uid))
         if default_token_generator.check_token(user, token):
             user.is_verified = True
             user.save()
@@ -174,7 +174,7 @@ def update_user_profile(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def change_password(request):
     serializer = PasswordChangeSerializer(data=request.data)
     if serializer.is_valid():

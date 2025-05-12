@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { requestPasswordReset, resetPassword } from '../../api/api';
 import { FaLock, FaEnvelope, FaCheckCircle, FaArrowLeft } from 'react-icons/fa';
 import { motion } from 'framer-motion';
@@ -14,7 +14,6 @@ const ResetPassword = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const { uid, token } = useParams();
-    const location = useLocation();
 
     const isResetForm = !!uid && !!token;
 
@@ -80,6 +79,13 @@ const ResetPassword = () => {
             setIsLoading(false);
         }
     };
+
+    // If we have uid and token but they're invalid, show error
+    useEffect(() => {
+        if (isResetForm && (!uid || !token)) {
+            setError('Invalid reset password link. Please request a new one.');
+        }
+    }, [isResetForm, uid, token]);
 
     return (
         <motion.div

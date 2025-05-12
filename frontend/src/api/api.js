@@ -9,7 +9,7 @@ const api = axios.create({
     },
 });
 
-
+// Add request interceptor to add auth token
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('access_token');
@@ -48,7 +48,8 @@ api.interceptors.response.use(
         }
         return Promise.reject(error);
     }
-); 
+);
+
 // Auth API calls
 export const login = async (credentials) => {
     try {
@@ -65,9 +66,7 @@ export const login = async (credentials) => {
         if (error.response?.data?.error === 'Please verify your email before logging in.') {
             throw new Error('Please verify your email before logging in.');
         }
-        throw new Error(
-            error.response?.data?.detail || 'Invalid email or password'
-        );
+        throw error;
     }
 };
 
