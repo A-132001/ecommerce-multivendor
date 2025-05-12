@@ -8,6 +8,9 @@ from django.conf import settings
 from django.http import JsonResponse
 import requests
 import json
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class PaymentMethodViewSet(viewsets.ModelViewSet):
@@ -31,6 +34,12 @@ class PaymentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+
+class PaymentView(APIView):
+    def get(self, request):
+        payments = Payment.objects.all()
+        serializer = PaymentSerializer(payments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 #  Get authentication token
