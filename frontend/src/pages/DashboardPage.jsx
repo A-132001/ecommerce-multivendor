@@ -6,10 +6,11 @@ import ProductManagementTable from '../components/dashboard/ProductManagementTab
 import OrdersList from '../components/dashboard/OrdersList';
 import Swal from 'sweetalert2';
 import { FaExclamationTriangle, FaInfoCircle, } from 'react-icons/fa';
-import { createProduct, getStoreProducts, getProduct, updateProduct, deleteProduct } from '../api/api';
+import { createProduct, getStoreProducts, getProduct, updateProduct, deleteProduct,listOrders } from '../api/api';
 import {motion, AnimatePresence} from 'framer-motion';
 import { ImSpinner8 } from 'react-icons/im';
 import { FaBox, FaShoppingBag, FaChartLine, FaPlus, FaChevronUp } from 'react-icons/fa';
+import { Spinner } from 'react-bootstrap';
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -70,18 +71,71 @@ export default function DashboardPage() {
     }
   };
 
-  const deleteProduct = (id) => {
-    const updatedProducts = products.filter((product) => product.id !== id);
+  const handleDeleteProduct = async (id) => {
+    try{
+      const response = deleteProduct(id);
+      console.log('Delete product response:', response);
+          const updatedProducts = products.filter((product) => product.id !== id);
     setProducts(updatedProducts);
+
     localStorage.setItem('products', JSON.stringify(updatedProducts));
+    }catch {
+      console.log('Error deleting product:', error);
+      let backendErrorMessage = "An error occurred while deleting the product.";
+      const errData = error?.response?.data;
+      if (typeof errData === "string") {
+        backendErrorMessage = errData;
+      } else if (errData?.detail) {
+        backendErrorMessage = errData.detail;
+      } else if (errData?.message) {
+        backendErrorMessage = errData.message;
+      } else if (typeof errData === "object") {
+        backendErrorMessage = Object.entries(errData)
+          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : value}`)
+          .join(" - ");
+      }
+      setError(backendErrorMessage);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: backendErrorMessage,
+      });
+    }
+
   };
 
-  const editProduct = (id, updatedProduct) => {
-    const updatedProducts = products.map((product) =>
+  const handleEditProduct =async (id, updatedProduct) => {
+    try {
+      const response = await updateProduct(id, updatedProduct);
+      console.log('Edit product response:', response);
+      const updatedProducts = products.map((product) =>
       product.id === id ? { ...product, ...updatedProduct } : product
     );
     setProducts(updatedProducts);
     localStorage.setItem('products', JSON.stringify(updatedProducts));
+
+    } catch (error) {
+      let backendErrorMessage = "An error occurred while updating the product.";
+      const errData = error?.response?.data;
+      if (typeof errData === "string") {
+        backendErrorMessage = errData;
+      } else if (errData?.detail) {
+        backendErrorMessage = errData.detail;
+      } else if (errData?.message) {
+        backendErrorMessage = errData.message;
+      } else if (typeof errData === "object") {
+        backendErrorMessage = Object.entries(errData)
+          .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : value}`)
+          .join(" - ");
+      }
+      setError(backendErrorMessage);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: backendErrorMessage,
+      });
+      console.log('Error editing product:', error);  
+    }
   };
 
   const deleteOrder = (id) => {
@@ -115,20 +169,40 @@ export default function DashboardPage() {
 
     const fetchOrders = async () => {
       try {
-        const response = await getStoreOrders();
+        const response = await listOrders();
         setOrders(response.data);
         console.log('Fetched orders:', response.data);
         localStorage.setItem('orders', JSON.stringify(response.data));
       } catch (error) {
+        let backendErrorMessage = "An error occurred while fetching orders.";
+        const errData = error?.response?.data;
+        if (typeof errData === "string") {
+          backendErrorMessage = errData;
+        }
+        else if (errData?.detail) {
+          backendErrorMessage = errData.detail;
+        } else if (errData?.message) {
+          backendErrorMessage = errData.message;
+        } else if (typeof errData === "object") {
+          backendErrorMessage = Object.entries(errData)
+            .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : value}`)
+            .join(" - ");
+        }
+        setError(backendErrorMessage);
+        Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: backendErrorMessage,
+        });
         console.error('Error fetching orders:', error);
-        setError('Failed to load orders');
+        
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-    fetchOrders();
+    // fetchOrders();
   }, []);
 
   return (
@@ -137,25 +211,29 @@ export default function DashboardPage() {
         <div className="col-md-3 bg-dark text-white p-4">
           <DashboardSidebar />
         </div>
-        <div className="col-md-9 p-4">
+        {loading ? (
+              <div className="text-center py-5">
+                <Spinner animation="border" variant="warning" />
+                <p className="mt-3">Loading shops...</p>
+              </div>
+        ) : error ? (
+          <div className="col-md-9 p-4">
+            <h2 className="mb-4">Error</h2>
+            <p>{error}</p>
+          </div>
+        ):(
+           <div className="col-md-9 p-4">
           <h2 className="mb-4">Dashboard</h2>
           <div className="mb-4">
             <AddProductForm addProduct={addProduct} />
           </div>
           <div className="mb-4">
-            <ProductManagementTable products={products} onDelete={deleteProduct} onEdit={editProduct} />
+            <ProductManagementTable products={products} onDelete={handleDeleteProduct} onEdit={handleEditProduct} />
           </div>
           <div>
             <OrdersList orders={orders} onDelete={deleteOrder} onEdit={editOrder} />
           </div>
-          <div>
-            <h1>Dashboard</h1>
-            <ul>
-              <li><Link to="/products">View All Products</Link></li>
-              <li><Link to="/product-management">Manage Products</Link></li>
-            </ul>
-          </div>
-        </div>
+        </div>)}
       </div>
     </div>
   );
