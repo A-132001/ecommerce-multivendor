@@ -4,7 +4,7 @@ import ProductCard from './ProductCard';
 import Swal from 'sweetalert2';
 import { FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 import {getStoreProducts} from '../../api/api';
-
+import { useNavigate } from 'react-router-dom';
 export default function ProductList({ storeId }) {
 
   const [products, setProducts] = useState([]);

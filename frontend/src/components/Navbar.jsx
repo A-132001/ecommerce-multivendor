@@ -1,12 +1,19 @@
 import { Navbar, Container, Nav, NavDropdown, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { FaShoppingCart, FaUser, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaSearch, FaStore } from 'react-icons/fa';
+import {
+  FaShoppingCart, FaUser, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaSearch, FaStore,
+  FaHome,
+  FaBox,
+  FaShopify,
+  FaChartLine,
+} from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import React, { useMemo, useState } from 'react';
 
 function Navigation() {
   const { isAuthenticated, user, logout } = useAuth();
+  console.log('User:', user);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -52,36 +59,48 @@ function Navigation() {
       setSearchQuery('');
     }
   };
+  const userMenuItems = useMemo(() => {
+    const baseItems = [
+      { path: "/profile", label: "Profile", icon: <FaUser className="me-2" size={16} /> },
+      { path: "/orders", label: "My Orders", icon: <FaShoppingCart className="me-2" size={16} /> },
+    ];
 
-  const logo = useMemo(() => (
-    <svg width="160" height="36" viewBox="0 0 160 36" className="d-inline-block align-top" aria-label="VendorHub Logo">
-      <path
-        d="M12 18C12 13 15 10 20 10C25 10 28 13 28 18C28 23 25 26 20 26C15 26 12 23 12 18M20 26V31M20 10V5M5 18H0M35 18H30"
-        stroke="url(#logoGradient)"
-        strokeWidth="2.5"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <text x="42" y="24" fontFamily="'Inter', sans-serif" fontWeight="700" fontSize="20" fill="white">
-        VendorHub
-      </text>
-      <defs>
-        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#d4a017" />
-          <stop offset="50%" stopColor="#ffd700" />
-          <stop offset="100%" stopColor="#d4a017" />
-        </linearGradient>
-      </defs>
-    </svg>
-  ), []);
+    // Add vendor option if not already a vendor
+    // if (user?.user_type !== "shop_owner") {
+    //   baseItems.push({
+    //     path: "/new-vendor",
+    //     label: "Become a Vendor",
+    //     icon: <FaStore className="me-2" size={16} />
+    //   });
+    // }
 
-  const userMenuItems = useMemo(() => [
-    { path: "/profile", label: "Profile", icon: <FaUser className="me-2" size={16} /> },
-    { path: "/orders", label: "My Orders", icon: <FaShoppingCart className="me-2" size={16} /> },
-   { path: "/new-vendor", label: "Become a Vendor", icon: <FaStore className="me-2" size={16} /> },
-    { action: handleLogout, label: "Logout", icon: <FaSignOutAlt className="me-2" size={16} /> }
+    
+    baseItems.push({
+      action: handleLogout,
+      label: "Logout",
+      icon: <FaSignOutAlt className="me-2" size={16} />
+    });
+
+    return baseItems;
+  }, [user?.role]);
+
+  const navBarLinks = useMemo(() => [
+    { path: "/", label: "Home", icon: <FaHome className="me-2" size={16} /> },
+    { path: "/products", label: "Products", icon: <FaBox className="me-2" size={16} /> },
+    { path: "/list-stores", label: "Vendors", icon: <FaShopify className="me-2" size={16} /> },
+    { path: "/dashboard", label: "Dashboard", icon: <FaChartLine className="me-2" size={16} /> }
   ], []);
+
+  const filteredNavBarLinks = useMemo(() => {
+    return navBarLinks.filter(link => {
+      // Always show if not dashboard
+      if (link.path !== "/dashboard") return true;
+
+      // Only show dashboard for authenticated vendors
+      return isAuthenticated && user?.user_type === "shop_owner";
+    });
+  }, [isAuthenticated, user?.role, navBarLinks]);
+
 
   return (
     <Navbar
@@ -97,7 +116,7 @@ function Navigation() {
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary 
             via-secondary to-accent flex items-center justify-center shadow-glow transition-shadow 
             duration-300 group-hover:shadow-glow-lg"
-            style={{color: '#d4a017'}}
+              style={{ color: '#d4a017' }}
             >
               <i className="fas fa-bolt text-2xl"></i>
               <span className='mx-1'>VendorHub</span>
@@ -159,6 +178,18 @@ function Navigation() {
           </form>
 
           <Nav className="align-items-lg-center">
+            {filteredNavBarLinks.map((link, index) => (
+              <Nav.Link
+                key={index}
+                as={Link}
+                to={link.path}
+                className="text-white me-3 d-flex align-items-center"
+                aria-label={link.label}
+              >
+                {React.cloneElement(link.icon, { className: "me-2" })}
+                <span className="d-none d-lg-inline">{link.label}</span>
+              </Nav.Link>
+            ))}
             {isAuthenticated ? (
               <>
                 <NavDropdown

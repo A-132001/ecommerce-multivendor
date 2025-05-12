@@ -85,9 +85,22 @@ const ResetPassword = () => {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-light min-vh-100 d-flex align-items-center py-5"
+            transition={{ duration: 0.5 }}
+            style={{
+                minHeight: '100vh',
+                width: '100%',
+                backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(/imgs/auth-form.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundAttachment: 'fixed',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '2rem 0',
+            }}
+   
         >
-            <Container className="col-md-8 col-lg-6 col-xl-5">
+  
+            <Container className="col-md-8 col-lg-6 col-xl-5" >
                 <Card className="shadow-lg border-0 rounded-4 overflow-hidden">
                     <Card.Header className="bg-warning text-white p-4">
                         <div className="d-flex align-items-center gap-3">
