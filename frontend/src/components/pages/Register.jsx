@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AuthForm from '../AuthForm';
+import { motion } from 'framer-motion';
 
 
 const Register = () => {
@@ -91,7 +92,22 @@ const Register = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    style={{
+                        minHeight: '100vh',
+                        width: '100%',
+                        backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(/imgs/auth-form.jpg)',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundAttachment: 'fixed',
+                        // display: 'flex',
+                        // alignItems: 'center',
+                        padding: '2rem 0'
+                    }}
+                >
             <div className="max-w-md w-full space-y-8">
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -115,7 +131,8 @@ const Register = () => {
                     isLoading={isLoading}
                 />
             </div>
-        </div>
+       
+        </motion.div>
     );
 };
 
