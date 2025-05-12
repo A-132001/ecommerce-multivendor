@@ -1,165 +1,497 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Table, Button, Modal, Badge, Spinner, Alert } from 'react-bootstrap';
+import { FiEdit, FiTrash2, FiSave, FiX, FiImage, FiPlus, FiUpload } from 'react-icons/fi';
+import { useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
-const ProductManagementTable = ({ products, onDelete, onEdit }) => {
-  const [editingProductId, setEditingProductId] = useState(null);
-  const [editForm, setEditForm] = useState({
-    name: '',
-    description: '',
-    price: '',
-    stock: '',
-    category: '',
-  });
+const MySwal = withReactContent(Swal);
+
+const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // React Hook Form setup
+  const { 
+    register: registerEdit, 
+    handleSubmit: handleEditSubmit, 
+    reset: resetEdit,
+    formState: { errors: editErrors },
+    setValue: setEditValue
+  } = useForm();
+
+  const { 
+    register: registerAdd, 
+    handleSubmit: handleAddSubmit, 
+    reset: resetAdd,
+    formState: { errors: addErrors }
+  } = useForm();
 
   const handleEditClick = (product) => {
-    setEditingProductId(product.id);
-    setEditForm({
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      stock: product.stock,
-      category: product.category,
+    setCurrentProduct(product);
+    setEditValue('name', product.name);
+    setEditValue('description', product.description);
+    setEditValue('price', product.price);
+    setEditValue('stock', product.stock);
+    setEditValue('category', product.category);
+    setImagePreview(product.image || null);
+    setShowEditModal(true);
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate image file
+    if (!file.type.match('image.*')) {
+      setUploadError('Please select a valid image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      setUploadError('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+    setUploadError(null);
+
+    // Simulate upload process (replace with actual upload logic)
+    setTimeout(() => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        setImagePreview(base64String);
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
+    }, 1500);
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
+
+  const onEditSubmit = (data) => {
+    const productData = {
+      ...data,
+      image: imagePreview || currentProduct.image
+    };
+    onEdit(currentProduct.id, productData);
+    setShowEditModal(false);
+    resetEdit();
+    setImagePreview(null);
+  };
+
+  const onAddSubmit = (data) => {
+    const productData = {
+      ...data,
+      image: imagePreview
+    };
+    onAdd(productData);
+    setShowAddModal(false);
+    resetAdd();
+    setImagePreview(null);
+  };
+
+  const confirmDelete = (id) => {
+    MySwal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onDelete(id);
+        MySwal.fire(
+          'Deleted!',
+          'The product has been deleted.',
+          'success'
+        );
+      }
     });
   };
 
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditForm((prev) => ({ ...prev, [name]: value }));
+  const handleModalClose = () => {
+    setShowEditModal(false);
+    setShowAddModal(false);
+    resetEdit();
+    resetAdd();
+    setImagePreview(null);
+    setUploadError(null);
   };
 
-  const handleEditSubmit = (e) => {
-    e.preventDefault();
-    onEdit(editingProductId, editForm);
-    setEditingProductId(null);
-    setEditForm({
-      name: '',
-      description: '',
-      price: '',
-      stock: '',
-      category: '',
-    });
+  const rowVariants = {
+    hidden: { opacity: 0, x: -50 },
+    visible: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 50 }
   };
 
   return (
-    <table className="table table-striped">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Product Name</th>
-          <th>Description</th>
-          <th>Price</th>
-          <th>Stock</th>
-          <th>Category</th>
-          <th>Image</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {products.map((product) => (
-          <tr key={product.id}>
-            <td>{product.id}</td>
-            <td>
-              {editingProductId === product.id ? (
-                <input
-                  type="text"
-                  name="name"
-                  value={editForm.name}
-                  onChange={handleEditChange}
-                  className="form-control"
-                />
-              ) : (
-                product.name
-              )}
-            </td>
-            <td>
-              {editingProductId === product.id ? (
-                <input
-                  type="text"
-                  name="description"
-                  value={editForm.description}
-                  onChange={handleEditChange}
-                  className="form-control"
-                />
-              ) : (
-                product.description
-              )}
-            </td>
-            <td>
-              {editingProductId === product.id ? (
-                <input
-                  type="number"
-                  name="price"
-                  value={editForm.price}
-                  onChange={handleEditChange}
-                  className="form-control"
-                />
-              ) : (
-                product.price
-              )}
-            </td>
-            <td>
-              {editingProductId === product.id ? (
-                <input
-                  type="number"
-                  name="stock"
-                  value={editForm.stock}
-                  onChange={handleEditChange}
-                  className="form-control"
-                />
-              ) : (
-                product.stock
-              )}
-            </td>
-            <td>
-              {editingProductId === product.id ? (
-                <input
-                  type="text"
-                  name="category"
-                  value={editForm.category}
-                  onChange={handleEditChange}
-                  className="form-control"
-                />
-              ) : (
-                product.category
-              )}
-            </td>
-            <td>
-              {product.image ? (
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                />
-              ) : (
-                'No Image'
-              )}
-            </td>
-            <td>
-              {editingProductId === product.id ? (
-                <button
-                  className="btn btn-sm btn-success me-2"
-                  onClick={handleEditSubmit}
+    <div className="p-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0">Product Management</h2>
+        <Button 
+          variant="primary" 
+          onClick={() => setShowAddModal(true)}
+          className="d-flex align-items-center"
+        >
+          <FiPlus className="me-2" /> Add Product
+        </Button>
+      </div>
+
+      <div className="table-responsive">
+        <Table striped bordered hover className="shadow-sm">
+          <thead className="table-dark">
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Category</th>
+              <th>Image</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <AnimatePresence>
+              {products.map((product) => (
+                <motion.tr
+                  key={product.id}
+                  variants={rowVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={{ duration: 0.3 }}
                 >
-                  Save
-                </button>
-              ) : (
-                <button
-                  className="btn btn-sm btn-warning me-2"
-                  onClick={() => handleEditClick(product)}
-                >
-                  Edit
-                </button>
-              )}
-              <button
-                className="btn btn-sm btn-danger"
-                onClick={() => onDelete(product.id)}
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+                  <td><strong>{product.name}</strong></td>
+                  <td><span className="text-muted">{product.description || '-'}</span></td>
+                  <td><Badge bg="success">${parseFloat(product.price).toFixed(2)}</Badge></td>
+                  <td>
+                    <Badge bg={product.stock > 0 ? 'info' : 'danger'}>
+                      {product.stock} in stock
+                    </Badge>
+                  </td>
+                  <td><Badge bg="secondary">{product.category}</Badge></td>
+                  <td>
+                    {product.image ? (
+                      <motion.img
+                        src={product.image}
+                        alt={product.name}
+                        style={{ 
+                          width: '50px', 
+                          height: '50px', 
+                          objectFit: 'cover',
+                          borderRadius: '4px',
+                          cursor: 'pointer'
+                        }}
+                        whileHover={{ scale: 1.1 }}
+                        onClick={() => window.open(product.image, '_blank')}
+                      />
+                    ) : (
+                      <div className="text-center text-muted">
+                        <FiImage size={24} />
+                      </div>
+                    )}
+                  </td>
+                  <td>
+                    <div className="d-flex gap-2">
+                      <Button 
+                        variant="warning" 
+                        size="sm" 
+                        onClick={() => handleEditClick(product)}
+                        className="d-flex align-items-center"
+                      >
+                        <FiEdit className="me-1" /> Edit
+                      </Button>
+                      <Button 
+                        variant="danger" 
+                        size="sm" 
+                        onClick={() => confirmDelete(product.id)}
+                        className="d-flex align-items-center"
+                      >
+                        <FiTrash2 className="me-1" /> Delete
+                      </Button>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
+          </tbody>
+        </Table>
+      </div>
+
+      {/* Edit Product Modal */}
+      <Modal show={showEditModal} onHide={handleModalClose} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Product</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form onSubmit={handleEditSubmit(onEditSubmit)}>
+            <div className="row">
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label className="form-label">Product Name</label>
+                  <input
+                    type="text"
+                    className={`form-control ${editErrors.name ? 'is-invalid' : ''}`}
+                    {...registerEdit('name', { required: 'Product name is required' })}
+                  />
+                  {editErrors.name && (
+                    <div className="invalid-feedback">{editErrors.name.message}</div>
+                  )}
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    rows={3}
+                    className="form-control"
+                    {...registerEdit('description')}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Price</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    className={`form-control ${editErrors.price ? 'is-invalid' : ''}`}
+                    {...registerEdit('price', { 
+                      required: 'Price is required',
+                      min: { value: 0, message: 'Price must be positive' }
+                    })}
+                  />
+                  {editErrors.price && (
+                    <div className="invalid-feedback">{editErrors.price.message}</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label className="form-label">Stock</label>
+                  <input
+                    type="number"
+                    min="0"
+                    className={`form-control ${editErrors.stock ? 'is-invalid' : ''}`}
+                    {...registerEdit('stock', { 
+                      required: 'Stock is required',
+                      min: { value: 0, message: 'Stock must be positive' }
+                    })}
+                  />
+                  {editErrors.stock && (
+                    <div className="invalid-feedback">{editErrors.stock.message}</div>
+                  )}
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Category</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    {...registerEdit('category')}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Product Image</label>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                    accept="image/*"
+                    className="d-none"
+                  />
+                  <Button 
+                    variant="outline-secondary" 
+                    onClick={triggerFileInput}
+                    className="w-100 d-flex align-items-center justify-content-center"
+                  >
+                    <FiUpload className="me-2" /> Upload Image
+                  </Button>
+                  {uploading && (
+                    <div className="mt-2 text-center">
+                      <Spinner animation="border" size="sm" /> Uploading...
+                    </div>
+                  )}
+                  {uploadError && (
+                    <Alert variant="danger" className="mt-2 py-1">
+                      {uploadError}
+                    </Alert>
+                  )}
+                </div>
+
+                {imagePreview && (
+                  <div className="text-center mb-3">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      style={{ 
+                        maxWidth: '100%', 
+                        maxHeight: '200px',
+                        borderRadius: '4px'
+                      }} 
+                    />
+                    <div className="mt-1 text-muted small">Image Preview</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="d-flex justify-content-end gap-2 mt-3">
+              <Button variant="secondary" onClick={handleModalClose}>
+                Cancel
+              </Button>
+              <Button variant="primary" type="submit">
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Add Product Modal */}
+      <Modal show={showAddModal} onHide={handleModalClose} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Add New Product</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form onSubmit={handleAddSubmit(onAddSubmit)}>
+            <div className="row">
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label className="form-label">Product Name</label>
+                  <input
+                    type="text"
+                    className={`form-control ${addErrors.name ? 'is-invalid' : ''}`}
+                    {...registerAdd('name', { required: 'Product name is required' })}
+                  />
+                  {addErrors.name && (
+                    <div className="invalid-feedback">{addErrors.name.message}</div>
+                  )}
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    rows={3}
+                    className="form-control"
+                    {...registerAdd('description')}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Price</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    className={`form-control ${addErrors.price ? 'is-invalid' : ''}`}
+                    {...registerAdd('price', { 
+                      required: 'Price is required',
+                      min: { value: 0, message: 'Price must be positive' }
+                    })}
+                  />
+                  {addErrors.price && (
+                    <div className="invalid-feedback">{addErrors.price.message}</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label className="form-label">Stock</label>
+                  <input
+                    type="number"
+                    min="0"
+                    className={`form-control ${addErrors.stock ? 'is-invalid' : ''}`}
+                    {...registerAdd('stock', { 
+                      required: 'Stock is required',
+                      min: { value: 0, message: 'Stock must be positive' }
+                    })}
+                  />
+                  {addErrors.stock && (
+                    <div className="invalid-feedback">{addErrors.stock.message}</div>
+                  )}
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Category</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    {...registerAdd('category')}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Product Image</label>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                    accept="image/*"
+                    className="d-none"
+                  />
+                  <Button 
+                    variant="outline-secondary" 
+                    onClick={triggerFileInput}
+                    className="w-100 d-flex align-items-center justify-content-center"
+                  >
+                    <FiUpload className="me-2" /> Upload Image
+                  </Button>
+                  {uploading && (
+                    <div className="mt-2 text-center">
+                      <Spinner animation="border" size="sm" /> Uploading...
+                    </div>
+                  )}
+                  {uploadError && (
+                    <Alert variant="danger" className="mt-2 py-1">
+                      {uploadError}
+                    </Alert>
+                  )}
+                </div>
+
+                {imagePreview && (
+                  <div className="text-center mb-3">
+                    <img 
+                      src={imagePreview} 
+                      alt="Preview" 
+                      style={{ 
+                        maxWidth: '100%', 
+                        maxHeight: '200px',
+                        borderRadius: '4px'
+                      }} 
+                    />
+                    <div className="mt-1 text-muted small">Image Preview</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="d-flex justify-content-end gap-2 mt-3">
+              <Button variant="secondary" onClick={handleModalClose}>
+                Cancel
+              </Button>
+              <Button variant="primary" type="submit">
+                Add Product
+              </Button>
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
+    </div>
   );
 };
 

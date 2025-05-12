@@ -41,7 +41,8 @@ function Home() {
       <Hero />
       <AboutOverview />
       {/* All Active Vendors Section */}
-      <section id="stores" className="py-5 bg-light">
+      {!error && (
+         <section id="stores" className="py-5 bg-light">
         <Container>
           <motion.div
             initial={{ opacity: 0 }}
@@ -81,6 +82,7 @@ function Home() {
           </motion.div>
         </Container>
       </section>
+      )}
       <ServicesPreview />
       <Testimonials />
       <ContactCTA />
