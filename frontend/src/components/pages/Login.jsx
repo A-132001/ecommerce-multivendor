@@ -69,10 +69,19 @@ const Login = () => {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="bg-light min-vh-100 d-flex align-items-center py-5 justify-content-center"
+            transition={{ duration: 0.5 }}
+            style={{
+                minHeight: '100vh',
+                width: '100%',
+                backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(/imgs/auth-form.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundAttachment: 'fixed',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '2rem 0'
+            }}
         >
-        
   
 
                     
