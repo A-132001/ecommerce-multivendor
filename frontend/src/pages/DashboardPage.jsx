@@ -5,22 +5,18 @@ import AddProductForm from '../components/dashboard/AddProductForm';
 import ProductManagementTable from '../components/dashboard/ProductManagementTable';
 import OrdersList from '../components/dashboard/OrdersList';
 import Swal from 'sweetalert2';
-import { FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
+import { FaExclamationTriangle, FaInfoCircle, } from 'react-icons/fa';
 import { createProduct, getStoreProducts, getProduct, updateProduct, deleteProduct } from '../api/api';
-
+import {motion, AnimatePresence} from 'framer-motion';
+import { ImSpinner8 } from 'react-icons/im';
+import { FaBox, FaShoppingBag, FaChartLine, FaPlus, FaChevronUp } from 'react-icons/fa';
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [products, setProducts] = useState(() => {
-    const savedProducts = localStorage.getItem('products');
-    return savedProducts ? JSON.parse(savedProducts) : [];
-  });
+  const [products, setProducts] = useState([]);
 
-  const [orders, setOrders] = useState(() => {
-    const savedOrders = localStorage.getItem('orders');
-    return savedOrders ? JSON.parse(savedOrders) : [];
-  });
+  const [orders, setOrders] = useState([]);
 
   const addProduct = async (newProduct) => {
     try {
@@ -101,6 +97,39 @@ export default function DashboardPage() {
     setOrders(updatedOrders);
     localStorage.setItem('orders', JSON.stringify(updatedOrders));
   };
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await getStoreProducts();
+        console.log('Fetched products:', response.data);
+        setProducts(response.data);
+        localStorage.setItem('products', JSON.stringify(response.data));
+      } catch (error) {
+        console.log('Error fetching products:', error);
+        setError('Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchOrders = async () => {
+      try {
+        const response = await getStoreOrders();
+        setOrders(response.data);
+        console.log('Fetched orders:', response.data);
+        localStorage.setItem('orders', JSON.stringify(response.data));
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+        setError('Failed to load orders');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+    fetchOrders();
+  }, []);
 
   return (
     <div className="container-fluid">

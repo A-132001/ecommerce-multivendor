@@ -17,7 +17,7 @@ class VendorViewSet(viewsets.ModelViewSet):
     queryset = Vendor.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = VendorSerializer
-    parser_classes = [MultiPartParser, FormParser] 
+    parser_classes = [MultiPartParser, FormParser]
     def perform_create(self, serializer):
         print(self.request.FILES) 
         # Automatically link the logged-in user
