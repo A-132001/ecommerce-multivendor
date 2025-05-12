@@ -5,6 +5,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import get_object_or_404
 import logging 
 
@@ -16,14 +17,22 @@ class VendorViewSet(viewsets.ModelViewSet):
     queryset = Vendor.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = VendorSerializer
-
+    parser_classes = [MultiPartParser, FormParser] 
     def perform_create(self, serializer):
+        print(self.request.FILES) 
         # Automatically link the logged-in user
+        serializer.save(user=self.request.user)
+
+    # def get_queryset(self):
+    #     return self.queryset.filter(user=self.request.user)
+    
+    def perform_update(self, serializer):
+        # Ensure user can't override 'user' field during updates
         serializer.save(user=self.request.user)
 
 class LoginRateThrottle(UserRateThrottle):
     rate = '5/minute'
-
+ 
 
 class IsAdminUser(permissions.BasePermission):
     def has_permission(self, request, view):
