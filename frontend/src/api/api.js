@@ -42,7 +42,7 @@ api.interceptors.response.use(
             } catch (error) {
                 localStorage.removeItem('access_token');
                 localStorage.removeItem('refresh_token');
-                window.location.href = '/login';
+                // window.location.href = '/login';
                 return Promise.reject(error);
             }
         }

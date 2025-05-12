@@ -21,6 +21,8 @@ const AuthForm = ({ type, isLoading }) => {
     const [password2, setPassword2] = useState('');
     const [errors, setErrors] = useState({});
     const [formError, setFormError] = useState('');
+    const [errorList, setErrorList] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const validateForm = () => {
         const newErrors = {};
@@ -71,34 +73,87 @@ const AuthForm = ({ type, isLoading }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setFormError('');
+        setErrorList([]);
+        setIsSubmitting(true);
 
-        if (!validateForm()) return;
+        if (!validateForm()) {
+            setIsSubmitting(false);
+            return;
+        }
 
         try {
             if (type === 'login') {
                 await login(formData);
                 navigate('/');
             } else {
-                await register({ ...formData, password2 });
-                navigate('/login', {
+                const response = await register({ ...formData, password2 });
+                // Get the verification URL from the response
+                const verificationUrl = response.data?.verification_url;
+                
+                // Navigate to email verification page with success message
+                navigate('/verify-email', {
                     state: {
                         message: 'Registration successful! Please check your email for verification.',
+                        email: formData.email,
+                        verificationUrl: verificationUrl,
                         variant: 'success'
                     }
                 });
             }
         } catch (err) {
             console.error('Auth error:', err);
-            const errorMessage = err.response?.data?.detail ||
-                err.response?.data?.message ||
-                err.message ||
-                'An error occurred during authentication';
-            setFormError(errorMessage);
+            let errors = [];
+            if (err.response?.data) {
+                const data = err.response.data;
+                if (typeof data === 'string') {
+                    errors.push(data);
+                } else if (data.error) {
+                    errors.push(data.error);
+                } else if (data.detail) {
+                    errors.push(data.detail);
+                } else if (data.message) {
+                    errors.push(data.message);
+                } else {
+                    // Map backend error messages to user-friendly messages
+                    const errorMessages = {
+                        'This field may not be null.': 'Please fill in all required fields Correctly.',
+                        'This field may not be blank.': 'Please fill in all required fields.',
+                        'Invalid credentials.': 'Invalid email or password. Please try again.',
+                        'No active account found with the given credentials': 'Invalid email or password. Please try again.',
+                        'user with this email already exists.': 'An account with this email already exists.',
+                        'This password is too short. It must contain at least 8 characters.': 'Password must be at least 8 characters long.',
+                        'This password is too common.': 'Please choose a stronger password.',
+                        'This password is entirely numeric.': 'Password cannot be entirely numbers.',
+                        'The two password fields didn\'t match.': 'Passwords do not match.',
+                        'Please verify your email before logging in.': 'Please verify your email before logging in.',
+                    };
+
+                    // Collect all field errors
+                    for (const key in data) {
+                        if (Array.isArray(data[key])) {
+                            data[key].forEach(error => {
+                                const friendlyMessage = errorMessages[error] || error;
+                                errors.push(friendlyMessage);
+                            });
+                        } else if (typeof data[key] === 'string') {
+                            const friendlyMessage = errorMessages[data[key]] || data[key];
+                            errors.push(friendlyMessage);
+                        }
+                    }
+                }
+            } else if (err.message) {
+                errors.push(err.message);
+            } else {
+                errors.push('An error occurred during authentication');
+            }
+            setFormError(errors[0] || 'An error occurred during authentication');
+            setErrorList(errors.length > 1 ? errors : []);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     return (
-
             <Container className="my-auto">
                 <Row className="justify-content-center">
                     <Col xs={12} md={10} lg={8} xl={6}>
@@ -122,11 +177,17 @@ const AuthForm = ({ type, isLoading }) => {
                                 </Card.Header>
 
                                 <Card.Body className="p-4 p-md-5">
-                                    {formError && (
+                                    {(formError || errorList.length > 0) && (
                                         <Alert variant="danger" className="rounded-3">
                                             <div className="d-flex align-items-center gap-2">
-                                                <FaExclamationCircle />
-                                                {formError}
+                                                {formError && <div>{formError}</div>}
+                                                {errorList.length > 0 && (
+                                                    <ul className="mb-0">
+                                                        {errorList.map((err, idx) => (
+                                                            <li key={idx}>{err}</li>
+                                                        ))}
+                                                    </ul>
+                                                )}
                                             </div>
                                         </Alert>
                                     )}
@@ -163,7 +224,7 @@ const AuthForm = ({ type, isLoading }) => {
                                                         className="py-2"
                                                     >
                                                         <option value="customer">Customer</option>
-                                                        <option value="vendor">Vendor</option>
+                                                        <option value="shop_owner">Shop Onwer</option>
                                                     </Form.Select>
                                                 </Form.Group>
 
@@ -282,11 +343,11 @@ const AuthForm = ({ type, isLoading }) => {
                                         <Button
                                             variant="warning"
                                             type="submit"
-                                            disabled={isLoading}
+                                            disabled={isSubmitting}
                                             className="w-100 py-3 fw-bold mt-4 text-white"
                                             style={{ boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}
                                         >
-                                            {isLoading ? (
+                                            {isSubmitting ? (
                                                 <>
                                                     <Spinner animation="border" size="sm" className="me-2" />
                                                     {type === 'login' ? 'Signing In...' : 'Registering...'}
