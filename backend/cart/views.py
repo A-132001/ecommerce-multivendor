@@ -34,7 +34,7 @@ class CartViewSet(viewsets.ModelViewSet):
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
             return Response(
-                {'detail': 'المنتج غير موجود'},
+                {'detail': 'product not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -47,7 +47,7 @@ class CartViewSet(viewsets.ModelViewSet):
 
             if not created:
                 cart_item.quantity += quantity
-                cart_item.full_clean()  # للتحقق من صحة البيانات
+                cart_item.full_clean()  
                 cart_item.save()
 
             serializer = CartItemSerializer(cart_item)
@@ -67,12 +67,12 @@ class CartViewSet(viewsets.ModelViewSet):
             cart_item = CartItem.objects.get(cart=cart, product_id=product_id)
             cart_item.delete()
             return Response(
-                {'detail': 'تم حذف المنتج من السلة'},
+                {'detail': 'product removed from cart'},
                 status=status.HTTP_204_NO_CONTENT
             )
         except CartItem.DoesNotExist:
             return Response(
-                {'detail': 'المنتج غير موجود في السلة'},
+                {'detail': 'product not found in cart'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -90,7 +90,7 @@ class CartViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except CartItem.DoesNotExist:
             return Response(
-                {'detail': 'المنتج غير موجود في السلة'},
+                {'detail': 'product not found in cart'},
                 status=status.HTTP_404_NOT_FOUND
             )
         except ValidationError as e:

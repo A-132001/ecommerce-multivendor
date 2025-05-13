@@ -48,7 +48,7 @@ class CartItem(models.Model):
     class Meta:
         verbose_name = "Cart Item"
         verbose_name_plural = "Cart Items"
-        unique_together = ('cart', 'product')  # Prevents duplicating the same product in the cart
+        unique_together = ('cart', 'product')  
 
     def __str__(self):
         return f"{self.quantity} × {self.product.name}"

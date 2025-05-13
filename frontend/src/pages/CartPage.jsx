@@ -1,4 +1,3 @@
-// src/pages/CartPage.jsx
 import { useEffect, useState } from 'react';
 import {
   Container,
