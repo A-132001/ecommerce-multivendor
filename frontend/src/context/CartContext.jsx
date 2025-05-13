@@ -1,4 +1,3 @@
-// src/context/CartContext.jsx
 import { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
@@ -11,7 +10,6 @@ export const CartProvider = ({ children }) => {
   const [cartCount, setCartCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // Fetch cart when user logs in
   useEffect(() => {
     if (user) {
       fetchCart();
@@ -47,7 +45,7 @@ export const CartProvider = ({ children }) => {
           },
         }
       );
-      await fetchCart(); // Refresh cart data
+      await fetchCart(); 
     } catch (error) {
       console.error('Error adding to cart:', error);
       throw error;
@@ -58,7 +56,6 @@ export const CartProvider = ({ children }) => {
 
   const updateQuantity = async (productId, newQuantity) => {
     try {
-      // Optimistic update
       const prevCart = { ...cart };
       const updatedItems = cart.items.map(item => 
         item.product.id === productId ? { ...item, quantity: newQuantity } : item
@@ -75,11 +72,9 @@ export const CartProvider = ({ children }) => {
         }
       );
       
-      // Refresh to get accurate totals
       await fetchCart();
     } catch (error) {
       console.error('Error updating quantity:', error);
-      // Revert on error
       setCart(prevCart);
       throw error;
     }
