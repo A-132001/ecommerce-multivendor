@@ -10,6 +10,8 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import React, { useMemo, useState } from 'react';
+import CartIcon from './CartIcon';
+// import { useCart } from '../context/CartContext';
 
 function Navigation() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -128,17 +130,7 @@ function Navigation() {
 
         <div className="d-flex align-items-center order-lg-2 ms-auto">
           {isAuthenticated && (
-            <Nav.Link
-              as={Link}
-              to="/cart"
-              className="text-white me-3 d-flex align-items-center position-relative"
-              aria-label="Shopping Cart"
-            >
-              <FaShoppingCart className="me-1" size={24} aria-hidden="true" />
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-yellow-600 text-xs">
-                3
-              </span>
-            </Nav.Link>
+            <CartIcon />
           )}
 
           <Navbar.Toggle

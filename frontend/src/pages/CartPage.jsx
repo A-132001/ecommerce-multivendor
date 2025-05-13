@@ -24,7 +24,7 @@ const CartPage = () => {
   const [quantities, setQuantities] = useState({});
 
   useEffect(() => {
-    if (cart) {
+    if (cart && Array.isArray(cart.items)) {
       const initialQuantities = {};
       cart.items.forEach(item => {
         initialQuantities[item.product.id] = item.quantity;
@@ -66,7 +66,7 @@ const CartPage = () => {
       <Typography variant="h4" gutterBottom>
         Shopping Cart
       </Typography>
-      
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -79,7 +79,7 @@ const CartPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {cart.items.map((item) => (
+            {Array.isArray(cart.items) && cart.items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
                   <Box display="flex" alignItems="center">
@@ -91,7 +91,9 @@ const CartPage = () => {
                     <Typography>{item.product.name}</Typography>
                   </Box>
                 </TableCell>
-                <TableCell align="right">${item.product.price.toFixed(2)}</TableCell>
+                <TableCell align="right">
+                  ${Number(item.product.price || 0).toFixed(2)}
+                </TableCell>
                 <TableCell align="center">
                   <Box display="flex" alignItems="center" justifyContent="center">
                     <TextField
@@ -106,7 +108,9 @@ const CartPage = () => {
                     />
                   </Box>
                 </TableCell>
-                <TableCell align="right">${item.total_price.toFixed(2)}</TableCell>
+                <TableCell align="right">
+                  ${Number(item.total_price || 0).toFixed(2)}
+                </TableCell>
                 <TableCell align="right">
                   <IconButton
                     onClick={() => removeFromCart(item.product.id)}
@@ -129,7 +133,7 @@ const CartPage = () => {
             </Typography>
             <Box display="flex" justifyContent="space-between" mb={2}>
               <Typography>Subtotal</Typography>
-              <Typography>${cart.total_price.toFixed(2)}</Typography>
+              <Typography>${Number(cart.total_price || 0).toFixed(2)}</Typography>
             </Box>
             <Box display="flex" justifyContent="space-between" mb={2}>
               <Typography>Shipping</Typography>
@@ -138,7 +142,7 @@ const CartPage = () => {
             <Box display="flex" justifyContent="space-between" mb={3}>
               <Typography variant="subtitle1">Total</Typography>
               <Typography variant="subtitle1">
-                ${cart.total_price.toFixed(2)}
+                ${Number(cart.total_price || 0).toFixed(2)}
               </Typography>
             </Box>
             <Button

@@ -6,11 +6,14 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import './main.css';
 import App from './App.jsx';
 import { CartProvider } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <GoogleOAuthProvider clientId="739013148958-bv9lerlkjl3rnlcj6jrtad2s70bnh4u2.apps.googleusercontent.com">
-    <CartProvider>
-      <App />
-    </CartProvider>
+    <AuthProvider>
+      <CartProvider>
+              <App />
+      </CartProvider>
+    </AuthProvider>
   </GoogleOAuthProvider>
 );
