@@ -1,15 +1,16 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import 'bootstrap/dist/css/bootstrap.min.css'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-
-import '@fortawesome/fontawesome-free/css/all.min.css'
-
-import './main.css'
-import App from './App.jsx'
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import './main.css';
+import App from './App.jsx';
+import { CartProvider } from './context/CartContext';
 
 createRoot(document.getElementById('root')).render(
   <GoogleOAuthProvider clientId="739013148958-bv9lerlkjl3rnlcj6jrtad2s70bnh4u2.apps.googleusercontent.com">
-    <App />
+    <CartProvider>
+      <App />
+    </CartProvider>
   </GoogleOAuthProvider>
-)
+);

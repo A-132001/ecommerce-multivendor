@@ -1,3 +1,4 @@
+// src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navigation from './components/Navbar';
 import Footer from './components/Footer';
@@ -17,6 +18,7 @@ import Register from './components/pages/Register';
 import Store from './components/pages/Store';
 import ListStores from './components/pages/listStores';
 import NewVendor from './pages/NewVendor';
+import CartPage from './pages/CartPage'; 
 
 function App() {
   const publicRoutes = [
@@ -40,6 +42,7 @@ function App() {
     { path: '/products', element: <Products /> },
     { path: '/product-management', element: <ProductManagementTable /> },
     { path: '/product/:product_id', element: <ProductDetailsPage /> },
+    { path: '/cart', element: <CartPage /> }, // Add cart route
   ];
 
   return (
