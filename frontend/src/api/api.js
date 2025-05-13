@@ -97,7 +97,7 @@ export const getCurrentUser = async () => {
 };
 
 export const updateUser = async (userData) => {
-    return await api.put('/auth/profile/', userData);
+    return await api.put('/auth/profile/update/', userData);
 };
 
 export const changePassword = async (passwords) => {

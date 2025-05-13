@@ -8,6 +8,7 @@ import Products from './pages/Products';
 import ProductManagementTable from './pages/ProductManagementTable';
 import EmailVerification from './components/pages/EmailVerification';
 import ResetPassword from './components/pages/ResetPassword';
+import Profile from './components/pages/Profile';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './components/pages/Home';
@@ -16,6 +17,7 @@ import Register from './components/pages/Register';
 import Store from './components/pages/Store';
 import ListStores from './components/pages/listStores';
 import NewVendor from './pages/NewVendor';
+
 function App() {
   const publicRoutes = [
     { path: '/', element: <Home /> },
@@ -29,6 +31,7 @@ function App() {
   ];
 
   const protectedRoutes = [
+    { path: '/profile', element: <Profile /> },
     { path: '/new-vendor', element: <NewVendor /> },
     { path: '/list-stores', element: <ListStores /> },
     { path: '/store', element: <Store /> },
