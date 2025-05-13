@@ -16,6 +16,9 @@ import Register from './components/pages/Register';
 import Store from './components/pages/Store';
 import ListStores from './components/pages/listStores';
 import NewVendor from './pages/NewVendor';
+import Order from './components/pages/Order';
+import PaymentList from './components/pages/Payment';
+
 function App() {
   const publicRoutes = [
     { path: '/', element: <Home /> },
@@ -26,6 +29,10 @@ function App() {
     { path: '/reset-password', element: <ResetPassword /> },
     { path: '/api/auth/verify-email/:uid/:token', element: <EmailVerification /> },
     { path: '/api/auth/reset-password/:uid/:token', element: <ResetPassword /> },
+    { path: '/orders', element: <Order /> },
+    { path: '/payments', element: <PaymentList /> },
+    
+
   ];
 
   const protectedRoutes = [

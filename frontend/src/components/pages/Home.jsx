@@ -59,13 +59,13 @@ function Home() {
               <Alert variant="danger" className="text-center">
                 {error}
               </Alert>
-            ) : stores.length === 0 ? (
+            ) : stores?.length === 0 ? (
               <Alert variant="info" className="text-center">
                 No shops available at the moment.
               </Alert>
             ) : (
               <Row xs={1} md={2} lg={3} className="g-4">
-                {stores.map((shop, index) => (
+                {stores?.map((shop, index) => (
                   <Col key={shop.id}>
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
