@@ -185,3 +185,10 @@ PAYMOB_IFRAME_ID = '920500'
 
  #  For development only
 ALLOWED_HOSTS = ['*']
+
+
+# Site settings
+SITE_NAME = 'VendorHub'
+
+
+

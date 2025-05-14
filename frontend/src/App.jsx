@@ -18,6 +18,7 @@ import Store from './components/pages/Store';
 import ListStores from './components/pages/listStores';
 import NewVendor from './pages/NewVendor';
 import CartPage from './pages/CartPage'; 
+import StoreProfile from './components/dashboard/StoreProfile';
 
 function App() {
   const publicRoutes = [
@@ -42,6 +43,9 @@ function App() {
     { path: '/product-management', element: <ProductManagementTable /> },
     { path: '/product/:product_id', element: <ProductDetailsPage /> },
     { path: '/cart', element: <CartPage /> }, // Add cart route
+    { path: '/dashboard/store-profile', element: <StoreProfile /> },
+    // { path: '/dashboard/orders', element: <OrdersList /> },
+    // { path: '/dashboard/products', element: <ProductManagementTable /> },
   ];
 
   return (

@@ -106,9 +106,12 @@ export const changePassword = async (passwords) => {
 
 // Store API calls
 export const createStore = async (storeData) => {
-    return await api.post('/vendors/', storeData);
+    return await api.post('/vendors/', storeData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
 };
-
 export const getStore = async (storeId) => {
     return await api.get(`/vendors/${storeId}/`);
 };

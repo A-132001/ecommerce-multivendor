@@ -18,6 +18,6 @@ class Vendor(models.Model):
     contact_email = models.EmailField()
     
  
-    def __str__(self):
+    def __str__(self): 
         return self.store_name
     

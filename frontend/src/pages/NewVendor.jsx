@@ -32,7 +32,7 @@ const NewVendor = () => {
             }
             console.log("Data:", data);
             // Example POST request (adjust API URL)
-            const response = await createStore(data)
+            const response = await createStore(formData)
 
             if (response.ok) {
                 Swal.fire({
@@ -130,7 +130,7 @@ const NewVendor = () => {
                                     </p>
                                 </div>
                             ) : (
-                                <Form onSubmit={handleSubmit(onSubmit)}>
+                                <Form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
                                     {/* Store Name */}
                                     <Form.Group className="mb-3">
                                         <Form.Label className="fw-semibold">Store Name *</Form.Label>
@@ -175,7 +175,7 @@ const NewVendor = () => {
                                                     isInvalid={errors.contact_phone}
                                                 />
                                                 <Form.Control.Feedback type="invalid">
-                                                    {errors.contact_phone?.message}
+                                                    {errors?.contact_phone?.message}
                                                 </Form.Control.Feedback>
                                             </Form.Group>
                                         </Col>
