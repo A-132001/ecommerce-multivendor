@@ -24,6 +24,8 @@ def send_vendor_email(vendor_id, template_name, subject, context):
             html_message=message,
             fail_silently=False,
         )
+        
+        logger.info(f"send {subject} mail to {vendor.contact_email}")
 
     except ObjectDoesNotExist:
         logger.error(f"Vendor with ID {vendor_id} does not exist.")
