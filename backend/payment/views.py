@@ -85,21 +85,21 @@ def generate_payment_key(auth_token, amount_cents, order_id, phone_number):
 # Handle Payment Process (Vodafone Cash)
 def pay_with_vodafone_cash(request):
     amount = 10000  
-    phone = "01000000000"
+    phone = request.POST.get('phone_number')  
 
-    #  get auth token
+    
     token = get_paymob_token()
 
-    # create order in Paymob
+    
     paymob_order_id = create_order(token, amount)
 
-    #  create local order (or retrieve existing)
+  
     order = Order.objects.create(
         user=request.user,
         status='pending',
     )
 
-    #  create or get payment method
+   
     payment_method, _ = PaymentMethod.objects.get_or_create(
         user=request.user,
         payment_type='cash_on_delivery',
@@ -107,25 +107,22 @@ def pay_with_vodafone_cash(request):
         defaults={'description': 'Vodafone Cash via Paymob'}
     )
 
-    #  create local payment record
-    Payment.objects.create(
-    user=request.user,
-    amount=amount / 100,
-    status='pending',
-    order=order,
-    method=payment_method,
-    paymob_order_id=paymob_order_id  
-)
+   
+    payment = Payment.objects.create(
+        user=request.user,
+        amount=amount / 100,  
+        status='pending',
+        order=order,
+        method=payment_method,
+        paymob_order_id=paymob_order_id
+    )
 
-
-    #  get iframe payment token
+   
     payment_token = generate_payment_key(token, amount, paymob_order_id, phone)
 
-    #  redirect to iframe
+    
     iframe_url = f"https://accept.paymobsolutions.com/api/acceptance/iframes/{settings.PAYMOB_IFRAME_ID_VF_CASH}?payment_token={payment_token}"
     return render(request, "payment.html", {"iframe_url": iframe_url})
-
-
 
 
 @csrf_exempt
@@ -159,7 +156,7 @@ def payment_callback(request):
     if request.method == "POST":
         data = json.loads(request.body)
 
-        # Log data
+        
         print("Callback Data Received:", data)
 
         success = data.get("success", False)
@@ -174,5 +171,3 @@ def payment_callback(request):
 
         return JsonResponse({"status": "received"})
     return JsonResponse({"error": "Method not allowed"}, status=405)
-
-

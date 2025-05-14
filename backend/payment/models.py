@@ -9,8 +9,6 @@ from orders.models import Order
 class PaymentMethod(models.Model):
     PAYMENT_TYPE_CHOICES = [
         ('credit_card', 'Credit Card'),
-        ('paypal', 'PayPal'),
-        ('bank_transfer', 'Bank Transfer'),
         ('cash_on_delivery', 'Cash on Delivery'),
     ]
 
