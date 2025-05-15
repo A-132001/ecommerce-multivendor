@@ -136,19 +136,20 @@ export const listStores = async () => {
 };
 
 // Product API calls
+export const getAllCategories = async () => await api.get(`/products/categories/`);
 export const getStoreProducts = async (storeId) => {
-    return await api.get(`/products/?store_id=${storeId}`);
+    return await api.get(`/products/products/?store_id=${storeId}`);
 }
 export const createProduct = async (productData) => {
-    return await api.post('/products/', productData);
+    return await api.post('/products/products/', productData);
 };
 
 export const getProduct = async (productId) => {
-    return await api.get(`/products/${productId}/`);
+    return await api.get(`/products/products/${productId}/`);
 };
 
 export const updateProduct = async (productId, productData) => {
-    return await api.put(`/products/${productId}/`, productData, {
+    return await api.put(`/products/products/${productId}/`, productData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
@@ -156,11 +157,11 @@ export const updateProduct = async (productId, productData) => {
 };
 
 export const deleteProduct = async (productId) => {
-    return await api.delete(`/products/${productId}/`);
+    return await api.delete(`/products/products/${productId}/`);
 };
 
 export const listProducts = async () => {
-    return await api.get('/products/');
+    return await api.get('/products/products/');
 };
 
 // Cart API calls

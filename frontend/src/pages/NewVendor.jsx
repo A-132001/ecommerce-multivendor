@@ -30,10 +30,9 @@ const NewVendor = () => {
             } else {
                 formData.append("store_logo", "");
             }
-            console.log("Data:", data);
-            // Example POST request (adjust API URL)
+            console.log("Data:", data)
             const response = await createStore(formData)
-
+            console.log(response)
             if (response.ok) {
                 Swal.fire({
                     icon: "success",
@@ -43,7 +42,7 @@ const NewVendor = () => {
 
                 reset();
             } else {
-                const errorData = await response.json();
+                const errorData = response;
                 setError(errorData.detail || "Something went wrong!");
                 Swal.fire({
                     icon: "error",

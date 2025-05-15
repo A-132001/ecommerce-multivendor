@@ -189,7 +189,7 @@ const StoreProfile = () => {
         <div className="d-flex gap-3">
           <button
             onClick={() => window.location.reload()}
-            className="btn btn-lg btn-outline-danger"
+       new     className="btn btn-lg btn-outline-danger"
           >
             <FaSync className="me-2" />
             Refresh Page

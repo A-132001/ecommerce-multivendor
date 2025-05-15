@@ -1,14 +1,19 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Table, Button, Modal, Badge, Spinner, Alert } from 'react-bootstrap';
 import { FiEdit, FiTrash2, FiSave, FiX, FiImage, FiPlus, FiUpload } from 'react-icons/fi';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { getAllCategories } from '../../api/api.js';
+import { toast } from "react-toastify";
+
 
 const MySwal = withReactContent(Swal);
 
 const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [currentProduct, setCurrentProduct] = useState(null);
@@ -18,17 +23,17 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
   const fileInputRef = useRef(null);
 
   // React Hook Form setup
-  const { 
-    register: registerEdit, 
-    handleSubmit: handleEditSubmit, 
+  const {
+    register: registerEdit,
+    handleSubmit: handleEditSubmit,
     reset: resetEdit,
     formState: { errors: editErrors },
     setValue: setEditValue
   } = useForm();
 
-  const { 
-    register: registerAdd, 
-    handleSubmit: handleAddSubmit, 
+  const {
+    register: registerAdd,
+    handleSubmit: handleAddSubmit,
     reset: resetAdd,
     formState: { errors: addErrors }
   } = useForm();
@@ -136,12 +141,35 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
     exit: { opacity: 0, x: 50 }
   };
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllCategories();
+        console.log(response.data)
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        const message =
+          error?.response?.data?.message ||
+          error?.response?.data?.detail ||
+          error?.message ||
+          "Something went wrong while fetching categories.";
+        toast.error(message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <div className="p-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Product Management</h2>
-        <Button 
-          variant="primary" 
+        <Button
+          variant="primary"
           onClick={() => setShowAddModal(true)}
           className="d-flex align-items-center"
         >
@@ -187,9 +215,9 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                       <motion.img
                         src={product.image}
                         alt={product.name}
-                        style={{ 
-                          width: '50px', 
-                          height: '50px', 
+                        style={{
+                          width: '50px',
+                          height: '50px',
                           objectFit: 'cover',
                           borderRadius: '4px',
                           cursor: 'pointer'
@@ -205,17 +233,17 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                   </td>
                   <td>
                     <div className="d-flex gap-2">
-                      <Button 
-                        variant="warning" 
-                        size="sm" 
+                      <Button
+                        variant="warning"
+                        size="sm"
                         onClick={() => handleEditClick(product)}
                         className="d-flex align-items-center"
                       >
                         <FiEdit className="me-1" /> Edit
                       </Button>
-                      <Button 
-                        variant="danger" 
-                        size="sm" 
+                      <Button
+                        variant="danger"
+                        size="sm"
                         onClick={() => confirmDelete(product.id)}
                         className="d-flex align-items-center"
                       >
@@ -267,7 +295,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                     step="0.01"
                     min="0"
                     className={`form-control ${editErrors.price ? 'is-invalid' : ''}`}
-                    {...registerEdit('price', { 
+                    {...registerEdit('price', {
                       required: 'Price is required',
                       min: { value: 0, message: 'Price must be positive' }
                     })}
@@ -285,7 +313,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                     type="number"
                     min="0"
                     className={`form-control ${editErrors.stock ? 'is-invalid' : ''}`}
-                    {...registerEdit('stock', { 
+                    {...registerEdit('stock', {
                       required: 'Stock is required',
                       min: { value: 0, message: 'Stock must be positive' }
                     })}
@@ -313,8 +341,8 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                     accept="image/*"
                     className="d-none"
                   />
-                  <Button 
-                    variant="outline-secondary" 
+                  <Button
+                    variant="outline-secondary"
                     onClick={triggerFileInput}
                     className="w-100 d-flex align-items-center justify-content-center"
                   >
@@ -334,14 +362,14 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
 
                 {imagePreview && (
                   <div className="text-center mb-3">
-                    <img 
-                      src={imagePreview} 
-                      alt="Preview" 
-                      style={{ 
-                        maxWidth: '100%', 
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      style={{
+                        maxWidth: '100%',
                         maxHeight: '200px',
                         borderRadius: '4px'
-                      }} 
+                      }}
                     />
                     <div className="mt-1 text-muted small">Image Preview</div>
                   </div>
@@ -398,7 +426,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                     step="0.01"
                     min="0"
                     className={`form-control ${addErrors.price ? 'is-invalid' : ''}`}
-                    {...registerAdd('price', { 
+                    {...registerAdd('price', {
                       required: 'Price is required',
                       min: { value: 0, message: 'Price must be positive' }
                     })}
@@ -416,7 +444,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                     type="number"
                     min="0"
                     className={`form-control ${addErrors.stock ? 'is-invalid' : ''}`}
-                    {...registerAdd('stock', { 
+                    {...registerAdd('stock', {
                       required: 'Stock is required',
                       min: { value: 0, message: 'Stock must be positive' }
                     })}
@@ -428,12 +456,20 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
 
                 <div className="mb-3">
                   <label className="form-label">Category</label>
-                  <input
-                    type="text"
+                  <select
                     className="form-control"
                     {...registerAdd('category')}
-                  />
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Select a category</option>
+                    {categories?.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+
 
                 <div className="mb-3">
                   <label className="form-label">Product Image</label>
@@ -444,8 +480,8 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                     accept="image/*"
                     className="d-none"
                   />
-                  <Button 
-                    variant="outline-secondary" 
+                  <Button
+                    variant="outline-secondary"
                     onClick={triggerFileInput}
                     className="w-100 d-flex align-items-center justify-content-center"
                   >
@@ -465,14 +501,14 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
 
                 {imagePreview && (
                   <div className="text-center mb-3">
-                    <img 
-                      src={imagePreview} 
-                      alt="Preview" 
-                      style={{ 
-                        maxWidth: '100%', 
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      style={{
+                        maxWidth: '100%',
                         maxHeight: '200px',
                         borderRadius: '4px'
-                      }} 
+                      }}
                     />
                     <div className="mt-1 text-muted small">Image Preview</div>
                   </div>

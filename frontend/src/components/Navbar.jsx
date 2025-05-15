@@ -100,7 +100,8 @@ function Navigation() {
       if (link.path !== "/dashboard") return true;
 
       // Only show dashboard for authenticated vendors
-      return isAuthenticated && user?.user_type === "shop_owner";
+      // return isAuthenticated && user?.user_type === "shop_owner";
+      return true;
     });
   }, [isAuthenticated, user?.role, navBarLinks]);
 

@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 # from cart.views import CartViewSet, CartItemViewSet
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
-    TokenRefreshView,
+    TokenRefreshView, 
 )
 
 # router = DefaultRouter()
@@ -21,9 +21,6 @@ urlpatterns = [
     path('api/payment/', include('payment.urls')),
     path("api/orders/", include("orders.urls")),
     path("api/cart/", include("cart.urls")),
-
-
-
 
 ]
 
