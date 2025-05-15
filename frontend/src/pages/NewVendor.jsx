@@ -31,15 +31,27 @@ const NewVendor = () => {
             if (data.store_logo && data.store_logo.length > 0) {
                 formData.append("logo", data.store_logo[0]);
             }
+            console.log("Data:", data)
+            const response = await createStore(formData)
+            console.log(response)
+            if (response.ok) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success!",
+                    text: "Vendor registered successfully!",
+                });
 
-            const response = await createStore(formData);
-
-            Swal.fire({
-                icon: "success",
-                title: "Success!",
-                text: "Vendor registered successfully!",
-            });
-            reset();
+                reset();
+            } else {
+                const errorData = response;
+                setError(errorData.detail || "Something went wrong!");
+                Swal.fire({
+                    icon: "error",
+                    title: "Error!",
+                    text: errorData.detail || "Something went wrong!",
+                });
+                console.error("Error:", errorData);
+            }
         } catch (error) {
             console.error("Error:", error);
             let errorMessage = "An error occurred while registering the vendor.";
@@ -121,7 +133,8 @@ const NewVendor = () => {
                                     </p>
                                 </div>
                             ) : (
-                                <Form onSubmit={handleSubmit(onSubmit)}>
+                                <Form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
+                                    {/* Store Name */}
                                     <Form.Group className="mb-3">
                                         <Form.Label className="fw-semibold">Store Name *</Form.Label>
                                         <Form.Control
@@ -181,7 +194,7 @@ const NewVendor = () => {
                                                     isInvalid={!!errors.contact_phone}
                                                 />
                                                 <Form.Control.Feedback type="invalid">
-                                                    {errors.contact_phone?.message}
+                                                    {errors?.contact_phone?.message}
                                                 </Form.Control.Feedback>
                                             </Form.Group>
                                         </Col>
