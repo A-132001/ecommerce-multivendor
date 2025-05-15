@@ -18,6 +18,8 @@ import ListStores from './components/pages/listStores';
 import NewVendor from './pages/NewVendor';
 import Order from './components/pages/Order';
 import PaymentList from './components/pages/Payment';
+import ContactUs from './components/ContactUs';
+import AboutUs from './components/AboutUs';
 
 function App() {
   const publicRoutes = [
@@ -31,8 +33,8 @@ function App() {
     { path: '/api/auth/reset-password/:uid/:token', element: <ResetPassword /> },
     { path: '/orders', element: <Order /> },
     { path: '/payments', element: <PaymentList /> },
-    
-
+    { path: '/contact-us', element: <ContactUs /> },
+    { path: '/about-us"', element: <AboutUs /> },
   ];
 
   const protectedRoutes = [

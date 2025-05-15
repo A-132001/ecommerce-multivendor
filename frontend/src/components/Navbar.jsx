@@ -7,6 +7,8 @@ import {
   FaBox,
   FaShopify,
   FaChartLine,
+  FaInfoCircle,
+  FaEnvelope
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import React, { useMemo, useState } from 'react';
@@ -66,13 +68,14 @@ function Navigation() {
     ];
 
     // Add vendor option if not already a vendor
-    // if (user?.user_type !== "shop_owner") {
-    //   baseItems.push({
-    //     path: "/new-vendor",
-    //     label: "Become a Vendor",
-    //     icon: <FaStore className="me-2" size={16} />
-    //   });
-    // }
+    if (user?.user_type !== "shop_owner") {
+      baseItems.push({
+        path: "/new-vendor",
+        label: "Become a Vendor",
+        icon: <FaStore className="me-2" size={16} />
+      });
+    }
+
 
     
     baseItems.push({
@@ -88,6 +91,8 @@ function Navigation() {
     { path: "/", label: "Home", icon: <FaHome className="me-2" size={16} /> },
     { path: "/products", label: "Products", icon: <FaBox className="me-2" size={16} /> },
     { path: "/list-stores", label: "Vendors", icon: <FaShopify className="me-2" size={16} /> },
+    { path: "/about-us", label: "About Us", icon: <FaInfoCircle className="me-2" size={16} /> },
+    { path: "/contact-us", label: "Contact Us", icon: <FaEnvelope className="me-2" size={16} /> },
     { path: "/dashboard", label: "Dashboard", icon: <FaChartLine className="me-2" size={16} /> }
   ], []);
 
@@ -99,7 +104,7 @@ function Navigation() {
       // Only show dashboard for authenticated vendors
       return isAuthenticated && user?.user_type === "shop_owner";
     });
-  }, [isAuthenticated, user?.role, navBarLinks]);
+  }, [isAuthenticated, user?.user_type, navBarLinks]);
 
 
   return (
