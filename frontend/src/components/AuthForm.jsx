@@ -35,9 +35,10 @@ const AuthForm = ({ type, isLoading }) => {
 
         if (!formData.password) {
             newErrors.password = 'Password is required';
-        } else if (formData.password.length < 8) {
-            newErrors.password = 'Password must be at least 8 characters';
         }
+        //  else if (formData.password.length < 8) {
+        //     newErrors.password = 'Password must be at least 8 characters';
+        // }
 
         if (type === 'register') {
             if (!formData.name) newErrors.name = 'Full name is required';

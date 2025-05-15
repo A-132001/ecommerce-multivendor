@@ -8,7 +8,7 @@ def get_upload_path(instance, filename):
 
 class Vendor(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    store_name = models.CharField(max_length=255)
+    store_name = models.CharField(max_length=255, unique=True)
     store_description = models.TextField()
     store_logo = models.ImageField(upload_to=get_upload_path, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -18,6 +18,6 @@ class Vendor(models.Model):
     contact_email = models.EmailField()
     
  
-    def __str__(self):
+    def __str__(self): 
         return self.store_name
     

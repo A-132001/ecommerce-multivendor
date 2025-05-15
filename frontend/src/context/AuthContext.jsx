@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }) => {
         user,
         isAuthenticated,
         isLoading,
+        setUser, // Expose setUser here
         login,
         register,
         logout

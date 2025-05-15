@@ -41,7 +41,8 @@ function Home() {
       <Hero />
       <AboutOverview />
       {/* All Active Vendors Section */}
-      <section id="stores" className="py-5 bg-light">
+      {!error && (
+         <section id="stores" className="py-5 bg-light">
         <Container>
           <motion.div
             initial={{ opacity: 0 }}
@@ -71,6 +72,7 @@ function Home() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className="w-100 h-100"
                     >
                       <ShopCard shop={shop} />
                     </motion.div>
@@ -81,6 +83,7 @@ function Home() {
           </motion.div>
         </Container>
       </section>
+      )}
       <ServicesPreview />
       <Testimonials />
       <ContactCTA />

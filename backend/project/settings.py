@@ -186,3 +186,10 @@ PAYMOB_INTEGRATION_ID_VODAFONE ='5089329'
 
  #  For development only
 ALLOWED_HOSTS = ['*']
+
+
+# Site settings
+SITE_NAME = 'VendorHub'
+
+
+

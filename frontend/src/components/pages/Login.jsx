@@ -22,7 +22,7 @@ const Login = () => {
     // Redirect if already authenticated
     useEffect(() => {
         if (isAuthenticated) {
-            const from = location.state?.from?.pathname || '/dashboard';
+            const from = location.state?.from?.pathname || '/';
             navigate(from, { replace: true });
         }
     }, [isAuthenticated, navigate, location]);
@@ -102,9 +102,6 @@ const Login = () => {
                 padding: '2rem 0'
             }}
         >
-  
-
-                    
                     <div className="card-body p-4 p-md-5">
                         {(error || errorList.length > 0) && (
                             <motion.div

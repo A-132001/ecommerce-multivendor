@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
-import Swal from 'sweetalert2';
+
+
 
 const AddProductForm = ({ addProduct }) => {
-  const { 
-    register, 
-    handleSubmit, 
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(null);
+
+  const {
+    register,
+    handleSubmit,
     reset,
     formState: { errors },
     watch,
@@ -39,12 +43,15 @@ const AddProductForm = ({ addProduct }) => {
     response = await addProduct(data);
     console.log(response);
     reset();
-    if(response.status === 201) {
+    if (response.status === 201) {
       reset();
     }
   };
 
   const imagePreview = watch('image');
+
+
+
 
   return (
     <motion.div
@@ -55,7 +62,7 @@ const AddProductForm = ({ addProduct }) => {
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <h3 className="mb-4 text-primary">Add Product</h3>
-        
+
         <div className="mb-3">
           <label htmlFor="productName" className="form-label">Product Name*</label>
           <input
@@ -86,7 +93,7 @@ const AddProductForm = ({ addProduct }) => {
               className={`form-control ${errors.price && 'is-invalid'}`}
               id="productPrice"
               placeholder="Enter product price"
-              {...register('price', { 
+              {...register('price', {
                 required: 'Price is required',
                 min: { value: 0, message: 'Price must be positive' }
               })}
@@ -101,7 +108,7 @@ const AddProductForm = ({ addProduct }) => {
               className={`form-control ${errors.stock && 'is-invalid'}`}
               id="productStock"
               placeholder="Enter product stock"
-              {...register('stock', { 
+              {...register('stock', {
                 required: 'Stock is required',
                 min: { value: 0, message: 'Stock must be positive' }
               })}
@@ -146,11 +153,11 @@ const AddProductForm = ({ addProduct }) => {
           />
           {imagePreview && (
             <div className="mt-2">
-              <img 
-                src={imagePreview} 
-                alt="Preview" 
-                className="img-thumbnail" 
-                style={{ maxHeight: '200px' }} 
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="img-thumbnail"
+                style={{ maxHeight: '200px' }}
               />
             </div>
           )}

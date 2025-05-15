@@ -107,21 +107,6 @@ export const getCurrentUser = async () => {
 };
 
 export const updateUser = async (userData) => {
-    const isFormData = userData.avatar instanceof Blob || userData instanceof FormData;
-    
-    if (isFormData) {
-        const formData = userData instanceof FormData 
-            ? userData 
-            : new FormData();
-        
-        if (!(userData instanceof FormData)) {
-            if (userData.avatar) formData.append('avatar', userData.avatar);
-            if (userData.name) formData.append('name', userData.name);
-            if (userData.email) formData.append('email', userData.email);
-        }
-
-        return await api.put('/auth/profile/', formData);
-    }
     return await api.put('/auth/profile/', userData);
 };
 
@@ -131,83 +116,19 @@ export const changePassword = async (passwords) => {
 
 // Store API calls
 export const createStore = async (storeData) => {
-    try {
-        const isFormData = storeData.store_logo instanceof File || storeData instanceof FormData;
-
-        const formData = isFormData ? storeData instanceof FormData ? storeData : new FormData() : null;
-
-        if (formData) {
-            // Log FormData to check what's inside
-            console.log("FormData: ", formData);
-
-            if (!(storeData instanceof FormData)) {
-                formData.append('store_name', storeData.store_name);
-                formData.append('store_description', storeData.store_description);
-                formData.append('contact_phone', storeData.contact_phone);
-                formData.append('contact_email', storeData.contact_email);
-                formData.append('store_logo', storeData.store_logo);
-                if (storeData.address) formData.append('address', storeData.address);
-            }
-            return await api.post('/vendors/', formData);
-        }
-
-        return await api.post('/vendors/', {
-            store_name: storeData.store_name,
-            store_description: storeData.store_description,
-            contact_phone: storeData.contact_phone,
-            contact_email: storeData.contact_email,
-            store_logo: storeData.store_logo,
-            address: storeData.address,
-        });
-    } catch (error) {
-        console.error('Error creating store:', error);
-        throw new Error('Failed to create store');
-    }
+    return await api.post('/vendors/', storeData);
 };
 
 export const getStore = async (storeId) => {
-    try {
-        const response = await api.get(`/vendors/${storeId}/`);
-        return validateStoreResponse(response.data);
-    } catch (error) {
-        handleApiError(error, 'Failed to fetch store');
-    }
+    return await api.get(`/vendors/${storeId}/`);
 };
 
 export const updateStore = async (storeId, storeData) => {
-    try {
-        if (storeData.store_logo instanceof Blob || storeData instanceof FormData) {
-            const formData = storeData instanceof FormData 
-                ? storeData 
-                : new FormData();
-            
-            if (!(storeData instanceof FormData)) {
-                if (storeData.store_name) formData.append('store_name', storeData.store_name);
-                if (storeData.store_description) formData.append('store_description', storeData.store_description);
-                if (storeData.contact_phone) formData.append('contact_phone', storeData.contact_phone);
-                if (storeData.contact_email) formData.append('contact_email', storeData.contact_email);
-                if (storeData.store_logo) formData.append('store_logo', storeData.store_logo);
-                if (storeData.address) formData.append('address', storeData.address);
-            }
-
-            const response = await api.put(`/vendors/${storeId}/`, formData);
-            return validateStoreResponse(response.data);
-        }
-        
-        const response = await api.put(`/vendors/${storeId}/`, storeData);
-        return validateStoreResponse(response.data);
-    } catch (error) {
-        handleApiError(error, 'Failed to update store');
-    }
+    return await api.put(`/vendors/${storeId}/`, storeData);
 };
 
 export const deleteStore = async (storeId) => {
-    try {
-        await api.delete(`/vendors/${storeId}/`);
-        return true;
-    } catch (error) {
-        handleApiError(error, 'Failed to delete store');
-    }
+    return await api.delete(`/vendors/${storeId}/`);
 };
 
 export const listStores = async () => {
@@ -219,101 +140,28 @@ export const listStores = async () => {
     }
 };
 // Product API calls
+export const getAllCategories = async () => await api.get(`/products/categories/`);
 export const getStoreProducts = async (storeId) => {
-    try {
-        const response = await api.get(`/products/?store_id=${storeId}`);
-        return response.data;
-    } catch (error) {
-        handleApiError(error, 'Failed to fetch store products');
-    }
-};
-
+    return await api.get(`/products/?store_id=${storeId}`);
+}
 export const createProduct = async (productData) => {
-    try {
-        const isFormData = productData.image instanceof Blob || productData instanceof FormData;
-        
-        if (isFormData) {
-            const formData = productData instanceof FormData 
-                ? productData 
-                : new FormData();
-            
-            if (!(productData instanceof FormData)) {
-                if (!productData.name) throw new Error('Product name is required');
-                formData.append('name', productData.name);
-                formData.append('description', productData.description || '');
-                formData.append('price', productData.price || 0);
-                formData.append('store', productData.store);
-                if (productData.image) formData.append('image', productData.image);
-                if (productData.category) formData.append('category', productData.category);
-                if (productData.stock) formData.append('stock', productData.stock);
-            }
-
-            const response = await api.post('/products/', formData);
-            return response.data;
-        }
-        
-        if (!productData.name) throw new Error('Product name is required');
-        const response = await api.post('/products/', productData);
-        return response.data;
-    } catch (error) {
-        handleApiError(error, 'Failed to create product');
-    }
+    return await api.post('/products/', productData);
 };
 
 export const getProduct = async (productId) => {
-    try {
-        const response = await api.get(`/products/${productId}/`);
-        return response.data;
-    } catch (error) {
-        handleApiError(error, 'Failed to fetch product');
-    }
+    return await api.get(`/products/${productId}/`);
 };
 
 export const updateProduct = async (productId, productData) => {
-    try {
-        const isFormData = productData.image instanceof Blob || productData instanceof FormData;
-        
-        if (isFormData) {
-            const formData = productData instanceof FormData 
-                ? productData 
-                : new FormData();
-            
-            if (!(productData instanceof FormData)) {
-                formData.append('name', productData.name || '');
-                formData.append('description', productData.description || '');
-                formData.append('price', productData.price || 0);
-                if (productData.image) formData.append('image', productData.image);
-                if (productData.category) formData.append('category', productData.category);
-                if (productData.stock) formData.append('stock', productData.stock);
-            }
-
-            const response = await api.put(`/products/${productId}/`, formData);
-            return response.data;
-        }
-        
-        const response = await api.put(`/products/${productId}/`, productData);
-        return response.data;
-    } catch (error) {
-        handleApiError(error, 'Failed to update product');
-    }
+    return await api.put(`/products/${productId}/`, productData);
 };
 
 export const deleteProduct = async (productId) => {
-    try {
-        await api.delete(`/products/${productId}/`);
-        return true;
-    } catch (error) {
-        handleApiError(error, 'Failed to delete product');
-    }
+    return await api.delete(`/products/${productId}/`);
 };
 
 export const listProducts = async () => {
-    try {
-        const response = await api.get('/products/');
-        return response.data;
-    } catch (error) {
-        handleApiError(error, 'Failed to fetch products');
-    }
+    return await api.get('/products/');
 };
 
 // Cart API calls

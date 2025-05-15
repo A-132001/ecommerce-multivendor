@@ -12,6 +12,8 @@ import {
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import React, { useMemo, useState } from 'react';
+import CartIcon from './CartIcon';
+// import { useCart } from '../context/CartContext';
 
 function Navigation() {
   const { isAuthenticated, user, logout } = useAuth();
@@ -65,6 +67,7 @@ function Navigation() {
     const baseItems = [
       { path: "/profile", label: "Profile", icon: <FaUser className="me-2" size={16} /> },
       { path: "/orders", label: "My Orders", icon: <FaShoppingCart className="me-2" size={16} /> },
+      {path: "/new-vendor", label: "Become a Vendor", icon: <FaStore className="me-2" size={16} />},
     ];
 
     // Add vendor option if not already a vendor
@@ -102,7 +105,8 @@ function Navigation() {
       if (link.path !== "/dashboard") return true;
 
       // Only show dashboard for authenticated vendors
-      return isAuthenticated && user?.user_type === "shop_owner";
+      // return isAuthenticated && user?.user_type === "shop_owner";
+      return true;
     });
   }, [isAuthenticated, user?.user_type, navBarLinks]);
 
@@ -132,17 +136,7 @@ function Navigation() {
 
         <div className="d-flex align-items-center order-lg-2 ms-auto">
           {isAuthenticated && (
-            <Nav.Link
-              as={Link}
-              to="/cart"
-              className="text-white me-3 d-flex align-items-center position-relative"
-              aria-label="Shopping Cart"
-            >
-              <FaShoppingCart className="me-1" size={24} aria-hidden="true" />
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-yellow-600 text-xs">
-                3
-              </span>
-            </Nav.Link>
+            <CartIcon />
           )}
 
           <Navbar.Toggle

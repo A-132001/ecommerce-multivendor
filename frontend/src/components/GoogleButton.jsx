@@ -32,7 +32,7 @@ const GoogleLoginButton = ({ onSuccess, onError, buttonText = "Continue with Goo
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/api/auth/google/`,
-        { token: credentialResponse.credential },
+        { access_token: credentialResponse.credential },
         {
           headers: {
             'Content-Type': 'application/json',
