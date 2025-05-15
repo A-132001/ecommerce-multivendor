@@ -39,11 +39,11 @@ class VendorSerializer(serializers.ModelSerializer):
             'store_logo',
             'contact_email',
             'contact_phone',
-            'address',
+         
             'is_verified',
             'is_active',
             'created_at',
-            'updated_at',
+           
             'days_since_created',
             'is_owned_by_user'
         ]
@@ -53,7 +53,6 @@ class VendorSerializer(serializers.ModelSerializer):
             'is_verified',
             'is_active',
             'created_at',
-            'updated_at',
             'days_since_created',
             'is_owned_by_user'
         )

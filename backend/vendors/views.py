@@ -13,8 +13,7 @@ import logging
 
 from .models import Vendor
 from .serializers import VendorSerializer, VendorPublicSerializer
-from .tasks import send_vendor_approval_email, send_vendor_rejection_email
-from .permissions import IsOwnerOfVendor, IsAdminUser
+from .permissions import IsOwnerOfVendor
 
 logger = logging.getLogger(__name__)
 
@@ -86,14 +85,24 @@ class VendorViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
-    def deactivate(self, request, pk=None):
-        vendor = self.get_object()
-        if vendor.user != request.user:
-            raise PermissionDenied("You are not authorized to deactivate this account.")
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def toggle_store_sctive_status(self, request, pk=None):
+        vendor = Vendor.objects.filter(user=request.user).first()
+        if not vendor:
+            raise PermissionDenied("You do not own a vendor account.")
 
-        vendor.is_active = False
-        vendor.deactivated_at = timezone.now()
+        vendor.is_active = not vendor.is_active
         vendor.save()
-        return Response({'status': 'Vendor account deactivated.'}, status=status.HTTP_200_OK)
 
+        status_text = 'deactivated' if not vendor.is_active else 'activated'
+        return Response({'status': f'Vendor account {status_text}.'}, status=status.HTTP_200_OK)
+
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def storedetails(self, request):
+        try:
+            vendor = Vendor.objects.get(user=request.user)
+            serializer = self.get_serializer(vendor)
+            return Response(serializer.data)
+        except Vendor.DoesNotExist:
+            return Response({'detail': 'Vendor not found'}, status=404)

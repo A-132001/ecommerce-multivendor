@@ -110,18 +110,21 @@ export const createStore = async (storeData) => {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
-    });
+    }); 
+}; 
+export const getStore = async () => {
+    return await api.get(`/vendors/storedetails/`);
 };
-export const getStore = async (storeId) => {
-    return await api.get(`/vendors/${storeId}/`);
+export const toggleStoreActiveStatus = async () => {
+    return await api.post(`/vendors/toggle_store_sctive_status/`)
+}
+
+export const updateStore = async ( storeData) => {
+    return await api.put(`/vendors/storedetails/`, storeData);
 };
 
-export const updateStore = async (storeId, storeData) => {
-    return await api.put(`/vendors/${storeId}/`, storeData);
-};
-
-export const deleteStore = async (storeId) => {
-    return await api.delete(`/vendors/${storeId}/`);
+export const deleteStore = async () => {
+    return await api.delete(`/vendors/`);
 };
  
 export const listStores = async () => {

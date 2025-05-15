@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Container, Row, Col, Card, Form, Button, Spinner, Alert, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Spinner, Alert, Modal, Badge } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { 
-  FaStore, 
-  FaEdit, 
-  FaTrash, 
-  FaSave, 
+import {
+  FaStore,
+  FaEdit,
+  FaTrash,
+  FaSave,
   FaTimes,
   FaPhone,
   FaEnvelope,
-  FaImage
+  FaImage,
+  FaCalendarAlt,
+  FaAddressCard,
+  FaPowerOff,
+  FaCheck,
 } from 'react-icons/fa';
-import { getStore, updateStore, deleteStore } from '../../api/api';
+import { format } from "date-fns"
+import { getStore, updateStore, deleteStore, toggleStoreActiveStatus } from '../../api/api';
 
 const MySwal = withReactContent(Swal);
 
@@ -30,7 +35,8 @@ const StoreProfile = () => {
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
-        const response = await getStore(1);
+        const response = await getStore();
+        console.log(response.data)
         setStore(response.data);
         setLogoPreview(response.data.logo);
         reset(response.data);
@@ -51,7 +57,7 @@ const StoreProfile = () => {
   const handleCancel = () => {
     setEditing(false);
     reset(store);
-    setLogoPreview(store.logo);
+    setLogoPreview(store.store_logo);
   };
 
   const handleLogoChange = (e) => {
@@ -176,17 +182,17 @@ const StoreProfile = () => {
                 </h5>
                 {!editing && (
                   <div>
-                    <Button 
-                      variant="outline-primary" 
-                      size="sm" 
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
                       onClick={handleEdit}
                       className="me-2"
                     >
                       <FaEdit className="me-1" /> Edit
                     </Button>
-                    <Button 
-                      variant="outline-danger" 
-                      size="sm" 
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
                       onClick={confirmDelete}
                     >
                       <FaTrash className="me-1" /> Delete
@@ -194,7 +200,6 @@ const StoreProfile = () => {
                   </div>
                 )}
               </Card.Header>
-
               <Card.Body>
                 {editing ? (
                   <Form onSubmit={handleSubmit(onSubmit)}>
@@ -202,11 +207,11 @@ const StoreProfile = () => {
                       <Form.Label>Store Name</Form.Label>
                       <Form.Control
                         type="text"
-                        {...register('name', { required: 'Store name is required' })}
-                        isInvalid={!!errors.name}
+                        {...register('store_name', { required: 'Store name is required' })}
+                        isInvalid={!!errors.store_name}
                       />
                       <Form.Control.Feedback type="invalid">
-                        {errors.name?.message}
+                        {errors.store_name?.message}
                       </Form.Control.Feedback>
                     </Form.Group>
 
@@ -215,7 +220,7 @@ const StoreProfile = () => {
                       <Form.Control
                         as="textarea"
                         rows={3}
-                        {...register('description')}
+                        {...register('store_description')}
                       />
                     </Form.Group>
 
@@ -225,7 +230,7 @@ const StoreProfile = () => {
                           <Form.Label><FaEnvelope className="me-2" />Email</Form.Label>
                           <Form.Control
                             type="email"
-                            {...register('contact_email', { 
+                            {...register('contact_email', {
                               required: 'Email is required',
                               pattern: {
                                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -250,36 +255,84 @@ const StoreProfile = () => {
                       </Col>
                     </Row>
 
-                    <Form.Group className="mb-4">
-                      <Form.Label><FaImage className="me-2" />Store Logo</Form.Label>
-                      <Form.Control
-                        type="file"
-                        accept="image/*"
-                        {...register('logo')}
-                        onChange={handleLogoChange}
-                      />
-                      {logoPreview && (
-                        <div className="mt-2">
-                          <img 
-                            src={logoPreview} 
-                            alt="Logo preview" 
-                            className="img-thumbnail" 
-                            style={{ maxWidth: '150px' }}
+                    <Row className="mb-4">
+                      <Col md={6}>
+                        <Form.Group>
+                          <Form.Label><FaImage className="me-2" />Store Logo</Form.Label>
+                          <Form.Control
+                            type="file"
+                            accept="image/*"
+                            {...register('store_logo')}
+                            onChange={handleLogoChange}
                           />
-                        </div>
-                      )}
-                    </Form.Group>
+                          {logoPreview && (
+                            <div className="mt-2">
+                              <img
+                                src={logoPreview}
+                                alt="Logo preview"
+                                className="img-thumbnail"
+                                style={{ maxWidth: '150px' }}
+                              />
+                            </div>
+                          )}
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group>
+                          <Form.Label>Store Status</Form.Label>
+                          <div className="d-flex align-items-center gap-2">
+                            <Button
+                              onClick={async () => {
+                                setLoading(true);
+                                try {
+                                  const updatedStore = await toggleStoreActiveStatus(
+                                    store.id,
+                                    !store.is_active
+                                  );
+                                  setStore(updatedStore);
+
+                                } catch (error) {
+                                
+                                  console.error("Status update failed:", error);
+                                } finally {
+                                  setLoading(false);
+                                }
+                              }}
+                              disabled={loading}
+                              className={`btn-sm ${store.is_active ? 'btn-outline-danger' : 'btn-outline-success'}`}
+                            >
+                              {loading ? (
+                                <span className="spinner-border spinner-border-sm me-1" />
+                              ) : store.is_active ? (
+                                <FaPowerOff className="me-1" />
+                              ) : (
+                                <FaCheck className="me-1" />
+                              )}
+                              {store.is_active ? 'Deactivate' : 'Activate'}
+                            </Button>
+                            <Badge bg={store.is_active ? "success" : "secondary"}>
+                              {store.is_active ? "Active" : "Inactive"}
+                            </Badge>
+                          </div>
+                          <Form.Text className="text-muted">
+                            {store.is_active
+                              ? "This store is currently visible to customers"
+                              : "This store is hidden from customers"}
+                          </Form.Text>
+                        </Form.Group>
+                      </Col>
+                    </Row>
 
                     <div className="d-flex justify-content-end">
-                      <Button 
-                        variant="outline-secondary" 
+                      <Button
+                        variant="outline-secondary"
                         onClick={handleCancel}
                         className="me-2"
                       >
                         <FaTimes className="me-1" /> Cancel
                       </Button>
-                      <Button 
-                        variant="primary" 
+                      <Button
+                        variant="primary"
                         type="submit"
                         disabled={loading}
                       >
@@ -298,33 +351,64 @@ const StoreProfile = () => {
                   </Form>
                 ) : (
                   <>
-                    <div className="d-flex align-items-start mb-4">
-                      {store.logo && (
-                        <img 
-                          src={store.logo} 
-                          alt="Store Logo" 
-                          className="rounded me-4" 
-                          style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                    <div className="store-header d-flex align-items-start mb-4 gap-3">
+                      <div className="store-logo-container">
+                        <img
+                          src={store.store_logo || "/imgs/dummy-vendor.jpg"}
+                          alt="Store Logo"
+                          className="rounded"
+                          style={{
+                            width: '100px',
+                            height: '100px',
+                            objectFit: 'cover',
+                            border: '1px solid #eee'
+                          }}
                         />
-                      )}
-                      <div>
-                        <h3>{store.name}</h3>
-                        <p className="text-muted">{store.description}</p>
+                      </div>
+
+                      <div className="store-info flex-grow-1">
+                        <div className="d-flex align-items-center gap-2 mb-2">
+                          <h3 className="mb-0">{store.store_name}</h3>
+                          <div className="badge-container d-flex gap-2">
+                            <Badge bg={store.is_active ? "success" : "secondary"}>
+                              {store.is_active ? "Active" : "Inactive"}
+                            </Badge>
+                            <Badge bg={store.is_verified ? "primary" : "secondary"}>
+                              {store.is_verified ? "Verified" : "Unverified"}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <p className="text-muted mb-2">{store.store_description}</p>
+
+                        <div className="store-meta d-flex gap-3 text-muted small">
+                          <span>
+                            <FaCalendarAlt className="me-1" />
+                            Joined {format(new Date(store.created_at), "MMMM d, yyyy")} ({store.days_since_created} days ago)
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="mb-3">
-                      <h5 className="mb-3">Contact Information</h5>
-                      <p>
-                        <FaEnvelope className="me-2 text-primary" />
-                        <a href={`mailto:${store.contact_email}`}>{store.contact_email}</a>
-                      </p>
-                      {store.contact_phone && (
-                        <p>
-                          <FaPhone className="me-2 text-primary" />
-                          <a href={`tel:${store.contact_phone}`}>{store.contact_phone}</a>
-                        </p>
-                      )}
+                    <div className="store-contact card p-3 mb-4">
+                      <h5 className="card-title mb-3">
+                        <FaAddressCard className="me-2 text-primary" />
+                        Contact Information
+                      </h5>
+
+                      <div className="contact-details">
+                        <div className="d-flex align-items-center mb-2">
+                          <FaEnvelope className="me-2 text-primary" />
+                          <a href={`mailto:${store.contact_email}`}>{store.contact_email}</a>
+                        </div>
+
+                        {store.contact_phone && (
+                          <div className="d-flex align-items-center">
+                            <FaPhone className="me-2 text-primary" />
+                            <a href={`tel:${store.contact_phone}`}>{store.contact_phone}</a>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </>
                 )}
