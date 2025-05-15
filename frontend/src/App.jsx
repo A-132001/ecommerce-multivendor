@@ -40,7 +40,7 @@ function App() {
     { path: '/orders', element: <Order /> },
     { path: '/payments', element: <PaymentList /> },
     { path: '/contact-us', element: <ContactUs /> },
-    { path: '/about-us"', element: <AboutUs /> },
+    { path: '/about-us', element: <AboutUs /> },
   ];
 
   const protectedRoutes = [
@@ -75,7 +75,7 @@ function App() {
               element={<ProtectedRoute>{element}</ProtectedRoute>}
             />
           ))}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
         </Routes>
         <Footer />
       </AuthProvider>
