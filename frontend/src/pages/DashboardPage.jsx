@@ -216,19 +216,21 @@ export default function DashboardPage() {
                 <Spinner animation="border" variant="warning" />
                 <p className="mt-3">Loading shops...</p>
               </div>
-        ) : error ? (
-          <div className="col-md-9 p-4">
-            <h2 className="mb-4">Error</h2>
-            <p>{error}</p>
-          </div>
-        ):(
+        )
+        //  : error ? (
+        //   <div className="col-md-9 p-4">
+        //     <h2 className="mb-4">Error</h2>
+        //     <p>{error}</p>
+        //   </div>
+        // )
+        :(
            <div className="col-md-9 p-4">
           <h2 className="mb-4">Dashboard</h2>
           <div className="mb-4">
             <AddProductForm addProduct={addProduct} />
           </div>
           <div className="mb-4">
-            <ProductManagementTable products={products} onDelete={handleDeleteProduct} onEdit={handleEditProduct} />
+            <ProductManagementTable products={products} onDelete={handleDeleteProduct} onEdit={handleEditProduct} onAdd={addProduct}/>
           </div>
           <div>
             <OrdersList orders={orders} onDelete={deleteOrder} onEdit={editOrder} />

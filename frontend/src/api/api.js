@@ -141,7 +141,11 @@ export const getStoreProducts = async (storeId) => {
     return await api.get(`/products/products/?store_id=${storeId}`);
 }
 export const createProduct = async (productData) => {
-    return await api.post('/products/products/', productData);
+    return await api.post('/products/products/', productData,  {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
 };
 
 export const getProduct = async (productId) => {

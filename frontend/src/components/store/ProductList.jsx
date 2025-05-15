@@ -87,7 +87,7 @@ export default function ProductList({ storeId }) {
     return (
       <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 text-center max-w-md mx-auto mt-8">
         <FaInfoCircle className="text-yellow-500 text-3xl mx-auto mb-3" />
-        <h3 className="text-xl font-semibold text-white mb-2">No Products Available</h3>
+        <h3 className="text-xl font-semibold text-dark mb-2">No Products Available</h3>
         <p className="text-gray-400">This store currently has no products listed.</p>
       </div>
     );
