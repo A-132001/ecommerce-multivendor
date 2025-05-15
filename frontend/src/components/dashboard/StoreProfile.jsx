@@ -5,18 +5,8 @@ import { motion } from 'framer-motion';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import {
-  FaStore,
-  FaEdit,
-  FaTrash,
-  FaSave,
-  FaTimes,
-  FaPhone,
-  FaEnvelope,
-  FaImage,
-  FaCalendarAlt,
-  FaAddressCard,
-  FaPowerOff,
-  FaCheck,
+  FaStore, FaEdit, FaTrash, FaSave, FaTimes, FaPhone, FaEnvelope, FaImage, FaCalendarAlt, FaAddressCard,
+  FaPowerOff, FaCheck, FaExclamationTriangle, FaSync, FaHome
 } from 'react-icons/fa';
 import { format } from "date-fns"
 import { getStore, updateStore, deleteStore, toggleStoreActiveStatus } from '../../api/api';
@@ -37,12 +27,26 @@ const StoreProfile = () => {
       try {
         const response = await getStore();
         console.log(response.data)
+        console.log(store)
         setStore(response.data);
-        setLogoPreview(response.data.logo);
+        setLogoPreview(response.data.store_logo);
         reset(response.data);
       } catch (err) {
-        setError('Failed to load store data');
-      } finally {
+        console.error('Error loading store data:', err);
+        if (err.response.status == 404) {
+          setError("You do not have soter related to your account.")
+          return;
+        }
+        const message =
+          err.response?.data?.message ||
+          err.response?.data?.detail ||
+          err.response?.data?.error ||
+          err.message ||
+          'Failed to load store data. Please try again later.';
+
+        setError(message);
+      }
+      finally {
         setLoading(false);
       }
     };
@@ -75,15 +79,16 @@ const StoreProfile = () => {
     try {
       setLoading(true);
       const formData = new FormData();
-      Object.keys(data).forEach(key => {
-        if (key === 'logo' && data.logo[0]) {
-          formData.append('logo', data.logo[0]);
-        } else if (key !== 'logo') {
-          formData.append(key, data[key]);
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === 'store_logo' && value && value.length > 0) {
+          formData.append('store_logo', value[0]);
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, value);
         }
       });
-
-      const response = await updateStore(1, formData);
+      const response = await updateStore(store.id, formData);
+      console.log(response)
       setStore(response.data);
       setEditing(false);
       MySwal.fire({
@@ -93,33 +98,51 @@ const StoreProfile = () => {
         confirmButtonText: 'OK'
       });
     } catch (err) {
+      console.error('Update Error:', err);
+
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        err.message ||
+        'Failed to update store profile';
+
       MySwal.fire({
         title: 'Error!',
-        text: 'Failed to update store profile',
+        text: errorMessage,
         icon: 'error',
         confirmButtonText: 'OK'
       });
-    } finally {
+    }
+    finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
+    setLoading(true);
+
     try {
-      setLoading(true);
-      await deleteStore(1);
-      MySwal.fire({
+      await deleteStore(store.id);
+
+      await MySwal.fire({
         title: 'Deleted!',
-        text: 'Store profile has been deleted',
+        text: 'Store profile has been successfully deleted.',
         icon: 'success',
         confirmButtonText: 'OK'
-      }).then(() => {
-        // Redirect or handle after deletion
       });
+      window.location.navigate = '/'
     } catch (err) {
-      MySwal.fire({
+      console.error('Deletion Error:', err);
+
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        err.message ||
+        'Failed to delete store profile. Please try again.';
+
+      await MySwal.fire({
         title: 'Error!',
-        text: 'Failed to delete store profile',
+        text: errorMessage,
         icon: 'error',
         confirmButtonText: 'OK'
       });
@@ -128,6 +151,7 @@ const StoreProfile = () => {
       setShowDeleteModal(false);
     }
   };
+
 
   const confirmDelete = () => {
     MySwal.fire({
@@ -152,11 +176,37 @@ const StoreProfile = () => {
   );
 
   if (error) return (
-    <Container>
-      <Alert variant="danger" className="mt-4">
-        {error}
-      </Alert>
-    </Container>
+    <div className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column" style={{ zIndex: 1050 }}>
+      <div
+        className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4 text-center"
+        style={{
+          background: 'linear-gradient(135deg, #fff9f9 0%, #ffebeb 100%)'
+        }}
+      >
+        <FaExclamationTriangle size={64} className="text-danger mb-4" />
+        <h1 className="display-5 fw-bold mb-3">We Hit a Snag</h1>
+        <p className="lead mb-5" style={{ maxWidth: '600px' }}>{error}</p>
+        <div className="d-flex gap-3">
+          <button
+            onClick={() => window.location.reload()}
+            className="btn btn-lg btn-outline-danger"
+          >
+            <FaSync className="me-2" />
+            Refresh Page
+          </button>
+          <button
+            onClick={() => window.location = '/'}
+            className="btn btn-lg btn-danger"
+          >
+            <FaHome className="me-2" />
+            Home
+          </button>
+        </div>
+      </div>
+      <div className="bg-danger py-2 text-white text-center">
+        <small>Error Code: {Date.now()}</small>
+      </div>
+    </div>
   );
 
   const cardVariants = {
@@ -285,15 +335,42 @@ const StoreProfile = () => {
                               onClick={async () => {
                                 setLoading(true);
                                 try {
-                                  const updatedStore = await toggleStoreActiveStatus(
-                                    store.id,
-                                    !store.is_active
-                                  );
-                                  setStore(updatedStore);
+                                  const action = store.is_active ? 'deactivate' : 'activate';
+                                  const result = await Swal.fire({
+                                    title: `Are you sure?`,
+                                    text: `You are about to ${action} this store.`,
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: `Yes, ${action} it!`
+                                  });
 
+                                  if (result.isConfirmed) {
+                                    const updatedStore = await toggleStoreActiveStatus(
+                                      store.id,
+                                      !store.is_active
+                                    );
+                                    setStore(updatedStore);
+
+                                    // Success notification
+                                    await Swal.fire({
+                                      title: 'Success!',
+                                      text: `Store has been ${action}d.`,
+                                      icon: 'success',
+                                      timer: 2000,
+                                      showConfirmButton: false
+                                    });
+                                  }
                                 } catch (error) {
-                                
                                   console.error("Status update failed:", error);
+
+                                  // Error notification
+                                  await Swal.fire({
+                                    title: 'Error!',
+                                    text: 'Failed to update store status. Please try again.',
+                                    icon: 'error'
+                                  });
                                 } finally {
                                   setLoading(false);
                                 }
