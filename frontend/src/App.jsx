@@ -22,6 +22,11 @@ import StoreProfile from './components/dashboard/StoreProfile';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import Order from './components/pages/Order';
+import PaymentList from './components/pages/Payment';
+import ContactUs from './components/ContactUs';
+import AboutUs from './components/AboutUs';
+
 function App() {
   const publicRoutes = [
     { path: '/', element: <Home /> },
@@ -32,6 +37,10 @@ function App() {
     { path: '/reset-password', element: <ResetPassword /> },
     { path: '/api/auth/verify-email/:uid/:token', element: <EmailVerification /> },
     { path: '/api/auth/reset-password/:uid/:token', element: <ResetPassword /> },
+    { path: '/orders', element: <Order /> },
+    { path: '/payments', element: <PaymentList /> },
+    { path: '/contact-us', element: <ContactUs /> },
+    { path: '/about-us', element: <AboutUs /> },
   ];
 
   const protectedRoutes = [
@@ -66,7 +75,7 @@ function App() {
               element={<ProtectedRoute>{element}</ProtectedRoute>}
             />
           ))}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
         </Routes>
         <Footer />
       </AuthProvider>

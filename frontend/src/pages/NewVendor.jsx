@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { Container, Row, Col, Card, Form, Button, Spinner, Alert } from "react-bootstrap";
 import { createStore } from '../api/api.js';
 import Swal from "sweetalert2";
-import { FaStore, FaHandshake, FaUserTie } from 'react-icons/fa';
+import { FaHandshake } from 'react-icons/fa';
 
 const NewVendor = () => {
     const [loading, setLoading] = useState(false);
@@ -13,22 +13,23 @@ const NewVendor = () => {
         handleSubmit,
         formState: { errors },
         reset,
+        watch
     } = useForm();
 
     const onSubmit = async (data) => {
         setLoading(true);
         setError(null);
-        try {
 
+        try {
             const formData = new FormData();
-            formData.append("store_name", data.store_name);
-            formData.append("store_description", data.store_description);
+            formData.append("name", data.store_name);
+            formData.append("description", data.store_description);
             formData.append("contact_phone", data.contact_phone);
             formData.append("contact_email", data.contact_email);
+
+            // إضافة صورة المتجر إذا تم تحميلها
             if (data.store_logo && data.store_logo.length > 0) {
-                formData.append("store_logo", data.store_logo[0]);
-            } else {
-                formData.append("store_logo", "");
+                formData.append("logo", data.store_logo[0]);
             }
             console.log("Data:", data)
             const response = await createStore(formData)
@@ -53,34 +54,40 @@ const NewVendor = () => {
             }
         } catch (error) {
             console.error("Error:", error);
-            let backendErrorMessage = "An error occurred while registering the vendor.";
-            const errData = error?.response?.data;
-
-            if (typeof errData === "string") {
-                backendErrorMessage = errData;
-            } else if (errData?.detail) {
-                backendErrorMessage = errData.detail;
-            } else if (errData?.message) {
-                backendErrorMessage = errData.message;
-            } else if (typeof errData === "object") {
-                backendErrorMessage = Object.entries(errData)
-                    .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : value}`)
-                    .join(" - ");
-
+            let errorMessage = "An error occurred while registering the vendor.";
+            
+            if (error.response) {
+                // معالجة أخطاء الباكيند
+                const errorData = error.response.data;
+                
+                if (typeof errorData === "string") {
+                    errorMessage = errorData;
+                } else if (errorData.detail) {
+                    errorMessage = errorData.detail;
+                } else if (errorData.message) {
+                    errorMessage = errorData.message;
+                } else if (typeof errorData === "object") {
+                    errorMessage = Object.entries(errorData)
+                        .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : value}`)
+                        .join(" - ");
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
             }
 
-
-            setError(backendErrorMessage);
-
+            setError(errorMessage);
             Swal.fire({
                 icon: "error",
                 title: "Error!",
-                text: backendErrorMessage,
+                text: errorMessage,
             });
         } finally {
             setLoading(false);
         }
     };
+
+    // مشاهدة تغييرات صورة المتجر لعرض معاينة
+    const storeLogo = watch("store_logo");
 
     return (
         <section className="py-2" style={{
@@ -99,7 +106,6 @@ const NewVendor = () => {
                             backgroundColor: "rgba(255, 255, 255, 0.93)",
                             borderRadius: "20px"
                         }}>
-                            {/* Header Section */}
                             <div className="text-center mb-4">
                                 <FaHandshake
                                     style={{ color: "#e67e22", fontSize: "3.5rem" }}
@@ -113,14 +119,12 @@ const NewVendor = () => {
                                 </p>
                             </div>
 
-                            {/* Error Alert */}
                             {error && (
                                 <Alert variant="danger" className="text-center mb-4">
                                     {error}
                                 </Alert>
                             )}
 
-                            {/* Loading State */}
                             {loading ? (
                                 <div className="text-center py-4">
                                     <Spinner animation="border" variant="warning" />
@@ -136,32 +140,42 @@ const NewVendor = () => {
                                         <Form.Control
                                             type="text"
                                             placeholder="e.g., Fresh Farms"
-                                            {...register("store_name", { required: "Store name is required" })}
+                                            {...register("store_name", { 
+                                                required: "Store name is required",
+                                                minLength: {
+                                                    value: 3,
+                                                    message: "Store name must be at least 3 characters"
+                                                }
+                                            })}
                                             className="py-2 border-2"
-                                            isInvalid={errors.store_name}
+                                            isInvalid={!!errors.store_name}
                                         />
                                         <Form.Control.Feedback type="invalid">
                                             {errors.store_name?.message}
                                         </Form.Control.Feedback>
                                     </Form.Group>
 
-                                    {/* Store Description */}
                                     <Form.Group className="mb-3">
                                         <Form.Label className="fw-semibold">Description *</Form.Label>
                                         <Form.Control
                                             as="textarea"
                                             rows={3}
                                             placeholder="What makes your business unique?"
-                                            {...register("store_description", { required: "Description is required" })}
+                                            {...register("store_description", { 
+                                                required: "Description is required",
+                                                minLength: {
+                                                    value: 20,
+                                                    message: "Description must be at least 20 characters"
+                                                }
+                                            })}
                                             className="py-2 border-2"
-                                            isInvalid={errors.store_description}
+                                            isInvalid={!!errors.store_description}
                                         />
                                         <Form.Control.Feedback type="invalid">
                                             {errors.store_description?.message}
                                         </Form.Control.Feedback>
                                     </Form.Group>
 
-                                    {/* Contact Info */}
                                     <Row>
                                         <Col md={12}>
                                             <Form.Group className="mb-3">
@@ -169,9 +183,15 @@ const NewVendor = () => {
                                                 <Form.Control
                                                     type="tel"
                                                     placeholder="+201234567890"
-                                                    {...register("contact_phone", { required: "Phone is required" })}
+                                                    {...register("contact_phone", { 
+                                                        required: "Phone is required",
+                                                        pattern: {
+                                                            value: /^\+?[0-9]{10,15}$/,
+                                                            message: "Please enter a valid phone number"
+                                                        }
+                                                    })}
                                                     className="py-2 border-2"
-                                                    isInvalid={errors.contact_phone}
+                                                    isInvalid={!!errors.contact_phone}
                                                 />
                                                 <Form.Control.Feedback type="invalid">
                                                     {errors?.contact_phone?.message}
@@ -184,9 +204,15 @@ const NewVendor = () => {
                                                 <Form.Control
                                                     type="email"
                                                     placeholder="contact@yourstore.com"
-                                                    {...register("contact_email", { required: "Email is required" })}
+                                                    {...register("contact_email", { 
+                                                        required: "Email is required",
+                                                        pattern: {
+                                                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                                            message: "Invalid email address"
+                                                        }
+                                                    })}
                                                     className="py-2 border-2"
-                                                    isInvalid={errors.contact_email}
+                                                    isInvalid={!!errors.contact_email}
                                                 />
                                                 <Form.Control.Feedback type="invalid">
                                                     {errors.contact_email?.message}
@@ -195,27 +221,48 @@ const NewVendor = () => {
                                         </Col>
                                     </Row>
 
-                                    {/* Logo Upload */}
                                     <Form.Group className="mb-4">
                                         <Form.Label className="fw-semibold">Store Logo *</Form.Label>
                                         <Form.Control
                                             type="file"
                                             accept="image/*"
-                                            {...register("store_logo", { required: "Logo is required" })}
+                                            {...register("store_logo", { 
+                                                required: "Logo is required",
+                                                validate: {
+                                                    lessThan5MB: files => 
+                                                        files[0]?.size < 5 * 1024 * 1024 || "Max 5MB size",
+                                                    acceptedFormats: files =>
+                                                        ['image/jpeg', 'image/png', 'image/webp'].includes(files[0]?.type) || 
+                                                        "Only JPEG, PNG, WEBP formats"
+                                                }
+                                            })}
                                             className="py-2 border-2"
-                                            onChange={(e) => {
-                                                register("store_logo").onChange(e);
-                                            }}
                                             isInvalid={!!errors.store_logo}
                                         />
-                                        <Form.Text muted>PNG/JPG, max 5MB</Form.Text>
+                                        {storeLogo?.length > 0 && (
+                                            <div className="mt-2">
+                                                <img 
+                                                    src={URL.createObjectURL(storeLogo[0])} 
+                                                    alt="Store logo preview" 
+                                                    style={{
+                                                        maxWidth: '100%',
+                                                        maxHeight: '150px',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.store_logo?.message}
+                                        </Form.Control.Feedback>
+                                        <Form.Text muted>PNG/JPG/WEBP, max 5MB</Form.Text>
                                     </Form.Group>
 
-                                    {/* Submit Button */}
                                     <div className="d-grid mt-4">
                                         <Button
                                             type="submit"
                                             size="lg"
+                                            disabled={loading}
                                             style={{
                                                 background: "linear-gradient(135deg, #f39c12, #e67e22)",
                                                 border: "none",
@@ -224,13 +271,26 @@ const NewVendor = () => {
                                                 borderRadius: "10px"
                                             }}
                                         >
-                                            Complete Registration
+                                            {loading ? (
+                                                <span>
+                                                    <Spinner
+                                                        as="span"
+                                                        animation="border"
+                                                        size="sm"
+                                                        role="status"
+                                                        aria-hidden="true"
+                                                        className="me-2"
+                                                    />
+                                                    Processing...
+                                                </span>
+                                            ) : (
+                                                "Complete Registration"
+                                            )}
                                         </Button>
                                     </div>
                                 </Form>
                             )}
 
-                            {/* Footer Note */}
                             <p className="text-center text-muted mt-4 mb-0 small">
                                 Already have an account? <a href="/vendor-login" style={{ color: "#e67e22" }}>Sign in</a>
                             </p>
@@ -241,5 +301,9 @@ const NewVendor = () => {
         </section>
     );
 };
+
+
+
+
 
 export default NewVendor;

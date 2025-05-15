@@ -9,7 +9,6 @@ router.register('methods', PaymentMethodViewSet, basename='paymentmethod')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path("pay/vodafone/", pay_with_vodafone_cash, name="vodafone-pay"),
     path('paymob-webhook/', paymob_webhook, name='paymob-webhook'),
    
 
