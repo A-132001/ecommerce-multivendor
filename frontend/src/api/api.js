@@ -153,7 +153,7 @@ export const getProduct = async (productId) => {
 };
 
 export const updateProduct = async (productId, productData) => {
-    return await api.put(`/products/products/${productId}/`, productData, {
+    return await api.patch(`/products/products/${productId}/`, productData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },

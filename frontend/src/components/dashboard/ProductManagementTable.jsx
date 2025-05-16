@@ -49,32 +49,32 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
     setShowEditModal(true);
   };
 
-const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
 
-const handleImageUpload = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  if (!file.type.match('image.*')) {
-    setUploadError('Please select a valid image file');
-    return;
-  }
+    if (!file.type.match('image.*')) {
+      setUploadError('Please select a valid image file');
+      return;
+    }
 
-  if (file.size > 10 * 1024 * 1024) {
-    setUploadError('Image size should be less than 10MB');
-    return;
-  }
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('Image size should be less than 10MB');
+      return;
+    }
 
-  setUploadError(null);
-  setSelectedImageFile(file);
+    setUploadError(null);
+    setSelectedImageFile(file);
 
-  // preview
-  const reader = new FileReader();
-  reader.onloadend = () => {
-    setImagePreview(reader.result); // base64 preview only
+    // preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result); // base64 preview only
+    };
+    reader.readAsDataURL(file);
   };
-  reader.readAsDataURL(file);
-};
 
 
   const triggerFileInput = () => {
@@ -84,38 +84,55 @@ const handleImageUpload = (e) => {
   const onAddSubmit = async (data) => {
     setLoading(true)
     try {
-    const formData = new FormData();
-    
-    // Append all product fields
-    for (let key in data) {
-      formData.append(key, data[key]);
-    }
+      const formData = new FormData();
 
-    // Append image file
-    if (selectedImageFile) {
-      formData.append('image', selectedImageFile);
-    }
+      // Append all product fields
+      for (let key in data) {
+        formData.append(key, data[key]);
+      }
+
+      // Append image file
+      if (selectedImageFile) {
+        formData.append('image', selectedImageFile);
+      }
 
       const response = await onAdd(formData);
       console.log(response)
       setShowAddModal(false);
       resetAdd();
       setImagePreview(null);
+      setSelectedImageFile(null)
     } catch (error) {
       console.log(error)
     } finally {
       setLoading(false);
     }
   };
-  const onEditSubmit = (data) => {
-    const productData = {
-      ...data,
-      image: imagePreview || currentProduct.image
-    };
-    onEdit(currentProduct.id, productData);
-    setShowEditModal(false);
-    resetEdit();
-    setImagePreview(null);
+  const onEditSubmit = async (data) => {
+    setLoading(true)
+    try {
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (key !== 'imageFile') {
+          formData.append(key, value);
+        }
+      });
+      if (selectedImageFile) {
+        formData.append('image', selectedImageFile);
+      }
+
+      const response = await onEdit(currentProduct.id, formData);
+      console.log(response)
+      setShowEditModal(false);
+      resetEdit();
+      setImagePreview(null);
+      setSelectedImageFile(null)
+    } catch (error) {
+      console.error('Edit error:', error);
+    } finally {
+      setLoading(false);
+    }
+
   };
 
 
@@ -390,13 +407,35 @@ const handleImageUpload = (e) => {
                 )}
               </div>
             </div>
-
-            <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button variant="secondary" onClick={handleModalClose}>
+            <div className="d-flex justify-content-end gap-3 mt-4">
+              <Button
+                variant="outline-secondary"
+                onClick={handleModalClose}
+                disabled={loading}
+                aria-disabled={loading}
+              >
                 Cancel
               </Button>
-              <Button variant="primary" type="submit">
-                Save Changes
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={loading}
+                aria-busy={loading}
+                aria-live="polite"
+              >
+                {loading ? (
+                  <>
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-2"
+                    />
+                    <span>Saving...</span>
+                  </>
+                ) : "Save Changes"}
               </Button>
             </div>
           </form>

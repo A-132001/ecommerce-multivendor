@@ -36,7 +36,7 @@ export default function DashboardPage() {
           }
         });
       }
-      setProducts((prev)=> [...prev, response.data]);
+      setProducts((prev) => [...prev, response.data]);
       Swal.fire({
         title: 'Add Product',
         text: 'New Product added successfully to you Store',
@@ -108,11 +108,17 @@ export default function DashboardPage() {
     try {
       const response = await updateProduct(id, updatedProduct);
       console.log('Edit product response:', response);
-      const updatedProducts = products.map((product) =>
-        product.id === id ? { ...product, ...updatedProduct } : product
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === response.data.id ? response.data : product
+        )
       );
-      setProducts(updatedProducts);
-      localStorage.setItem('products', JSON.stringify(updatedProducts));
+      Swal.fire({
+        title: 'Edit Product',
+        text: 'Product edited successfully',
+        icon: 'success',
+        background: '#0f172a',
+      })
 
     } catch (error) {
       let backendErrorMessage = "An error occurred while updating the product.";
