@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-// import Navigation from './components/Navbar';
+import Navigation from './components/Navbar';
 import Footer from './components/Footer';
 import StorePage from './pages/StorePage';
 import DashboardPage from './pages/DashboardPage';
@@ -62,7 +62,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        {/* <Navigation /> */}
+        <Navigation />
          <ToastContainer />
         <Routes>
           {publicRoutes.map(({ path, element }) => (
@@ -75,7 +75,7 @@ function App() {
               element={<ProtectedRoute>{element}</ProtectedRoute>}
             />
           ))}
-          {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Footer />
       </AuthProvider>
