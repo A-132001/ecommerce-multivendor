@@ -25,7 +25,7 @@ class VendorThrottle(UserRateThrottle):
 
 class VendorViewSet(viewsets.ModelViewSet):
     serializer_class = VendorSerializer
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser] 
     throttle_classes = [VendorThrottle]
 
     def get_permissions(self):

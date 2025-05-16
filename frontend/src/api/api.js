@@ -137,11 +137,15 @@ export const listStores = async () => {
 
 // Product API calls
 export const getAllCategories = async () => await api.get(`/products/categories/`);
-export const getStoreProducts = async (storeId) => {
-    return await api.get(`/products/products/?store_id=${storeId}`);
-}
+export const getStoreProductsForVendor = async () => await api.get(`/products/products/`);
+export const getStoreProducts = async (storeId) =>  await api.get(`/products/products/by-vendor/${storeId}/`);
+
 export const createProduct = async (productData) => {
-    return await api.post('/products/products/', productData);
+    return await api.post('/products/products/', productData,  {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    }); 
 };
 
 export const getProduct = async (productId) => {
@@ -149,7 +153,7 @@ export const getProduct = async (productId) => {
 };
 
 export const updateProduct = async (productId, productData) => {
-    return await api.put(`/products/products/${productId}/`, productData, {
+    return await api.patch(`/products/products/${productId}/`, productData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
