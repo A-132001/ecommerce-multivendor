@@ -28,7 +28,7 @@ class CartViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def add_item(self, request):
         product_id = request.data.get("product")
-        quantity = request.data.get("quantity", 1)
+        quantity = int(request.data.get("quantity", 1))
         if not product_id:
             return Response(
                 {"error": "Product ID is required."},
@@ -43,7 +43,10 @@ class CartViewSet(viewsets.ModelViewSet):
 
         cart, created = Cart.objects.get_or_create(user=request.user)
         cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        cart_item.quantity += int(quantity)
+        if created:
+            cart_item.quantity = quantity  
+        else:
+            cart_item.quantity += quantity  
 
         try:
             cart_item.full_clean()
