@@ -1,5 +1,4 @@
 import React from 'react';
-import { products } from '../../data/TestData';
 import { Link } from 'react-router-dom';
 
 export default function RelatedProducts({ currentProduct }) {

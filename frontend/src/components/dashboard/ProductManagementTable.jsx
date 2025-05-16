@@ -5,9 +5,8 @@ import { FiEdit, FiTrash2, FiSave, FiX, FiImage, FiPlus, FiUpload } from 'react-
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { getAllCategories } from '../../api/api.js';
+// import { getAllCategories } from '../../api/api.js';
 import { toast } from "react-toastify";
-
 
 const MySwal = withReactContent(Swal);
 
@@ -22,7 +21,11 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
   const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
 
-  // React Hook Form setup
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
+  const totalPages = Math.ceil(products.length / pageSize);
+  const paginatedProducts = products.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   const {
     register: registerEdit,
     handleSubmit: handleEditSubmit,
@@ -68,14 +71,12 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
     setUploadError(null);
     setSelectedImageFile(file);
 
-    // preview
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImagePreview(reader.result); // base64 preview only
+      setImagePreview(reader.result);
     };
     reader.readAsDataURL(file);
   };
-
 
   const triggerFileInput = () => {
     fileInputRef.current.click();
@@ -85,19 +86,13 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
     setLoading(true)
     try {
       const formData = new FormData();
-
-      // Append all product fields
       for (let key in data) {
         formData.append(key, data[key]);
       }
-
-      // Append image file
       if (selectedImageFile) {
         formData.append('image', selectedImageFile);
       }
-
       const response = await onAdd(formData);
-      console.log(response)
       setShowAddModal(false);
       resetAdd();
       setImagePreview(null);
@@ -108,8 +103,9 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
       setLoading(false);
     }
   };
+
   const onEditSubmit = async (data) => {
-    setLoading(true)
+    setLoading(true);
     try {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
@@ -121,20 +117,21 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
         formData.append('image', selectedImageFile);
       }
 
-      const response = await onEdit(currentProduct.id, formData);
-      console.log(response)
+    
+      await onEdit(currentProduct.id, formData);
+
+     
       setShowEditModal(false);
       resetEdit();
       setImagePreview(null);
-      setSelectedImageFile(null)
+      setSelectedImageFile(null);
     } catch (error) {
       console.error('Edit error:', error);
+      toast.error('Failed to update product. Please try again.');
     } finally {
       setLoading(false);
     }
-
   };
-
 
   const confirmDelete = (id) => {
     MySwal.fire({
@@ -148,11 +145,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
     }).then((result) => {
       if (result.isConfirmed) {
         onDelete(id);
-        MySwal.fire(
-          'Deleted!',
-          'The product has been deleted.',
-          'success'
-        );
+        MySwal.fire('Deleted!', 'The product has been deleted.', 'success');
       }
     });
   };
@@ -177,7 +170,6 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
       setLoading(true);
       try {
         const response = await getAllCategories();
-        console.log(response.data)
         setCategories(response.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -191,19 +183,14 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
         setLoading(false);
       }
     };
-
-    fetchCategories();
+    // fetchCategories();
   }, []);
 
   return (
     <div className="p-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Product Management</h2>
-        <Button
-          variant="primary"
-          onClick={() => setShowAddModal(true)}
-          className="d-flex align-items-center"
-        >
+        <Button variant="primary" onClick={() => setShowAddModal(true)} className="d-flex align-items-center">
           <FiPlus className="me-2" /> Add Product
         </Button>
       </div>
@@ -223,7 +210,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
           </thead>
           <tbody>
             <AnimatePresence>
-              {products.map((product) => (
+              {paginatedProducts.map((product) => (
                 <motion.tr
                   key={product.id}
                   variants={rowVariants}
@@ -235,24 +222,14 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                   <td><strong>{product.name}</strong></td>
                   <td><span className="text-muted">{product.description || '-'}</span></td>
                   <td><Badge bg="success">${parseFloat(product.price).toFixed(2)}</Badge></td>
-                  <td>
-                    <Badge bg={product.stock > 0 ? 'info' : 'danger'}>
-                      {product.stock} in stock
-                    </Badge>
-                  </td>
+                  <td><Badge bg={product.stock > 0 ? 'info' : 'danger'}>{product.stock} in stock</Badge></td>
                   <td><Badge bg="secondary">{product.category}</Badge></td>
                   <td>
                     {product.image ? (
                       <motion.img
                         src={product.image}
                         alt={product.name}
-                        style={{
-                          width: '50px',
-                          height: '50px',
-                          objectFit: 'cover',
-                          borderRadius: '4px',
-                          cursor: 'pointer'
-                        }}
+                        style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px', cursor: 'pointer' }}
                         whileHover={{ scale: 1.1 }}
                         onClick={() => window.open(product.image, '_blank')}
                       />
@@ -264,20 +241,10 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                   </td>
                   <td>
                     <div className="d-flex gap-2">
-                      <Button
-                        variant="warning"
-                        size="sm"
-                        onClick={() => handleEditClick(product)}
-                        className="d-flex align-items-center"
-                      >
+                      <Button variant="warning" size="sm" onClick={() => handleEditClick(product)} className="d-flex align-items-center">
                         <FiEdit className="me-1" /> Edit
                       </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => confirmDelete(product.id)}
-                        className="d-flex align-items-center"
-                      >
+                      <Button variant="danger" size="sm" onClick={() => confirmDelete(product.id)} className="d-flex align-items-center">
                         <FiTrash2 className="me-1" /> Delete
                       </Button>
                     </div>
@@ -288,9 +255,8 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
           </tbody>
         </Table>
       </div>
-
-      {/* Edit Product Modal */}
-      <Modal show={showEditModal} onHide={handleModalClose} size="lg">
+{/* Edit Product Modal */}
+<Modal show={showEditModal} onHide={handleModalClose} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Edit Product</Modal.Title>
         </Modal.Header>
@@ -442,6 +408,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
         </Modal.Body>
       </Modal>
 
+      
       {/* Add Product Modal */}
       <Modal show={showAddModal} onHide={handleModalClose} size="lg">
         <Modal.Header closeButton>
@@ -603,6 +570,28 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
           </form>
         </Modal.Body>
       </Modal>
+    
+      {/* Pagination Controls */}
+      <div className="d-flex justify-content-between align-items-center mt-3">
+        <Button
+          variant="outline-secondary"
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+        >
+          Previous
+        </Button>
+        <span>Page {currentPage} of {totalPages}</span>
+        <Button
+          variant="outline-secondary"
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+        >
+          Next
+        </Button>
+      </div>
+
+     
+
     </div>
   );
 };

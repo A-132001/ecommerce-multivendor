@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardSidebar from '../components/dashboard/DashboardSidebar';
-import AddProductForm from '../components/dashboard/AddProductForm';
+// import AddProductForm from '../components/dashboard/AddProductForm';
 import ProductManagementTable from '../components/dashboard/ProductManagementTable';
 import OrdersList from '../components/dashboard/OrdersList';
 import Swal from 'sweetalert2';
@@ -11,6 +11,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ImSpinner8 } from 'react-icons/im';
 import { FaBox, FaShoppingBag, FaChartLine, FaPlus, FaChevronUp } from 'react-icons/fa';
 import { Spinner } from 'react-bootstrap';
+import { Tabs, Tab } from 'react-bootstrap';
+import axios from 'axios';
+
+
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,6 +22,7 @@ export default function DashboardPage() {
   const [products, setProducts] = useState([]);
 
   const [orders, setOrders] = useState([]);
+  
 
   const addProduct = async (newProduct) => {
     try {
@@ -214,7 +219,8 @@ export default function DashboardPage() {
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-3 bg-dark text-white p-4">
-          <DashboardSidebar />
+        <DashboardSidebar products={products} />
+
         </div>
         {loading ? (
           <div className="text-center py-5">
@@ -230,17 +236,28 @@ export default function DashboardPage() {
           // )
           : (
             <div className="col-md-9 p-4">
-              <h2 className="mb-4">Dashboard</h2>
-              <div className="mb-4">
-                <AddProductForm addProduct={addProduct} />
-              </div>
-              <div className="mb-4">
-                <ProductManagementTable products={products} onDelete={handleDeleteProduct} onEdit={handleEditProduct} onAdd={addProduct} />
-              </div>
-              <div>
-                <OrdersList orders={orders} onDelete={deleteOrder} onEdit={editOrder} />
-              </div>
-            </div>)}
+  <h2 className="mb-4">Dashboard</h2>
+
+  <Tabs defaultActiveKey="products" id="dashboard-tabs" className="mb-4">
+    <Tab eventKey="products" title="Product Management">
+      <ProductManagementTable
+        products={products}
+        onDelete={handleDeleteProduct}
+        onEdit={handleEditProduct}
+        onAdd={addProduct}
+      />
+    </Tab>
+
+    <Tab eventKey="orders" title="Orders Management">
+      <OrdersList
+        orders={orders}
+        onDelete={deleteOrder}
+        onEdit={editOrder}
+      />
+    </Tab>
+  </Tabs>
+</div>
+        )}
       </div>
     </div>
   );

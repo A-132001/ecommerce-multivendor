@@ -3,7 +3,7 @@ import Navigation from './components/Navbar';
 import Footer from './components/Footer';
 import StorePage from './pages/StorePage';
 import DashboardPage from './pages/DashboardPage';
-// import ProductDetailsPage from './pages/ProductDetailsPage';
+import ProductDetailsPage from './pages/ProductDetailsPage';
 // import Products from './pages/Products';
 import ProductManagementTable from './pages/ProductManagementTable';
 import EmailVerification from './components/pages/EmailVerification';
@@ -52,11 +52,11 @@ function App() {
     { path: '/dashboard', element: <DashboardPage /> },
     // { path: '/products', element: <Products /> },
     { path: '/product-management', element: <ProductManagementTable /> },
-    // { path: '/product/:product_id', element: <ProductDetailsPage /> },
+    { path: '/product/:product_id', element: <ProductDetailsPage /> },
     { path: '/cart', element: <CartPage /> }, // Add cart route
     { path: '/dashboard/store-profile', element: <StoreProfile /> },
     // { path: '/dashboard/orders', element: <OrdersList /> },
-    // { path: '/dashboard/products', element: <ProductManagementTable /> },
+    { path: '/dashboard/products', element: <ProductManagementTable /> },
   ];
 
   return (
