@@ -49,40 +49,64 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
     setShowEditModal(true);
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+const [selectedImageFile, setSelectedImageFile] = useState(null);
 
-    // Validate image file
-    if (!file.type.match('image.*')) {
-      setUploadError('Please select a valid image file');
-      return;
-    }
+const handleImageUpload = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      setUploadError('Image size should be less than 5MB');
-      return;
-    }
+  if (!file.type.match('image.*')) {
+    setUploadError('Please select a valid image file');
+    return;
+  }
 
-    setUploading(true);
-    setUploadError(null);
+  if (file.size > 10 * 1024 * 1024) {
+    setUploadError('Image size should be less than 10MB');
+    return;
+  }
 
-    // Simulate upload process (replace with actual upload logic)
-    setTimeout(() => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result;
-        setImagePreview(base64String);
-        setUploading(false);
-      };
-      reader.readAsDataURL(file);
-    }, 1500);
+  setUploadError(null);
+  setSelectedImageFile(file);
+
+  // preview
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    setImagePreview(reader.result); // base64 preview only
   };
+  reader.readAsDataURL(file);
+};
+
 
   const triggerFileInput = () => {
     fileInputRef.current.click();
   };
 
+  const onAddSubmit = async (data) => {
+    setLoading(true)
+    try {
+    const formData = new FormData();
+    
+    // Append all product fields
+    for (let key in data) {
+      formData.append(key, data[key]);
+    }
+
+    // Append image file
+    if (selectedImageFile) {
+      formData.append('image', selectedImageFile);
+    }
+
+      const response = await onAdd(formData);
+      console.log(response)
+      setShowAddModal(false);
+      resetAdd();
+      setImagePreview(null);
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false);
+    }
+  };
   const onEditSubmit = (data) => {
     const productData = {
       ...data,
@@ -94,16 +118,6 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
     setImagePreview(null);
   };
 
-  const onAddSubmit = (data) => {
-    const productData = {
-      ...data,
-      image: imagePreview
-    };
-    onAdd(productData);
-    setShowAddModal(false);
-    resetAdd();
-    setImagePreview(null);
-  };
 
   const confirmDelete = (id) => {
     MySwal.fire({
@@ -516,12 +530,35 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
               </div>
             </div>
 
-            <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button variant="secondary" onClick={handleModalClose}>
+            <div className="d-flex justify-content-end gap-3 mt-4">
+              <Button
+                variant="outline-secondary"
+                onClick={handleModalClose}
+                disabled={loading}
+                aria-disabled={loading}
+              >
                 Cancel
               </Button>
-              <Button variant="primary" type="submit">
-                Add Product
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={loading}
+                aria-busy={loading}
+                aria-live="polite"
+              >
+                {loading ? (
+                  <>
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-2"
+                    />
+                    <span>Adding...</span>
+                  </>
+                ) : "Add Product"}
               </Button>
             </div>
           </form>

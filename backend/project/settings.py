@@ -169,6 +169,14 @@ BACKEND_URL = "http://localhost:8000"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# below allows up to 10 MB uploads
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
+
+# for DRF config:
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024 
+
+
+
  #  For development only
 
 CORS_ALLOW_CREDENTIALS = True
@@ -190,6 +198,7 @@ ALLOWED_HOSTS = ['*']
 
 # Site settings
 SITE_NAME = 'VendorHub'
+
 
 
 

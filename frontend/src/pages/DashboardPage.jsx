@@ -6,8 +6,8 @@ import ProductManagementTable from '../components/dashboard/ProductManagementTab
 import OrdersList from '../components/dashboard/OrdersList';
 import Swal from 'sweetalert2';
 import { FaExclamationTriangle, FaInfoCircle, } from 'react-icons/fa';
-import { createProduct, getStoreProducts, getProduct, updateProduct, deleteProduct,listOrders } from '../api/api';
-import {motion, AnimatePresence} from 'framer-motion';
+import { createProduct, getStoreProducts, getProduct, updateProduct, deleteProduct, listOrders } from '../api/api';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ImSpinner8 } from 'react-icons/im';
 import { FaBox, FaShoppingBag, FaChartLine, FaPlus, FaChevronUp } from 'react-icons/fa';
 import { Spinner } from 'react-bootstrap';
@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const addProduct = async (newProduct) => {
     try {
       const response = await createProduct(newProduct);
+      console.log(response)
       if (response.status !== 201) {
         Swal.fire({
           title: 'Error',
@@ -34,15 +35,14 @@ export default function DashboardPage() {
             popup: 'shadow-lg border border-gray-700'
           }
         });
-
-        const updatedProducts = [
-          ...products,
-          { id: products.length + 1, ...newProduct },
-        ];
-        setProducts(updatedProducts);
-        localStorage.setItem('products', JSON.stringify(updatedProducts));
-        return;
       }
+      setProducts((prev)=> [...prev, response.data]);
+      Swal.fire({
+        title: 'Add Product',
+        text: 'New Product added successfully to you Store',
+        icon: 'success',
+        background: '#0f172a',
+      })
     } catch (error) {
       let backendErrorMessage = "An error occurred while registering the vendor.";
       const errData = error?.response?.data;
@@ -72,14 +72,14 @@ export default function DashboardPage() {
   };
 
   const handleDeleteProduct = async (id) => {
-    try{
+    try {
       const response = deleteProduct(id);
       console.log('Delete product response:', response);
-          const updatedProducts = products.filter((product) => product.id !== id);
-    setProducts(updatedProducts);
+      const updatedProducts = products.filter((product) => product.id !== id);
+      setProducts(updatedProducts);
 
-    localStorage.setItem('products', JSON.stringify(updatedProducts));
-    }catch {
+      localStorage.setItem('products', JSON.stringify(updatedProducts));
+    } catch {
       console.log('Error deleting product:', error);
       let backendErrorMessage = "An error occurred while deleting the product.";
       const errData = error?.response?.data;
@@ -104,15 +104,15 @@ export default function DashboardPage() {
 
   };
 
-  const handleEditProduct =async (id, updatedProduct) => {
+  const handleEditProduct = async (id, updatedProduct) => {
     try {
       const response = await updateProduct(id, updatedProduct);
       console.log('Edit product response:', response);
       const updatedProducts = products.map((product) =>
-      product.id === id ? { ...product, ...updatedProduct } : product
-    );
-    setProducts(updatedProducts);
-    localStorage.setItem('products', JSON.stringify(updatedProducts));
+        product.id === id ? { ...product, ...updatedProduct } : product
+      );
+      setProducts(updatedProducts);
+      localStorage.setItem('products', JSON.stringify(updatedProducts));
 
     } catch (error) {
       let backendErrorMessage = "An error occurred while updating the product.";
@@ -134,7 +134,7 @@ export default function DashboardPage() {
         title: "Error!",
         text: backendErrorMessage,
       });
-      console.log('Error editing product:', error);  
+      console.log('Error editing product:', error);
     }
   };
 
@@ -195,7 +195,7 @@ export default function DashboardPage() {
           text: backendErrorMessage,
         });
         console.error('Error fetching orders:', error);
-        
+
       } finally {
         setLoading(false);
       }
@@ -212,30 +212,30 @@ export default function DashboardPage() {
           <DashboardSidebar />
         </div>
         {loading ? (
-              <div className="text-center py-5">
-                <Spinner animation="border" variant="warning" />
-                <p className="mt-3">Loading shops...</p>
-              </div>
+          <div className="text-center py-5">
+            <Spinner animation="border" variant="warning" />
+            <p className="mt-3">Loading shops...</p>
+          </div>
         )
-        //  : error ? (
-        //   <div className="col-md-9 p-4">
-        //     <h2 className="mb-4">Error</h2>
-        //     <p>{error}</p>
-        //   </div>
-        // )
-        :(
-           <div className="col-md-9 p-4">
-          <h2 className="mb-4">Dashboard</h2>
-          <div className="mb-4">
-            <AddProductForm addProduct={addProduct} />
-          </div>
-          <div className="mb-4">
-            <ProductManagementTable products={products} onDelete={handleDeleteProduct} onEdit={handleEditProduct} onAdd={addProduct}/>
-          </div>
-          <div>
-            <OrdersList orders={orders} onDelete={deleteOrder} onEdit={editOrder} />
-          </div>
-        </div>)}
+          //  : error ? (
+          //   <div className="col-md-9 p-4">
+          //     <h2 className="mb-4">Error</h2>
+          //     <p>{error}</p>
+          //   </div>
+          // )
+          : (
+            <div className="col-md-9 p-4">
+              <h2 className="mb-4">Dashboard</h2>
+              <div className="mb-4">
+                <AddProductForm addProduct={addProduct} />
+              </div>
+              <div className="mb-4">
+                <ProductManagementTable products={products} onDelete={handleDeleteProduct} onEdit={handleEditProduct} onAdd={addProduct} />
+              </div>
+              <div>
+                <OrdersList orders={orders} onDelete={deleteOrder} onEdit={editOrder} />
+              </div>
+            </div>)}
       </div>
     </div>
   );

@@ -145,7 +145,7 @@ export const createProduct = async (productData) => {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
-    });
+    }); 
 };
 
 export const getProduct = async (productId) => {
