@@ -5,7 +5,7 @@ import { FiEdit, FiTrash2, FiSave, FiX, FiImage, FiPlus, FiUpload } from 'react-
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-// import { getAllCategories } from '../../api/api.js';
+import { getAllCategories } from '../../api/api.js';
 import { toast } from "react-toastify";
 
 const MySwal = withReactContent(Swal);
@@ -183,7 +183,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
         setLoading(false);
       }
     };
-    // fetchCategories();
+    fetchCategories();
   }, []);
 
   return (
