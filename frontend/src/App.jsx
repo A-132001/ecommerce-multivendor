@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-// import Navigation from './components/Navbar';
+import Navigation from './components/Navbar';
 import Footer from './components/Footer';
 import StorePage from './pages/StorePage';
 import DashboardPage from './pages/DashboardPage';
-import ProductDetailsPage from './pages/ProductDetailsPage';
-import Products from './pages/Products';
+// import ProductDetailsPage from './pages/ProductDetailsPage';
+// import Products from './pages/Products';
 import ProductManagementTable from './pages/ProductManagementTable';
 import EmailVerification from './components/pages/EmailVerification';
 import ResetPassword from './components/pages/ResetPassword';
@@ -50,9 +50,9 @@ function App() {
     { path: '/store', element: <Store /> },
     { path: '/store/:store_id', element: <StorePage /> },
     { path: '/dashboard', element: <DashboardPage /> },
-    { path: '/products', element: <Products /> },
+    // { path: '/products', element: <Products /> },
     { path: '/product-management', element: <ProductManagementTable /> },
-    { path: '/product/:product_id', element: <ProductDetailsPage /> },
+    // { path: '/product/:product_id', element: <ProductDetailsPage /> },
     { path: '/cart', element: <CartPage /> }, // Add cart route
     { path: '/dashboard/store-profile', element: <StoreProfile /> },
     // { path: '/dashboard/orders', element: <OrdersList /> },
@@ -62,7 +62,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        {/* <Navigation /> */}
+        <Navigation />
          <ToastContainer />
         <Routes>
           {publicRoutes.map(({ path, element }) => (
@@ -75,7 +75,7 @@ function App() {
               element={<ProtectedRoute>{element}</ProtectedRoute>}
             />
           ))}
-          {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Footer />
       </AuthProvider>

@@ -2,6 +2,7 @@ import React from 'react';
 import { FaShoppingCart, FaStar, FaHeart } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
+import { useCart } from '../../context/CartContext';
 
 const StockBadge = ({ stock }) => {
   return (
@@ -23,18 +24,32 @@ const RatingBadge = ({ rating }) => {
 };
 
 const ProductCard = ({ product }) => {
-  const handleAddToCart = () => {
-    Swal.fire({
-      title: 'Added to Cart',
-      text: `${product.name} has been added to your cart`,
-      icon: 'success',
-      background: '#0f172a',
-      color: '#f8fafc',
-      confirmButtonColor: '#d4a017',
-      customClass: {
-        popup: 'shadow-lg border border-gray-700'
-      }
-    });
+  const { addToCart, loading } = useCart();
+
+  const handleAddToCart = async () => {
+    try {
+      await addToCart(product.id, 1); // Add 1 quantity
+      Swal.fire({
+        title: 'Added to Cart',
+        text: `${product.name} has been added to your cart`,
+        icon: 'success',
+        background: '#0f172a',
+        color: '#f8fafc',
+        confirmButtonColor: '#d4a017',
+        customClass: {
+          popup: 'shadow-lg border border-gray-700'
+        }
+      });
+    } catch (error) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Could not add to cart.',
+        icon: 'error',
+        background: '#0f172a',
+        color: '#f8fafc',
+        confirmButtonColor: '#d4a017',
+      });
+    }
   };
 
   return (
@@ -96,7 +111,7 @@ const ProductCard = ({ product }) => {
         <button 
           className="btn btn-outline-dark shadow-sm px-3"
           onClick={handleAddToCart}
-          disabled={product.stock === 0}
+          disabled={loading}
         >
           <FaShoppingCart />
         </button>

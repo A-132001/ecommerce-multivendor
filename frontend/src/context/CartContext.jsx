@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
@@ -21,11 +21,7 @@ export const CartProvider = ({ children }) => {
 
   const fetchCart = async () => {
     try {
-      const response = await axios.get('/api/cart/my_cart/', {
-        headers: {
-          Authorization: `Bearer ${authTokens?.access}`,
-        },
-      });
+      const response = await api.get('/api/cart/my_cart/');
       setCart(response.data);
       setCartCount(response.data.total_quantity || 0);
     } catch (error) {
@@ -36,15 +32,7 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (productId, quantity = 1) => {
     try {
       setLoading(true);
-      await axios.post(
-        '/api/cart/add_item/',
-        { product: productId, quantity },
-        {
-          headers: {
-            Authorization: `Bearer ${authTokens?.access}`,
-          },
-        }
-      );
+      await api.post('/api/cart/add_item/', { product: productId, quantity });
       await fetchCart(); 
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -62,14 +50,9 @@ export const CartProvider = ({ children }) => {
       );
       setCart({ ...cart, items: updatedItems });
 
-      await axios.patch(
+      await api.patch(
         `/api/cart/update_item/${productId}/`,
         { quantity: newQuantity },
-        {
-          headers: {
-            Authorization: `Bearer ${authTokens?.access}`,
-          },
-        }
       );
       
       await fetchCart();
@@ -82,11 +65,7 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = async (productId) => {
     try {
-      await axios.delete(`/api/cart/remove_item/${productId}/`, {
-        headers: {
-          Authorization: `Bearer ${authTokens?.access}`,
-        },
-      });
+      await api.delete(`/api/cart/remove_item/${productId}/`);
       await fetchCart();
     } catch (error) {
       console.error('Error removing from cart:', error);
