@@ -137,9 +137,9 @@ export const listStores = async () => {
 
 // Product API calls
 export const getAllCategories = async () => await api.get(`/products/categories/`);
-export const getStoreProducts = async (storeId) => {
-    return await api.get(`/products/products/?store_id=${storeId}`);
-}
+export const getStoreProductsForVendor = async () => await api.get(`/products/products/`);
+export const getStoreProducts = async (storeId) =>  await api.get(`/products/products/by-vendor/${storeId}/`);
+
 export const createProduct = async (productData) => {
     return await api.post('/products/products/', productData,  {
         headers: {

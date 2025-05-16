@@ -6,7 +6,7 @@ import ProductManagementTable from '../components/dashboard/ProductManagementTab
 import OrdersList from '../components/dashboard/OrdersList';
 import Swal from 'sweetalert2';
 import { FaExclamationTriangle, FaInfoCircle, } from 'react-icons/fa';
-import { createProduct, getStoreProducts, getProduct, updateProduct, deleteProduct, listOrders } from '../api/api';
+import { createProduct, getStoreProductsForVendor, getProduct, updateProduct, deleteProduct, listOrders } from '../api/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ImSpinner8 } from 'react-icons/im';
 import { FaBox, FaShoppingBag, FaChartLine, FaPlus, FaChevronUp } from 'react-icons/fa';
@@ -161,8 +161,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await getStoreProducts();
-        console.log('Fetched products:', response.data);
+        const response = await getStoreProductsForVendor();
         setProducts(response.data);
         localStorage.setItem('products', JSON.stringify(response.data));
       } catch (error) {
