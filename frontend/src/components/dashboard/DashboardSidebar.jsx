@@ -82,7 +82,7 @@ const DashboardSidebar = ({ products }) => {
       key: 'products',
       onClick: () => setShowProductsModal(true)
     },
-    { path: '/dashboard/orders', name: 'Orders', icon: <FaClipboardList />, key: 'orders' }
+    // { path: '/dashboard/orders', name: 'Orders', icon: <FaClipboardList />, key: 'orders' }
   ];
 
   const MobileToggleButton = () => (
@@ -155,7 +155,7 @@ const DashboardSidebar = ({ products }) => {
         ))}
       </Nav>
 
-      <motion.div
+      {/* <motion.div
         variants={linkVariants}
         whileHover="hover"
         whileTap="tap"
@@ -174,7 +174,7 @@ const DashboardSidebar = ({ products }) => {
             <FaSignOutAlt />
           )}
         </Button>
-      </motion.div>
+      </motion.div> */}
     </motion.div>
   );
 
@@ -214,14 +214,14 @@ const DashboardSidebar = ({ products }) => {
           ))}
         </Nav>
 
-        <Button 
+        {/* <Button 
           variant="outline-danger" 
           className="w-100 mt-4"
           onClick={handleLogout}
         >
           <FaSignOutAlt className="me-2" />
           Logout
-        </Button>
+        </Button> */}
       </Offcanvas.Body>
     </Offcanvas>
   );

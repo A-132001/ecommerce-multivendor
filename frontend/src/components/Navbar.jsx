@@ -151,9 +151,9 @@ function Navigation() {
 
         <Navbar.Collapse
           id="basic-navbar-nav"
-          className="justify-content-between mt-3 mt-lg-0"
+          className="justify-content-center mt-3 mt-lg-0"
         >
-          <form onSubmit={handleSearch} className="d-flex my-2 my-lg-0 me-lg-3 flex-grow-1 flex-lg-grow-0">
+          {/* <form onSubmit={handleSearch} className="d-flex my-2 my-lg-0 me-lg-3 flex-grow-1 flex-lg-grow-0">
             <div className="input-group">
               <input
                 type="text"
@@ -171,7 +171,7 @@ function Navigation() {
                 <FaSearch />
               </button>
             </div>
-          </form>
+          </form> */}
 
           <Nav className="align-items-lg-center">
             {filteredNavBarLinks.map((link, index) => (
@@ -183,7 +183,7 @@ function Navigation() {
                 aria-label={link.label}
               >
                 {React.cloneElement(link.icon, { className: "me-2" })}
-                <span className="d-none d-lg-inline">{link.label}</span>
+                <span className="d-lg-inline">{link.label}</span>
               </Nav.Link>
             ))}
             {isAuthenticated ? (
