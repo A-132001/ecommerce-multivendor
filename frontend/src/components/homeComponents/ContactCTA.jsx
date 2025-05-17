@@ -6,7 +6,7 @@ const ContactCTA = () => {
   return (
     <section className="bg-white py-5" style={{ borderTop: '1px solid #f0f0f0' }}>
       <Container>
-        <Row className="align-items-center g-5">
+        <Row className="align-items-center">
           <Col md={6} className="text-center text-md-start">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

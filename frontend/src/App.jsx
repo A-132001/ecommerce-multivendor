@@ -21,7 +21,7 @@ import CartPage from './pages/CartPage';
 import StoreProfile from './components/dashboard/StoreProfile';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import './App.css'
 import Order from './components/pages/Order';
 import PaymentList from './components/pages/Payment';
 import ContactUs from './components/ContactUs';

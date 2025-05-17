@@ -91,7 +91,7 @@ function Navigation() {
 
   const navBarLinks = useMemo(() => [
     { path: "/", label: "Home", icon: <FaHome className="me-2" size={16} /> },
-    { path: "/products", label: "Products", icon: <FaBox className="me-2" size={16} /> },
+    // { path: "/products", label: "Products", icon: <FaBox className="me-2" size={16} /> },
     { path: "/list-stores", label: "Vendors", icon: <FaShopify className="me-2" size={16} /> },
     { path: "/dashboard", label: "Dashboard", icon: <FaChartLine className="me-2" size={16} /> } ,
     { path: "/contact-us", label: "Contact Us", icon: <FaEnvelope className="me-2" size={16} /> },
