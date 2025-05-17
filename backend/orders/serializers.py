@@ -29,7 +29,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
-        read_only_fields = ['id', 'status', 'date']
+        read_only_fields = ['id', 'status', 'date','user']
 
     def create(self, validated_data):
         shipping_data = validated_data.pop('shipping_address')

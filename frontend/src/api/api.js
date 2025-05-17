@@ -170,7 +170,7 @@ export const listProducts = async () => {
 
 // Cart API calls
 export const getCart = async () => {
-    return await api.get('/cart/');
+    return await api.get('/cart/cartitem');
 };
 
 export const addToCart = async (productId, quantity) => {
@@ -184,6 +184,8 @@ export const updateCartItem = async (itemId, quantity) => {
 export const removeFromCart = async (itemId) => {
     return await api.delete(`/cart/items/${itemId}/`);
 };
+
+
 
 // Order API calls
 export const createOrder = async (orderData) => {
