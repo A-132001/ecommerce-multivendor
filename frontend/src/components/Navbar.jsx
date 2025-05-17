@@ -17,7 +17,6 @@ import CartIcon from './CartIcon';
 
 function Navigation() {
   const { isAuthenticated, user, logout } = useAuth();
-  console.log('User:', user);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 

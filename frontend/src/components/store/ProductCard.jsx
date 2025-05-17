@@ -24,6 +24,7 @@ const RatingBadge = ({ rating }) => {
 };
 
 const ProductCard = ({ product }) => {
+  console.log(product)
   const { addToCart, loading } = useCart();
 
   const handleAddToCart = async () => {
@@ -104,6 +105,7 @@ const ProductCard = ({ product }) => {
       <div className="d-flex align-items-center px-3 pb-3">
         <Link 
           to={`/product/${product.id}`}
+           state={{ product }}
           className="btn btn-outline-dark text-center shadow-sm flex-grow-1 me-2"
         >
           View Details

@@ -44,6 +44,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
   const handleEditClick = (product) => {
     setCurrentProduct(product);
     setEditValue('name', product.name);
+    setEditValue("discount", product.discount)
     setEditValue('description', product.description);
     setEditValue('price', product.price);
     setEditValue('stock', product.stock);
@@ -88,11 +89,13 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
       const formData = new FormData();
       for (let key in data) {
         formData.append(key, data[key]);
+        console.log(key, data[key])
       }
       if (selectedImageFile) {
         formData.append('image', selectedImageFile);
       }
-      const response = await onAdd(formData);
+      await onAdd(formData);
+     
       setShowAddModal(false);
       resetAdd();
       setImagePreview(null);
@@ -117,10 +120,10 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
         formData.append('image', selectedImageFile);
       }
 
-    
+
       await onEdit(currentProduct.id, formData);
 
-     
+
       setShowEditModal(false);
       resetEdit();
       setImagePreview(null);
@@ -202,6 +205,8 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
               <th>Name</th>
               <th>Description</th>
               <th>Price</th>
+              <th>Discount%</th>
+              <th>old Price</th>
               <th>Stock</th>
               <th>Category</th>
               <th>Image</th>
@@ -221,7 +226,9 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                 >
                   <td><strong>{product.name}</strong></td>
                   <td><span className="text-muted">{product.description || '-'}</span></td>
-                  <td><Badge bg="success">${parseFloat(product.price).toFixed(2)}</Badge></td>
+                  <td><Badge bg="success">LE{parseFloat(product.price).toFixed(2)}</Badge></td>
+                  <td className='text-center'><Badge bg='warning'>{parseFloat(product.discount)}</Badge></td>
+                  <td className='text-center'> <Badge bg='danger'>{parseFloat(product.original_price)}</Badge></td>
                   <td><Badge bg={product.stock > 0 ? 'info' : 'danger'}>{product.stock} in stock</Badge></td>
                   <td><Badge bg="secondary">{product.category}</Badge></td>
                   <td>
@@ -255,8 +262,8 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
           </tbody>
         </Table>
       </div>
-{/* Edit Product Modal */}
-<Modal show={showEditModal} onHide={handleModalClose} size="lg">
+      {/* Edit Product Modal */}
+      <Modal show={showEditModal} onHide={handleModalClose} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Edit Product</Modal.Title>
         </Modal.Header>
@@ -295,6 +302,22 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                     {...registerEdit('price', {
                       required: 'Price is required',
                       min: { value: 0, message: 'Price must be positive' }
+                    })}
+                  />
+                  {editErrors.price && (
+                    <div className="invalid-feedback">{editErrors.price.message}</div>
+                  )}
+                </div>
+                  <div className="mb-3">
+                  <label className="form-label">Discount</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    className={`form-control ${editErrors.discount ? 'is-invalid' : ''}`}
+                    {...registerEdit('discount', {
+                      required: 'Discount is required',
+                      min: { value: 0, message: 'Discount must be percentage' }
                     })}
                   />
                   {editErrors.price && (
@@ -408,7 +431,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
         </Modal.Body>
       </Modal>
 
-      
+
       {/* Add Product Modal */}
       <Modal show={showAddModal} onHide={handleModalClose} size="lg">
         <Modal.Header closeButton>
@@ -453,6 +476,22 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                   />
                   {addErrors.price && (
                     <div className="invalid-feedback">{addErrors.price.message}</div>
+                  )}
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">discount</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    className={`form-control ${addErrors.discount ? 'is-invalid' : ''}`}
+                    {...registerAdd('discount', {
+                      required: 'Discount is required',
+                      min: { value: 0, message: 'Discount must be percentage' }
+                    })}
+                  />
+                  {addErrors.discount && (
+                    <div className="invalid-feedback">{addErrors.discount.message}</div>
                   )}
                 </div>
               </div>
@@ -570,7 +609,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
           </form>
         </Modal.Body>
       </Modal>
-    
+
       {/* Pagination Controls */}
       <div className="d-flex justify-content-between align-items-center mt-3">
         <Button
@@ -590,7 +629,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
         </Button>
       </div>
 
-     
+
 
     </div>
   );

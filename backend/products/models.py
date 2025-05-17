@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from django.core.exceptions import ValidationError
 
@@ -44,11 +45,11 @@ class Product(models.Model):
             raise ValidationError("Discount must be between 0 and 100.")
 
 
-        def save(self, *args, **kwargs):
-            if self.discount > 0:
-                if not self.original_price or self.original_price == 0:
-                    self.original_price = self.price
-                discount_amount = (self.original_price * self.discount) / Decimal(100)
-                self.price = self.original_price - discount_amount
-           
-            super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        if self.discount > 0:
+            if not self.original_price or self.original_price == 0:
+                self.original_price = self.price
+            discount_amount = (self.original_price * self.discount) / Decimal(100)
+            self.price = self.original_price - discount_amount
+        
+        super().save(*args, **kwargs)
