@@ -32,6 +32,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # CORS Middleware  FIRST
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -39,8 +41,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # CORS Middleware
-    "corsheaders.middleware.CorsMiddleware",
+    
 ]
 
 ROOT_URLCONF = "project.urls"
@@ -148,10 +149,13 @@ SIMPLE_JWT = {
 }
 
 # Allow to access API from frontend
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",
    
-]
+# ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 # Email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -199,6 +203,10 @@ ALLOWED_HOSTS = ['*']
 # Site settings
 SITE_NAME = 'VendorHub'
 
+# solution for CORS issue
+from corsheaders.defaults import default_headers
 
-
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'Authorization',
+]
 

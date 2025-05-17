@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { getCart } from '../../api/api.js'; 
 
 const Payment = () => {
   const [iframeUrl, setIframeUrl] = useState('');
@@ -7,18 +8,73 @@ const Payment = () => {
   const [error, setError] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('card');
-  const [phoneNumber, setPhoneNumber] = useState('01095292482'); 
+  const [phoneNumber, setPhoneNumber] = useState('01095292482');
+  const [cartItems, setCartItems] = useState([]);
+  const [subtotal, setSubtotal] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0); 
+  const [totalQuantity, setTotalQuantity] = useState(0); 
 
   const API_KEY = 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRBME16RTNNeXdpYm1GdFpTSTZJakUzTkRjeU16QTFOek11TlRBd09ERTJJbjAueU5TcmZ4Y1JveVFIckNhWERfY2h4VEZrdmxSTDBZTUVPSVE3UldHTzd5cmFPTmRVTG5QY0xNOUlNbktKYjV1ckV5Y3VhT0pEcExlWEk5ZkF3R0JIcUE='; // Replace with your API key
-  const INTEGRATION_ID_CARD = 5085520; 
-  const INTEGRATION_ID_VODAFONE = 5089329; 
+  const INTEGRATION_ID_CARD = 5085520;
+  const INTEGRATION_ID_VODAFONE = 5089329;
   const IFRAME_ID = 920499;
 
-  const productAmount = 100; 
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      try {
+        const response = await getCart();
+        console.log('Cart response:', response);
+
+        if (response.data) {
+          if (response.data.items) {
+            const formattedItems = response.data.items.map(item => ({
+              product: item.product.id,
+              vendor: item.product.vendor,
+              quantity: item.quantity,
+              price: item.product.price,
+              name: item.product.name,
+              image: item.product.image,
+            }));
+
+            setCartItems(formattedItems);
+
+            const total = formattedItems.reduce(
+              (sum, item) => sum + item.price * item.quantity,
+              0
+            );
+            setSubtotal(total);
+          }
+
+          if (response.data.total_price) {
+            setTotalPrice(response.data.total_price);
+          }
+          if (response.data.total_quantity) {
+            setTotalQuantity(response.data.total_quantity);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching cart items:', error);
+        setError('Failed to load cart items');
+      }
+    };
+
+    fetchCartItems();
+  }, []);
+
+  const handleChange = (e, section) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [name]: value,
+      },
+    }));
+  };
 
   const initiatePayment = async () => {
-    if (!productAmount || isNaN(productAmount) || productAmount <= 0) {
-      setError(' Invalid product amount.');
+    if (!subtotal || isNaN(subtotal) || subtotal <= 0) {
+      setError('Invalid product amount.');
       return;
     }
 
@@ -28,29 +84,30 @@ const Payment = () => {
     setPaymentStatus('');
 
     try {
-      // 1. AUTH
       const authRes = await axios.post('https://accept.paymob.com/api/auth/tokens', {
         api_key: API_KEY,
       });
       const token = authRes.data.token;
 
-      // 2. ORDER
       const orderRes = await axios.post('https://accept.paymob.com/api/ecommerce/orders', {
         auth_token: token,
         delivery_needed: false,
-        amount_cents: productAmount * 100, 
+        amount_cents: subtotal * 100,
         currency: 'EGP',
-        items: [],
+        items: cartItems.map(item => ({
+          name: item.name,
+          amount_cents: item.price * 100,
+          quantity: item.quantity,
+        })),
       });
       const orderId = orderRes.data.id;
 
-      // 3. PAYMENT TOKEN
       const integrationId =
         paymentMethod === 'vodafone' ? INTEGRATION_ID_VODAFONE : INTEGRATION_ID_CARD;
 
       const paymentRes = await axios.post('https://accept.paymob.com/api/acceptance/payment_keys', {
         auth_token: token,
-        amount_cents: productAmount * 100, 
+        amount_cents: subtotal * 100,
         expiration: 3600,
         order_id: orderId,
         billing_data: {
@@ -60,7 +117,7 @@ const Payment = () => {
           first_name: 'Reem',
           street: 'Corniche',
           building: '8028',
-          phone_number: phoneNumber, 
+          phone_number: phoneNumber,
           shipping_method: 'PKG',
           postal_code: '01898',
           city: 'Cairo',
@@ -76,25 +133,23 @@ const Payment = () => {
       const paymentToken = paymentRes.data.token;
 
       if (paymentMethod === 'card') {
-        // 4. SET IFRAME URL 
         setIframeUrl(`https://accept.paymob.com/api/acceptance/iframes/${IFRAME_ID}?payment_token=${paymentToken}`);
         setPaymentStatus('pending');
       } else if (paymentMethod === 'vodafone') {
-        // 4. SEND PAYMENT 
         const vodafoneRes = await axios.post(
           'https://accept.paymob.com/api/acceptance/payments/pay',
           {
             source: {
-              identifier: phoneNumber, 
+              identifier: phoneNumber,
               subtype: 'WALLET',
             },
-            payment_token: paymentToken, 
+            payment_token: paymentToken,
           }
         );
 
         if (vodafoneRes.data.success) {
           setPaymentStatus('success');
-          alert(' Payment successful!');
+          alert('Payment successful!');
         } else {
           console.error('Vodafone Cash Error:', vodafoneRes.data);
           setError('Payment failed. Please try again.');
@@ -102,7 +157,7 @@ const Payment = () => {
       }
     } catch (err) {
       console.error('Error:', err);
-      setError(' Failed to initiate payment.');
+      setError('Failed to initiate payment.');
     } finally {
       setLoading(false);
     }
@@ -115,7 +170,12 @@ const Payment = () => {
   return (
     <div style={styles.container}>
       <h2 style={styles.header}>Payment</h2>
-      <p style={styles.label}>Amount to Pay: {productAmount} EGP</p>
+      <p style={styles.label}>Amount to Pay: {subtotal} EGP</p>
+      <p style={styles.label}>Total Price: {totalPrice} EGP</p>
+      <p style={styles.label}>Total Quantity: {totalQuantity}</p>
+
+      
+
       <div style={styles.formGroup}>
         <label style={styles.radioLabel}>
           <input
@@ -244,6 +304,45 @@ const styles = {
     border: '1px solid #ddd',
     borderRadius: '8px',
     backgroundColor: '#fff',
+  },
+  cartItems: {
+    marginBottom: '20px',
+  },
+  cartItem: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '10px',
+    padding: '10px',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    backgroundColor: '#fff',
+  },
+  productImage: {
+    width: '80px',
+    height: '80px',
+    objectFit: 'cover',
+    borderRadius: '8px',
+    marginRight: '10px',
+  },
+  productDetails: {
+    flex: 1,
+  },
+  productName: {
+    fontSize: '16px',
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  productPrice: {
+    fontSize: '14px',
+    color: '#555',
+  },
+  productQuantity: {
+    fontSize: '14px',
+    color: '#555',
+  },
+  productTotal: {
+    fontSize: '14px',
+    color: '#555',
   },
 };
 
