@@ -25,12 +25,32 @@ const Payment = () => {
         const response = await getCart();
         console.log('Cart response:', response);
 
+        if (response.data) {
+          if (response.data.items) {
+            const formattedItems = response.data.items.map(item => ({
+              product: item.product.id,
+              vendor: item.product.vendor,
+              quantity: item.quantity,
+              price: item.product.price,
+              name: item.product.name,
+              image: item.product.image,
+            }));
 
-        if (response.data.total_price) {
-          setTotalPrice(response.data.total_price);
-        }
-        if (response.data.total_quantity) {
-          setTotalQuantity(response.data.total_quantity);
+            setCartItems(formattedItems);
+
+            const total = formattedItems.reduce(
+              (sum, item) => sum + item.price * item.quantity,
+              0
+            );
+            setSubtotal(total);
+          }
+
+          if (response.data.total_price) {
+            setTotalPrice(response.data.total_price);
+          }
+          if (response.data.total_quantity) {
+            setTotalQuantity(response.data.total_quantity);
+          }
         }
       } catch (error) {
         console.error('Error fetching cart items:', error);
@@ -64,13 +84,11 @@ const Payment = () => {
     setPaymentStatus('');
 
     try {
-      // 1. AUTH
       const authRes = await axios.post('https://accept.paymob.com/api/auth/tokens', {
         api_key: API_KEY,
       });
       const token = authRes.data.token;
 
-      // 2. ORDER
       const orderRes = await axios.post('https://accept.paymob.com/api/ecommerce/orders', {
         auth_token: token,
         delivery_needed: false,
@@ -84,7 +102,6 @@ const Payment = () => {
       });
       const orderId = orderRes.data.id;
 
-     
       const integrationId =
         paymentMethod === 'vodafone' ? INTEGRATION_ID_VODAFONE : INTEGRATION_ID_CARD;
 
@@ -116,11 +133,9 @@ const Payment = () => {
       const paymentToken = paymentRes.data.token;
 
       if (paymentMethod === 'card') {
-       
         setIframeUrl(`https://accept.paymob.com/api/acceptance/iframes/${IFRAME_ID}?payment_token=${paymentToken}`);
         setPaymentStatus('pending');
       } else if (paymentMethod === 'vodafone') {
-        
         const vodafoneRes = await axios.post(
           'https://accept.paymob.com/api/acceptance/payments/pay',
           {
@@ -158,6 +173,8 @@ const Payment = () => {
       <p style={styles.label}>Amount to Pay: {subtotal} EGP</p>
       <p style={styles.label}>Total Price: {totalPrice} EGP</p>
       <p style={styles.label}>Total Quantity: {totalQuantity}</p>
+
+      
 
       <div style={styles.formGroup}>
         <label style={styles.radioLabel}>
