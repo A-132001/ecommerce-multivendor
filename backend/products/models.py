@@ -16,6 +16,7 @@ class Category(models.Model):
 
     def get_products(self):
         return self.products.all()
+    
 
 class Product(models.Model):
     vendor = models.ForeignKey('vendors.Vendor', related_name='products', on_delete=models.CASCADE)
