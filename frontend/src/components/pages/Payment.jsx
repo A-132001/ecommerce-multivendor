@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { getCart, clearCart } from '../../api/api.js'; 
+import { getCart,clearData } from '../../api/api.js'; // تأكد من استيراد clearData
 
 const Payment = () => {
   const [iframeUrl, setIframeUrl] = useState('');
@@ -13,8 +13,10 @@ const Payment = () => {
   const [subtotal, setSubtotal] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalQuantity, setTotalQuantity] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalQuantity, setTotalQuantity] = useState(0);
 
-  const API_KEY = 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRBME16RTNNeXdpYm1GdFpTSTZJakUzTkRjeU16QTFOek11TlRBd09ERTJJbjAueU5TcmZ4Y1JveVFIckNhWERfY2h4VEZrdmxSTDBZTUVPSVE3UldHTzd5cmFPTmRVTG5QY0xNOUlNbktKYjV1ckV5Y3VhT0pEcExlWEk5ZkF3R0JIcUE='; 
+  const API_KEY = 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRBME16RTNNeXdpYm1GdFpTSTZJakUzTkRjMU56TXlNek11TlRjeE1EWWlmUS5IWjRaU0VPVFY2QjFWVDBCbWp3Q1VmT1hJQmxBVlhXQVNCVHYzN2FqRTBVNzFZN0xycGw0M2FfUUdZVHRPVXdHMFNtNkhuVkFCWVBnQllIenZUazRoUQ==';
   const INTEGRATION_ID_CARD = 5085520;
   const INTEGRATION_ID_VODAFONE = 5089329;
   const IFRAME_ID = 920499;
@@ -61,68 +63,58 @@ const Payment = () => {
     fetchCartItems();
   }, []);
 
-  const resetCartData = async () => {
-    try {
-      setCartItems([]);
-      setSubtotal(0);
-      setTotalPrice(0);
-      setTotalQuantity(0);
-      await clearCart();
-      console.log('Cart has been reset successfully');
-    } catch (err) {
-      console.error('Error resetting cart:', err);
-      setError('Failed to reset cart data');
-    }
-  };
-
   useEffect(() => {
-    if (paymentStatus === 'success') {
-      resetCartData();
-    }
-  }, [paymentStatus]);
-
-  const startPaymentStatusCheck = async (orderId, authToken) => {
-    const checkStatus = async () => {
-      try {
-        const response = await axios.get(
-          `https://accept.paymob.com/api/ecommerce/orders/${orderId}/transactions`,
-          {
-            headers: {
-              'Authorization': `Bearer ${authToken}`
-            }
+    // Listen for payment success messages from iframe
+    const handleMessage = async (event) => {
+      if (event.origin !== 'https://accept.paymob.com') return;
+      
+      if (event.data === 'payment_success' || event.data.success) {
+        setPaymentStatus('success');
+        try {
+          await clearData();
+         
+          // Optionally refresh cart data
+          const response = await getCart();
+          if (response.data) {
+            setCartItems(response.data.items || []);
+            setSubtotal(response.data.total_price || 0);
           }
-        );
-        
-        const transactions = response.data;
-        const successfulPayment = transactions.find(
-          txn => txn.success && txn.pending === false
-        );
-        
-        if (successfulPayment) {
-          setPaymentStatus('success');
-          alert('Payment completed successfully!');
-          clearInterval(intervalId);
+        } catch (err) {
+          console.error('Error clearing cart:', err);
+          setError('Payment succeeded but failed to clear cart');
         }
-      } catch (error) {
-        console.error('Error checking payment status:', error);
+      } else if (event.data === 'payment_failed') {
+        setPaymentStatus('failed');
+        setError('Payment failed. Please try again.');
       }
     };
 
-    const intervalId = setInterval(checkStatus, 5000);
-    
-    setTimeout(() => {
-      clearInterval(intervalId);
-      if (paymentStatus !== 'success') {
-        setError('Payment processing timeout');
-      }
-    }, 900000);
-    
-    return intervalId;
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const handlePaymentSuccess = async () => {
+    try {
+      await clearData(); // استدعاء clearData لمسح السلة
+      setCartItems([]); // تصفير السلة
+      setSubtotal(0); // تصفير الإجمالي
+      setTotalPrice(0);
+      setTotalQuantity(0);
+     
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      setError('Payment succeeded but failed to clear the cart.');
+    }
   };
 
   const initiatePayment = async () => {
     if (!subtotal || isNaN(subtotal) || subtotal <= 0) {
       setError('Invalid product amount.');
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      setError('Your cart is empty. Please add items before proceeding to payment.');
       return;
     }
 
@@ -132,11 +124,13 @@ const Payment = () => {
     setPaymentStatus('');
 
     try {
+      // Step 1: Authentication
       const authRes = await axios.post('https://accept.paymob.com/api/auth/tokens', {
         api_key: API_KEY,
       });
       const token = authRes.data.token;
 
+      // Step 2: Create Order
       const orderRes = await axios.post('https://accept.paymob.com/api/ecommerce/orders', {
         auth_token: token,
         delivery_needed: false,
@@ -150,9 +144,8 @@ const Payment = () => {
       });
       const orderId = orderRes.data.id;
 
-      const integrationId = paymentMethod === 'vodafone'
-        ? INTEGRATION_ID_VODAFONE
-        : INTEGRATION_ID_CARD;
+      // Step 3: Payment Key
+      const integrationId = paymentMethod === 'vodafone' ? INTEGRATION_ID_VODAFONE : INTEGRATION_ID_CARD;
 
       const paymentRes = await axios.post('https://accept.paymob.com/api/acceptance/payment_keys', {
         auth_token: token,
@@ -181,6 +174,7 @@ const Payment = () => {
 
       const paymentToken = paymentRes.data.token;
 
+      // Step 4: Handle Payment Method
       if (paymentMethod === 'card') {
         setIframeUrl(`https://accept.paymob.com/api/acceptance/iframes/${IFRAME_ID}?payment_token=${paymentToken}`);
         setPaymentStatus('pending');
@@ -199,48 +193,81 @@ const Payment = () => {
 
         if (vodafoneRes.data.success) {
           setPaymentStatus('success');
-          alert('Payment successful! Your cart has been cleared.');
+          await handlePaymentSuccess(); // استدعاء handlePaymentSuccess عند نجاح الدفع
         } else {
           console.error('Vodafone Cash Error:', vodafoneRes.data);
           setError('Payment failed. Please try again.');
+          setPaymentStatus('failed');
         }
       }
     } catch (err) {
-      console.error('Error:', err.response?.data || err.message);
-      setError('Payment failed. Please try again.');
+      console.error('Payment Error:', err);
+      setError(err.response?.data?.message || 'Failed to initiate payment. Please try again.');
+      setPaymentStatus('failed');
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePaymentSuccess = () => {
-    setPaymentStatus('success');
+  const handlePaymentStart = async () => {
+    try {
+      // استدعاء initiatePayment لإتمام الدفع
+      await initiatePayment();
+
+      // استدعاء clearData لمسح السلة بعد الدفع
+      await clearData();
+
+      // تحديث الحالة بعد مسح السلة
+      setCartItems([]);
+      setSubtotal(0);
+      setTotalPrice(0);
+      setTotalQuantity(0);
+
+      
+    } catch (error) {
+      console.error('Error during payment or clearing cart:', error);
+      setError('Payment succeeded but failed to clear the cart.');
+    }
   };
-
-  useEffect(() => {
-    const handleMessage = (event) => {
-      if (event.origin !== 'https://accept.paymob.com') return;
-
-      if (event.data === 'payment_success') {
-        handlePaymentSuccess();
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.header}>Checkout</h2>
-      <div style={styles.summary}>
-        <p style={styles.label}>Subtotal: {subtotal} EGP</p>
-        <p style={styles.label}>Total: {totalPrice} EGP</p>
-        <p style={styles.label}>Items: {totalQuantity}</p>
+      <h2 style={styles.header}>Payment</h2>
+      
+      {/* Cart Summary */}
+      <div style={styles.cartSummary}>
+        <h3 style={styles.subHeader}>Order Summary</h3>
+        <div style={styles.cartItems}>
+          {cartItems.map((item, index) => (
+            <div key={index} style={styles.cartItem}>
+              <img 
+                src={item.image} 
+                alt={item.name} 
+                style={styles.productImage} 
+              />
+              <div style={styles.productDetails}>
+                <p style={styles.productName}>{item.name}</p>
+                <p style={styles.productPrice}>Price: {item.price} EGP</p>
+                <p style={styles.productQuantity}>Quantity: {item.quantity}</p>
+                <p style={styles.productTotal}>Total: {item.price * item.quantity} EGP</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div style={styles.summaryRow}>
+          <span style={styles.summaryLabel}>Subtotal:</span>
+          <span style={styles.summaryValue}>{subtotal} EGP</span>
+        </div>
+        <div style={styles.summaryRow}>
+          <span style={styles.summaryLabel}>Total Quantity:</span>
+          <span style={styles.summaryValue}>{totalQuantity}</span>
+        </div>
       </div>
 
-      <div style={styles.paymentMethods}>
-        <h3 style={styles.subHeader}>Select Payment Method</h3>
+      {/* Payment Method Selection */}
+      <div style={styles.paymentMethodSection}>
+        <h3 style={styles.subHeader}>Payment Method</h3>
         <div style={styles.formGroup}>
           <label style={styles.radioLabel}>
             <input
@@ -251,9 +278,9 @@ const Payment = () => {
               onChange={() => setPaymentMethod('card')}
               style={styles.radioInput}
             />
-            Credit/Debit Card
+            Visa/MasterCard
           </label>
-          <label style={styles.radioLabel}>
+          <label style={{ ...styles.radioLabel, marginLeft: '20px' }}>
             <input
               type="radio"
               name="paymentMethod"
@@ -265,47 +292,47 @@ const Payment = () => {
             Vodafone Cash
           </label>
         </div>
+
+        {paymentMethod === 'vodafone' && (
+          <div style={styles.vodafoneForm}>
+            <p style={styles.label}>Vodafone Cash Phone Number:</p>
+            <input
+              type="text"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              style={styles.input}
+              placeholder="Enter Vodafone Cash number"
+            />
+          </div>
+        )}
       </div>
 
-      {paymentMethod === 'vodafone' && (
-        <div style={styles.vodafoneForm}>
-          <h3 style={styles.subHeader}>Vodafone Cash Payment</h3>
-          <p style={styles.label}>Phone Number: {phoneNumber}</p>
-          <button
-            onClick={initiatePayment}
-            disabled={loading}
-            style={styles.button}
-          >
-            {loading ? 'Processing...' : 'Pay Now'}
-          </button>
-        </div>
-      )}
+      {/* Payment Button */}
+      <button 
+        onClick={handlePaymentStart} 
+        disabled={loading || cartItems.length === 0} 
+        style={styles.button}
+      >
+        {loading ? 'Processing...' : `Pay ${subtotal} EGP`}
+      </button>
 
-      {paymentMethod === 'card' && (
-        <>
-          <button
-            onClick={initiatePayment}
-            disabled={loading}
-            style={styles.button}
-          >
-            {loading ? 'Processing...' : 'Start Payment'}
-          </button>
-          {iframeUrl && (
-            <iframe
-              src={iframeUrl}
-              title="Payment"
-              style={styles.iframe}
-              onLoad={() => console.log('Payment iframe loaded')}
-            ></iframe>
-          )}
-        </>
-      )}
-
+      {/* Error and Status Messages */}
       {error && <p style={styles.error}>{error}</p>}
-      {paymentStatus && (
-        <p style={paymentStatus === 'success' ? styles.success : styles.status}>
-          Status: {paymentStatus === 'success' ? 'Payment Successful' : paymentStatus}
-        </p>
+      {paymentStatus === 'pending' && paymentMethod === 'card' && (
+        <p style={styles.info}>Please complete payment in the form below...</p>
+      )}
+      {paymentStatus === 'success' && (
+        <p style={styles.success}>Payment successful! Your order has been placed.</p>
+      )}
+
+      {/* Payment Iframe */}
+      {iframeUrl && paymentMethod === 'card' && (
+        <iframe
+          src={iframeUrl}
+          title="Payment"
+          style={styles.iframe}
+          allowFullScreen
+        ></iframe>
       )}
     </div>
   );
@@ -313,13 +340,13 @@ const Payment = () => {
 
 const styles = {
   container: {
-    maxWidth: '600px',
+    maxWidth: '800px',
     margin: '20px auto',
     padding: '25px',
-    border: '1px solid #ddd',
+    border: '1px solid #e0e0e0',
     borderRadius: '10px',
-    backgroundColor: '#f9f9f9',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+    backgroundColor: '#ffffff',
+    boxShadow: '0 2px 15px rgba(0, 0, 0, 0.05)',
     fontFamily: 'Arial, sans-serif',
   },
   header: {
@@ -327,39 +354,109 @@ const styles = {
     color: '#2c3e50',
     marginBottom: '25px',
     fontSize: '28px',
+    fontWeight: '600',
   },
   subHeader: {
-    textAlign: 'center',
     color: '#34495e',
-    marginBottom: '20px',
+    marginBottom: '15px',
     fontSize: '20px',
+    fontWeight: '500',
+    borderBottom: '1px solid #eee',
+    paddingBottom: '10px',
   },
-  summary: {
-    backgroundColor: '#fff',
+  cartSummary: {
+    marginBottom: '25px',
     padding: '15px',
-    borderRadius: '8px',
-    marginBottom: '20px',
     border: '1px solid #eee',
+    borderRadius: '8px',
+    backgroundColor: '#fafafa',
   },
-  paymentMethods: {
+  cartItems: {
+    maxHeight: '300px',
+    overflowY: 'auto',
+    marginBottom: '15px',
+  },
+  cartItem: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '15px',
+    padding: '12px',
+    border: '1px solid #eee',
+    borderRadius: '8px',
     backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    marginBottom: '20px',
-    border: '1px solid #eee',
   },
-  label: {
-    display: 'block',
+  productImage: {
+    width: '80px',
+    height: '80px',
+    objectFit: 'cover',
+    borderRadius: '6px',
+    marginRight: '15px',
+    border: '1px solid #ddd',
+  },
+  productDetails: {
+    flex: 1,
+  },
+  productName: {
+    fontSize: '16px',
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: '5px',
+  },
+  productPrice: {
+    fontSize: '14px',
+    color: '#666',
+    marginBottom: '3px',
+  },
+  productQuantity: {
+    fontSize: '14px',
+    color: '#666',
+    marginBottom: '3px',
+  },
+  productTotal: {
+    fontSize: '14px',
+    color: '#2c3e50',
+    fontWeight: 'bold',
+  },
+  summaryRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
     marginBottom: '8px',
+    padding: '8px 0',
+    borderTop: '1px dashed #ddd',
+  },
+  summaryLabel: {
     fontWeight: 'bold',
     color: '#555',
-    fontSize: '16px',
+  },
+  summaryValue: {
+    fontWeight: 'bold',
+    color: '#2c3e50',
+  },
+  paymentMethodSection: {
+    marginBottom: '25px',
+    padding: '15px',
+    border: '1px solid #eee',
+    borderRadius: '8px',
+    backgroundColor: '#fafafa',
   },
   formGroup: {
     marginBottom: '15px',
     display: 'flex',
-    justifyContent: 'center',
-    gap: '30px',
+    alignItems: 'center',
+  },
+  label: {
+    display: 'block',
+    marginBottom: '8px',
+    fontWeight: '500',
+    color: '#555',
+  },
+  input: {
+    width: '100%',
+    padding: '12px',
+    border: '1px solid #ddd',
+    borderRadius: '6px',
+    fontSize: '16px',
+    marginBottom: '15px',
   },
   radioLabel: {
     fontSize: '16px',
@@ -369,46 +466,57 @@ const styles = {
     alignItems: 'center',
   },
   radioInput: {
-    marginLeft: '8px',
+    marginRight: '8px',
+    width: '18px',
+    height: '18px',
+  },
+  vodafoneForm: {
+    marginTop: '15px',
+    padding: '15px',
+    border: '1px solid #eee',
+    borderRadius: '8px',
+    backgroundColor: '#fff',
   },
   button: {
     width: '100%',
-    padding: '12px',
+    padding: '15px',
     backgroundColor: '#3498db',
     color: '#fff',
     border: 'none',
     borderRadius: '6px',
     fontSize: '18px',
+    fontWeight: '600',
     cursor: 'pointer',
-    marginTop: '15px',
     transition: 'background-color 0.3s',
+    marginBottom: '20px',
+  },
+  buttonDisabled: {
+    backgroundColor: '#95a5a6',
+    cursor: 'not-allowed',
   },
   error: {
     color: '#e74c3c',
     marginTop: '15px',
-    textAlign: 'center',
-    padding: '10px',
+    padding: '12px',
     backgroundColor: '#fdecea',
     borderRadius: '6px',
-    fontSize: '16px',
+    borderLeft: '4px solid #e74c3c',
+  },
+  info: {
+    color: '#3498db',
+    marginTop: '15px',
+    padding: '12px',
+    backgroundColor: '#ebf5fb',
+    borderRadius: '6px',
+    borderLeft: '4px solid #3498db',
   },
   success: {
     color: '#27ae60',
     marginTop: '15px',
-    textAlign: 'center',
-    padding: '10px',
-    backgroundColor: '#e8f5e9',
+    padding: '12px',
+    backgroundColor: '#e8f8f0',
     borderRadius: '6px',
-    fontSize: '16px',
-  },
-  status: {
-    color: '#f39c12',
-    marginTop: '15px',
-    textAlign: 'center',
-    padding: '10px',
-    backgroundColor: '#fff9e6',
-    borderRadius: '6px',
-    fontSize: '16px',
+    borderLeft: '4px solid #27ae60',
   },
   iframe: {
     width: '100%',
@@ -416,14 +524,7 @@ const styles = {
     border: 'none',
     marginTop: '20px',
     borderRadius: '8px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-  },
-  vodafoneForm: {
-    marginTop: '20px',
-    padding: '20px',
-    border: '1px solid #ddd',
-    borderRadius: '8px',
-    backgroundColor: '#fff',
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
   },
 };
 
