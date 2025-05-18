@@ -9,7 +9,7 @@ router.register('methods', PaymentMethodViewSet, basename='paymentmethod')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('paymob-webhook/', paymob_webhook, name='paymob-webhook'),
+    path('api/paymob/webhook/', paymob_webhook, name='paymob_webhook'),
    
 
 ]
