@@ -22,7 +22,7 @@ return (
       {/* <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-30"></div> */}
 
       <Container className="position-relative z-1 h-100">
-        <Row className="align-items-center g-5 min-vh-80">
+        <Row className="align-items-center min-vh-80">
           <Col lg={8} className="text-center text-lg-start">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

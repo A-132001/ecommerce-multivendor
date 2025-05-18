@@ -3,7 +3,7 @@ import axios from 'axios';
 import ProductCard from './ProductCard';
 import Swal from 'sweetalert2';
 import { FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
-import {getStoreProducts} from '../../api/api';
+import { getStoreProducts } from '../../api/api';
 import { useNavigate } from 'react-router-dom';
 export default function ProductList({ storeId }) {
 
@@ -11,7 +11,7 @@ export default function ProductList({ storeId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
- 
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -96,9 +96,11 @@ export default function ProductList({ storeId }) {
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold text-white mb-6">Available Products</h2>
-      <div className="d-flex flex-wrap gap-4 justify-center items-center mb-8 ">
+      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <div key={product.id} className="col d-flex">
+            <ProductCard product={product} className="h-100" />
+          </div>
         ))}
       </div>
     </div>

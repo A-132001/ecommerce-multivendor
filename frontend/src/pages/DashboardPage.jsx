@@ -22,9 +22,10 @@ export default function DashboardPage() {
   const [products, setProducts] = useState([]);
 
   const [orders, setOrders] = useState([]);
-  
+
 
   const addProduct = async (newProduct) => {
+    console.log(newProduct)
     try {
       const response = await createProduct(newProduct);
       console.log(response)
@@ -41,7 +42,8 @@ export default function DashboardPage() {
           }
         });
       }
-      setProducts((prev) => [...prev, response.data]);
+      setProducts((prev) => [response.data, ...prev]);
+
       Swal.fire({
         title: 'Add Product',
         text: 'New Product added successfully to you Store',
@@ -219,7 +221,7 @@ export default function DashboardPage() {
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-3 bg-dark text-white p-4">
-        <DashboardSidebar products={products} />
+          <DashboardSidebar products={products} />
 
         </div>
         {loading ? (
@@ -236,28 +238,28 @@ export default function DashboardPage() {
           // )
           : (
             <div className="col-md-9 p-4">
-  <h2 className="mb-4">Dashboard</h2>
+              <h2 className="mb-4">Dashboard</h2>
 
-  <Tabs defaultActiveKey="products" id="dashboard-tabs" className="mb-4">
-    <Tab eventKey="products" title="Product Management">
-      <ProductManagementTable
-        products={products}
-        onDelete={handleDeleteProduct}
-        onEdit={handleEditProduct}
-        onAdd={addProduct}
-      />
-    </Tab>
+              <Tabs defaultActiveKey="products" id="dashboard-tabs" className="mb-4">
+                <Tab eventKey="products" title="Product Management">
+                  <ProductManagementTable
+                    products={products}
+                    onDelete={handleDeleteProduct}
+                    onEdit={handleEditProduct}
+                    onAdd={addProduct}
+                  />
+                </Tab>
 
-    <Tab eventKey="orders" title="Orders Management">
-      <OrdersList
-        orders={orders}
-        onDelete={deleteOrder}
-        onEdit={editOrder}
-      />
-    </Tab>
-  </Tabs>
-</div>
-        )}
+                <Tab eventKey="orders" title="Orders Management">
+                  <OrdersList
+                    orders={orders}
+                    onDelete={deleteOrder}
+                    onEdit={editOrder}
+                  />
+                </Tab>
+              </Tabs>
+            </div>
+          )}
       </div>
     </div>
   );

@@ -17,7 +17,6 @@ import CartIcon from './CartIcon';
 
 function Navigation() {
   const { isAuthenticated, user, logout } = useAuth();
-  console.log('User:', user);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -91,7 +90,7 @@ function Navigation() {
 
   const navBarLinks = useMemo(() => [
     { path: "/", label: "Home", icon: <FaHome className="me-2" size={16} /> },
-    { path: "/products", label: "Products", icon: <FaBox className="me-2" size={16} /> },
+    // { path: "/products", label: "Products", icon: <FaBox className="me-2" size={16} /> },
     { path: "/list-stores", label: "Vendors", icon: <FaShopify className="me-2" size={16} /> },
     { path: "/dashboard", label: "Dashboard", icon: <FaChartLine className="me-2" size={16} /> } ,
     { path: "/contact-us", label: "Contact Us", icon: <FaEnvelope className="me-2" size={16} /> },
@@ -152,9 +151,9 @@ function Navigation() {
 
         <Navbar.Collapse
           id="basic-navbar-nav"
-          className="justify-content-between mt-3 mt-lg-0"
+          className="justify-content-center mt-3 mt-lg-0"
         >
-          <form onSubmit={handleSearch} className="d-flex my-2 my-lg-0 me-lg-3 flex-grow-1 flex-lg-grow-0">
+          {/* <form onSubmit={handleSearch} className="d-flex my-2 my-lg-0 me-lg-3 flex-grow-1 flex-lg-grow-0">
             <div className="input-group">
               <input
                 type="text"
@@ -172,7 +171,7 @@ function Navigation() {
                 <FaSearch />
               </button>
             </div>
-          </form>
+          </form> */}
 
           <Nav className="align-items-lg-center">
             {filteredNavBarLinks.map((link, index) => (
@@ -184,7 +183,7 @@ function Navigation() {
                 aria-label={link.label}
               >
                 {React.cloneElement(link.icon, { className: "me-2" })}
-                <span className="d-none d-lg-inline">{link.label}</span>
+                <span className="d-lg-inline">{link.label}</span>
               </Nav.Link>
             ))}
             {isAuthenticated ? (

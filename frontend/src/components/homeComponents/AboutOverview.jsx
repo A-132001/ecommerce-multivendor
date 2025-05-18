@@ -6,7 +6,7 @@ const AboutOverview = () => {
   return (
     <section className="bg-light py-5">
       <Container>
-        <Row className="align-items-center g-5">
+        <Row className="align-items-center">
           <Col md={6} className="order-md-2 text-center text-md-start">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

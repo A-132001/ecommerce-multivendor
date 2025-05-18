@@ -66,46 +66,47 @@ const ListStores = () => {
                 </Container>
             </section>
 
-            <section className="py-5 bg-light">
-                <Container>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <h2 className="text-center mb-5 display-5 fw-bold">All Active Vendors</h2>
+     <section className="py-5 bg-light">
+    <Container>
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+        >
+            <h2 className="text-center mb-5 display-5 fw-bold">All Active Vendors</h2>
 
-                        {loading ? (
-                            <div className="text-center py-5">
-                                <Spinner animation="border" variant="warning" />
-                                <p className="mt-3">Loading shops...</p>
-                            </div>
-                        ) : error ? (
-                            <Alert variant="danger" className="text-center">
-                                {error}
-                            </Alert>
-                        ) : filteredStores.length === 0 ? (
-                            <Alert variant="info" className="text-center">
-                                No shops match your search criteria.
-                            </Alert>
-                        ) : (
-                            <Row xs={1} md={2} lg={3} className="g-4">
-                                {filteredStores.map((shop, index) => (
-                                    <Col key={shop.id}>
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                                        >
-                                            <ShopCard shop={shop} />
-                                        </motion.div>
-                                    </Col>
-                                ))}
-                            </Row>
-                        )}
-                    </motion.div>
-                </Container>
-            </section>
+            {loading ? (
+                <div className="text-center py-5">
+                    <Spinner animation="border" variant="warning" />
+                    <p className="mt-3">Loading shops...</p>
+                </div>
+            ) : error ? (
+                <Alert variant="danger" className="text-center">
+                    {error}
+                </Alert>
+            ) : filteredStores.length === 0 ? (
+                <Alert variant="info" className="text-center">
+                    No shops match your search criteria.
+                </Alert>
+            ) : (
+                <Row xs={1} md={2} lg={3} className="g-4">
+                    {filteredStores.map((shop, index) => (
+                        <Col key={shop.id} className="d-flex">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: index * 0.1 }}
+                                className="w-100" // Make motion.div take full width
+                            >
+                                <ShopCard shop={shop} className="h-100" />
+                            </motion.div>
+                        </Col>
+                    ))}
+                </Row>
+            )}
+        </motion.div>
+    </Container>
+</section>
         </div>
     );
 }
