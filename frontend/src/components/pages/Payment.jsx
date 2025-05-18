@@ -176,7 +176,6 @@ const Payment = () => {
       if (paymentMethod === 'card') {
         setIframeUrl(`https://accept.paymob.com/api/acceptance/iframes/${IFRAME_ID}?payment_token=${paymentToken}`);
         setPaymentStatus('pending');
-        startPaymentStatusCheck(orderId, token);
       } else if (paymentMethod === 'vodafone') {
         const vodafoneRes = await axios.post(
           'https://accept.paymob.com/api/acceptance/payments/pay',
