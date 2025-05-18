@@ -1,3 +1,6 @@
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrency } from './redux/currencySlice';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navigation from './components/Navbar';
 import Footer from './components/Footer';
@@ -17,7 +20,7 @@ import Register from './components/pages/Register';
 import Store from './components/pages/Store';
 import ListStores from './components/pages/listStores';
 import NewVendor from './pages/NewVendor';
-import CartPage from './pages/CartPage'; 
+import CartPage from './pages/CartPage';
 import StoreProfile from './components/dashboard/StoreProfile';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -28,6 +31,16 @@ import ContactUs from './components/ContactUs';
 import AboutUs from './components/AboutUs';
 
 function App() {
+  const dispatch = useDispatch();
+  const currency = useSelector((state) => state.currency.value);
+  const status = useSelector((state) => state.currency.status);
+    useEffect(() => {
+    // Only fetch if currency is still the default value and hasn't been fetched yet
+    if (status === 'idle' && currency === '') {
+      dispatch(fetchCurrency());
+    }
+  }, [currency, status]);
+
   const publicRoutes = [
     { path: '/', element: <Home /> },
     { path: '/login', element: <Login /> },
@@ -63,7 +76,7 @@ function App() {
     <Router>
       <AuthProvider>
         <Navigation />
-         <ToastContainer />
+        <ToastContainer />
         <Routes>
           {publicRoutes.map(({ path, element }) => (
             <Route key={path} path={path} element={element} />

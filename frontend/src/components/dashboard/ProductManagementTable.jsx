@@ -7,10 +7,12 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { getAllCategories } from '../../api/api.js';
 import { toast } from "react-toastify";
+import {useSelector} from "react-redux";
 
 const MySwal = withReactContent(Swal);
 
 const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
+  const currency = useSelector((state) => state.currency.value);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -226,9 +228,9 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                 >
                   <td><strong>{product.name}</strong></td>
                   <td><span className="text-muted">{product.description || '-'}</span></td>
-                  <td><Badge bg="success">LE{parseFloat(product.price).toFixed(2)}</Badge></td>
+                  <td><Badge bg="success">{currency} {parseFloat(product.price).toFixed(2)}</Badge></td>
                   <td className='text-center'><Badge bg='warning'>{parseFloat(product.discount)}</Badge></td>
-                  <td className='text-center'> <Badge bg='danger'>{parseFloat(product.original_price)}</Badge></td>
+                  <td className='text-center'><Badge bg='danger'>{currency} {parseFloat(product.original_price)}</Badge></td>
                   <td><Badge bg={product.stock > 0 ? 'info' : 'danger'}>{product.stock} in stock</Badge></td>
                   <td><Badge bg="secondary">{product.category}</Badge></td>
                   <td>

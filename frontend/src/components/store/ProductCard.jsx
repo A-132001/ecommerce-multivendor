@@ -3,6 +3,7 @@ import { FaShoppingCart, FaStar, FaHeart } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import {useSelector} from "react-redux";
 
 const StockBadge = ({ stock }) => {
   return (
@@ -25,7 +26,7 @@ const RatingBadge = ({ rating }) => {
 
 const ProductCard = ({ product }) => {
   const [isFavorite, setIsFavorite] = useState(false);
-
+  const currency = useSelector((state) => state.currency.value);
   useEffect(() => {
     const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
     setIsFavorite(favorites.some(fav => fav.id === product.id));
@@ -136,10 +137,10 @@ const ProductCard = ({ product }) => {
 
         <div className="d-flex justify-content-between align-items-center mt-auto px-3 mb-2">
           <div className="d-flex align-items-center gap-2">
-            {product.original_price && (
+            {product.original_price > 0 && (
               <span className="text-decoration-line-through text-muted small">${product.original_price}</span>
             )}
-            <span className="text-danger fw-bold fs-5">${product.price}</span>
+            <span className="text-danger fw-bold fs-5">{currency} {product.price}</span>
           </div>
         </div>
 

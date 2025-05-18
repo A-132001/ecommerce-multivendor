@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { getCart,clearData } from '../../api/api.js'; // تأكد من استيراد clearData
+import { getCart, clearData } from '../../api/api.js'; // تأكد من استيراد clearData
+import { useSelector } from "react-redux";
 
 const Payment = () => {
+  const currency = useSelector((state) => state.currency.value);
+
   const [iframeUrl, setIframeUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -65,12 +68,12 @@ const Payment = () => {
     // Listen for payment success messages from iframe
     const handleMessage = async (event) => {
       if (event.origin !== 'https://accept.paymob.com') return;
-      
+
       if (event.data === 'payment_success' || event.data.success) {
         setPaymentStatus('success');
         try {
           await clearData();
-         
+
           // Optionally refresh cart data
           const response = await getCart();
           if (response.data) {
@@ -98,7 +101,7 @@ const Payment = () => {
       setSubtotal(0); // تصفير الإجمالي
       setTotalPrice(0);
       setTotalQuantity(0);
-     
+
     } catch (error) {
       console.error('Error clearing cart:', error);
       setError('Payment succeeded but failed to clear the cart.');
@@ -133,7 +136,7 @@ const Payment = () => {
         auth_token: token,
         delivery_needed: false,
         amount_cents: subtotal * 100,
-        currency: 'EGP',
+        currency: currency,
         items: cartItems.map(item => ({
           name: item.name,
           amount_cents: item.price * 100,
@@ -165,7 +168,7 @@ const Payment = () => {
           last_name: 'Mahmoud',
           state: 'CAIRO',
         },
-        currency: 'EGP',
+        currency: currency,
         integration_id: integrationId,
         lock_order_when_paid: 'false',
       });
@@ -220,7 +223,7 @@ const Payment = () => {
       setTotalPrice(0);
       setTotalQuantity(0);
 
-      
+
     } catch (error) {
       console.error('Error during payment or clearing cart:', error);
       setError('Payment succeeded but failed to clear the cart.');
@@ -230,31 +233,31 @@ const Payment = () => {
   return (
     <div style={styles.container}>
       <h2 style={styles.header}>Payment</h2>
-      
+
       {/* Cart Summary */}
       <div style={styles.cartSummary}>
         <h3 style={styles.subHeader}>Order Summary</h3>
         <div style={styles.cartItems}>
           {cartItems.map((item, index) => (
             <div key={index} style={styles.cartItem}>
-              <img 
-                src={item.image} 
-                alt={item.name} 
-                style={styles.productImage} 
+              <img
+                src={item.image}
+                alt={item.name}
+                style={styles.productImage}
               />
               <div style={styles.productDetails}>
                 <p style={styles.productName}>{item.name}</p>
-                <p style={styles.productPrice}>Price: {item.price} EGP</p>
+                <p style={styles.productPrice}>Price: {currency} {item.price}</p>
                 <p style={styles.productQuantity}>Quantity: {item.quantity}</p>
-                <p style={styles.productTotal}>Total: {item.price * item.quantity} EGP</p>
+                <p style={styles.productTotal}>Total: {currency} {item.price * item.quantity}</p>
               </div>
             </div>
           ))}
         </div>
-        
+
         <div style={styles.summaryRow}>
           <span style={styles.summaryLabel}>Subtotal:</span>
-          <span style={styles.summaryValue}>{subtotal} EGP</span>
+          <span style={styles.summaryValue}> {currency} {subtotal}</span>
         </div>
         <div style={styles.summaryRow}>
           <span style={styles.summaryLabel}>Total Quantity:</span>
@@ -305,12 +308,12 @@ const Payment = () => {
       </div>
 
       {/* Payment Button */}
-      <button 
-        onClick={handlePaymentStart} 
-        disabled={loading || cartItems.length === 0} 
+      <button
+        onClick={handlePaymentStart}
+        disabled={loading || cartItems.length === 0}
         style={styles.button}
       >
-        {loading ? 'Processing...' : `Pay ${subtotal} EGP`}
+        {loading ? 'Processing...' : `Pay ${subtotal} ${currency} `}
       </button>
 
       {/* Error and Status Messages */}

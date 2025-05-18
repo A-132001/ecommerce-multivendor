@@ -38,7 +38,7 @@ export default function StorePage() {
       variants={containerVariants}
       className="store-page py-5"
     >
-      <Container>
+      <Container> 
         {/* Store Header Section */}
         <motion.div variants={itemVariants}>
           <Card className="border-0 shadow-sm mb-5">

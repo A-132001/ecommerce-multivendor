@@ -9,13 +9,17 @@ import './main.css';
 import App from './App.jsx';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext.jsx';
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
 
 createRoot(document.getElementById('root')).render(
-  <GoogleOAuthProvider clientId="739013148958-bv9lerlkjl3rnlcj6jrtad2s70bnh4u2.apps.googleusercontent.com">
+  <Provider store={store}>
+      <GoogleOAuthProvider clientId="739013148958-bv9lerlkjl3rnlcj6jrtad2s70bnh4u2.apps.googleusercontent.com">
     <AuthProvider>
       <CartProvider>
-              <App />
+        <App />
       </CartProvider>
     </AuthProvider>
   </GoogleOAuthProvider>
+  </Provider>
 );

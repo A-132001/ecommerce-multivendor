@@ -18,8 +18,9 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useCart } from '../context/CartContext';
 import { Link } from 'react-router-dom';
-
+import { useSelector } from 'react-redux';
 const CartPage = () => {
+  const currency = useSelector((state) => state.currency.value);
   const { cart, loading, updateQuantity, removeFromCart } = useCart();
   const [quantities, setQuantities] = useState({});
 
@@ -92,7 +93,7 @@ const CartPage = () => {
                   </Box>
                 </TableCell>
                 <TableCell align="right">
-                  ${Number(item.product.price || 0).toFixed(2)}
+                  {currency} {Number(item.product.price || 0).toFixed(2)}
                 </TableCell>
                 <TableCell align="center">
                   <Box display="flex" alignItems="center" justifyContent="center">

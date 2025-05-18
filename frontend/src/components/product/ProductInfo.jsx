@@ -4,9 +4,11 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Card, Button, Badge, Stack } from 'react-bootstrap';
 import { FaHeart, FaShoppingCart, FaEye, FaStar } from 'react-icons/fa';
+import {useSelector} from "react-redux";
 
 
 export default function ProductInfo({ product }) {
+  const currency = useSelector((state) => state.currency.value);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -127,7 +129,7 @@ export default function ProductInfo({ product }) {
             <div className="d-flex justify-content-between align-items-center mb-3">
               <div>
                 <h5 className="mb-0 text-yellow-600">
-                  ${product.price}
+                  {currency} {product.price}
                   {showDiscountBadge && (
                     <small className="text-muted text-decoration-line-through ms-2">
                       ${product.original_price}

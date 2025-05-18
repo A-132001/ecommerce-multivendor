@@ -49,6 +49,9 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+// core setup 
+// Get Website default Currency 
+export const getCurrency = async () => await api.get("/core/currency/")
 
 // Auth API calls
 export const login = async (credentials) => {
