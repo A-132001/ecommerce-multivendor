@@ -13,8 +13,6 @@ const Payment = () => {
   const [subtotal, setSubtotal] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalQuantity, setTotalQuantity] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [totalQuantity, setTotalQuantity] = useState(0);
 
   const API_KEY = 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRBME16RTNNeXdpYm1GdFpTSTZJakUzTkRjMU56TXlNek11TlRjeE1EWWlmUS5IWjRaU0VPVFY2QjFWVDBCbWp3Q1VmT1hJQmxBVlhXQVNCVHYzN2FqRTBVNzFZN0xycGw0M2FfUUdZVHRPVXdHMFNtNkhuVkFCWVBnQllIenZUazRoUQ==';
   const INTEGRATION_ID_CARD = 5085520;
