@@ -173,6 +173,11 @@ export const getCart = async () => {
     return await api.get('/cart/cartitem');
 };
 
+export const clearData = async () => {
+    return await api.delete('/cart/clear_cart/');
+};
+
+
 export const addToCart = async (productId, quantity) => {
     return await api.post('/cart/items/', { product: productId, quantity });
 };

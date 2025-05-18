@@ -97,3 +97,9 @@ class CartViewSet(viewsets.ModelViewSet):
             )
         except ValidationError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@action(detail=False, methods=["delete"])
+def clear_cart(self, request):
+    cart = self.get_object()
+    cart.items.all().delete()
+    return Response({"detail": "Cart cleared successfully"}, status=status.HTTP_204_NO_CONTENT)
