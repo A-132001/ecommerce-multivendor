@@ -125,180 +125,236 @@ const OrderForm = () => {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6">
-      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="bg-blue-600 py-4 px-6">
-          <h2 className="text-2xl font-bold text-white">Order Details</h2>
-        </div>
-        
-        <form onSubmit={handleSubmit} className="p-6">
-          {/* Order Summary */}
-          <div className="mb-8 bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">Order Summary</h3>
-            {cartItems.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Image</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Product Name</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Quantity</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Price</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {cartItems.map((item, index) => (
-                      <tr key={index} className="border-b border-gray-200">
-                        <td className="px-4 py-2">
-                          <img
-                            src={item.image || "https://via.placeholder.com/80"}
-                            alt={item.name}
-                            className="object-cover rounded-md"
-                            style={{ width: "80px", height: "80px" }}
-                          />
-                        </td>
-                        <td className="px-4 py-2 text-gray-800">{item.name}</td>
-                        <td className="px-4 py-2 text-gray-600">{item.quantity}</td>
-                        <td className="px-4 py-2 text-gray-600">{item.price} SAR</td>
-                        <td className="px-4 py-2 text-gray-800 font-medium">
-                          {item.price * item.quantity} SAR
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="bg-gray-100">
-                      <td colSpan="4" className="px-4 py-2 text-right font-semibold text-gray-800">
-                        Total:
-                      </td>
-                      <td className="px-4 py-2 text-gray-800 font-bold">{subtotal} SAR</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            ) : (
-              <p className="text-gray-500 text-center py-4">No items in cart</p>
-            )}
+    <div className="container my-4 p-4">
+  <div className="card shadow-sm border">
+    {/* Header */}
+    <div className="card-header bg-primary text-white">
+      <h2 className="h4 fw-bold mb-1">Checkout</h2>
+      <p className="small text-white-50 mb-0">Complete your purchase</p>
+    </div>
+
+    <form onSubmit={handleSubmit} className="card-body">
+      {/* Order Summary */}
+      <div className="mb-4 p-3 bg-light border rounded">
+        <h3 className="h5 fw-semibold mb-3 border-bottom pb-2">Order Summary</h3>
+        {cartItems.length > 0 ? (
+          <div className="table-responsive">
+            <table className="table table-bordered align-middle mb-0">
+              <thead className="table-light text-uppercase small">
+                <tr>
+                  <th>Product</th>
+                  <th style={{width: "80px"}}>Quantity</th>
+                  <th style={{width: "100px"}}>Price</th>
+                  <th style={{width: "100px"}}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cartItems.map((item, index) => (
+                  <tr key={index}>
+                    <td>
+                      <div className="d-flex align-items-center">
+                        <img
+                          src={item.image || "https://via.placeholder.com/80"}
+                          alt={item.name}
+                          className="img-thumbnail rounded"
+                          style={{width: "64px", height: "64px", objectFit: "cover"}}
+                        />
+                        <div className="ms-3">
+                          <div className="fw-medium">{item.name}</div>
+                          <div className="text-muted small">{item.vendor}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="text-center">{item.quantity}</td>
+                    <td>{item.price} SAR</td>
+                    <td className="fw-semibold">{item.price * item.quantity} SAR</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan="3" className="text-end fw-semibold text-uppercase">Subtotal:</td>
+                  <td className="fw-bold text-primary">{subtotal} SAR</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
-
-          <div className="mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Shipping Address */}
-              <div>
-                <h3 className="text-xl font-semibold mb-4 text-gray-800">Shipping Address</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  {addressFields.map((field) => (
-                    <div key={field.name} className="mb-4">
-                      <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor={`shipping_${field.name}`}>
-                        {field.label}
-                      </label>
-                      <input
-                        type="text"
-                        id={`shipping_${field.name}`}
-                        name={field.name}
-                        value={formData.shipping_address[field.name]}
-                        onChange={(e) => handleChange(e, "shipping_address")}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Billing Address */}
-              <div>
-                <h3 className="text-xl font-semibold mb-4 text-gray-800">Billing Address</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  {addressFields.map((field) => (
-                    <div key={field.name} className="mb-4">
-                      <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor={`billing_${field.name}`}>
-                        {field.label}
-                      </label>
-                      <input
-                        type="text"
-                        id={`billing_${field.name}`}
-                        name={field.name}
-                        value={formData.billing_address[field.name]}
-                        onChange={(e) => handleChange(e, "billing_address")}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required={!formData.same_as_shipping}
-                        disabled={formData.same_as_shipping}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+        ) : (
+          <div className="text-center py-5 text-muted">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              fill="currentColor"
+              className="bi bi-cart"
+              viewBox="0 0 16 16"
+            >
+              <path d="M0 1a1 1 0 0 1 1-1h1.5a.5.5 0 0 1 .485.379L3.89 4H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 13H4a.5.5 0 0 1-.491-.408L1.01 2H1a1 1 0 0 1-1-1zm4.415 11a1 1 0 1 0 1.17 1.37 1 1 0 0 0-1.17-1.37zm6.47 0a1 1 0 1 0 1.17 1.37 1 1 0 0 0-1.17-1.37z" />
+            </svg>
+            <p className="mt-3">Your cart is empty</p>
           </div>
+        )}
+      </div>
 
-          {/* Payment and Submit */}
-          <div className="border-t border-gray-200 pt-6">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">Payment Method</h3>
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
-              <div className="flex items-center">
+      {/* Addresses Section */}
+      <div className="row g-4 mb-4">
+        {/* Shipping Address */}
+        <div className="col-md-6">
+          <div className="p-3 bg-light border rounded h-100">
+            <h3 className="h5 fw-semibold mb-3 border-bottom pb-2">Shipping Address</h3>
+            {addressFields.map((field) => (
+              <div className="mb-3" key={field.name}>
+                <label htmlFor={`shipping_${field.name}`} className="form-label">
+                  {field.label}
+                </label>
                 <input
-                  id="cash_on_delivery"
-                  name="payment_method"
-                  type="radio"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  defaultChecked
+                  type="text"
+                  id={`shipping_${field.name}`}
+                  name={field.name}
+                  value={formData.shipping_address[field.name]}
+                  onChange={(e) => handleChange(e, "shipping_address")}
+                  className="form-control"
+                  required
                 />
-                <label htmlFor="cash_on_delivery" className="ml-3 block text-sm font-medium text-gray-700">
-                  Cash on Delivery
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Billing Address */}
+        <div className="col-md-6">
+          <div className="p-3 bg-light border rounded h-100 d-flex flex-column">
+            <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+              <h3 className="h5 fw-semibold mb-0">Billing Address</h3>
+              <div className="form-check">
+                <input
+                  id="same_as_shipping"
+                  name="same_as_shipping"
+                  type="checkbox"
+                  checked={formData.same_as_shipping}
+                  onChange={handleCheckboxChange}
+                  className="form-check-input"
+                />
+                <label htmlFor="same_as_shipping" className="form-check-label">
+                  Same as shipping
                 </label>
               </div>
             </div>
-
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={isLoading || cartItems.length === 0}
-                className={`px-6 py-3 rounded-md text-white font-medium ${
-                  isLoading || cartItems.length === 0 
-                    ? "bg-gray-400 cursor-not-allowed" 
-                    : "bg-green-600 hover:bg-green-700"
-                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors`}
-              >
-                {isLoading ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing Order...
-                  </span>
-                ) : "Confirm Order"}
-              </button>
+            <div className="flex-grow-1">
+              {addressFields.map((field) => (
+                <div className="mb-3" key={field.name}>
+                  <label htmlFor={`billing_${field.name}`} className="form-label">
+                    {field.label}
+                  </label>
+                  <input
+                    type="text"
+                    id={`billing_${field.name}`}
+                    name={field.name}
+                    value={formData.billing_address[field.name]}
+                    onChange={(e) => handleChange(e, "billing_address")}
+                    className="form-control"
+                    required={!formData.same_as_shipping}
+                    disabled={formData.same_as_shipping}
+                  />
+                </div>
+              ))}
             </div>
-
-            {successMessage && (
-              <div className="mt-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md">
-                <div className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  {successMessage}
-                </div>
-              </div>
-            )}
-
-            {errorMessage && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">
-                <div className="flex items-center">
-                  <svg className="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {errorMessage}
-                </div>
-              </div>
-            )}
           </div>
-        </form>
+        </div>
       </div>
-    </div>
-  );
-};
 
+      {/* Payment Method */}
+      <div className="mb-4">
+        <h3 className="h5 fw-semibold mb-3">Payment Method</h3>
+        <div className="p-3 bg-light border rounded">
+          <div className="form-check">
+            <input
+              id="cash_on_delivery"
+              name="payment_method"
+              type="radio"
+              className="form-check-input"
+              defaultChecked
+            />
+            <label htmlFor="cash_on_delivery" className="form-check-label">
+              Cash on Delivery
+            </label>
+          </div>
+          <div className="ps-4 mt-2 text-muted small">
+            Pay with cash upon delivery
+          </div>
+        </div>
+      </div>
+
+      {/* Submit Button and Total */}
+      <div className="d-flex justify-content-between align-items-center border-top pt-3">
+        <div className="fs-5 fw-semibold">
+          Total: <span className="text-primary">{subtotal} SAR</span>
+        </div>
+        <button
+          type="submit"
+          disabled={isLoading || cartItems.length === 0}
+          className={`btn btn-primary btn-lg ${
+            isLoading || cartItems.length === 0 ? "disabled" : ""
+          }`}
+        >
+          {isLoading ? (
+            <span className="d-flex align-items-center">
+              <span
+                className="spinner-border spinner-border-sm me-2"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              Processing...
+            </span>
+          ) : (
+            "Place Order"
+          )}
+        </button>
+      </div>
+
+      {/* Messages */}
+      {successMessage && (
+        <div className="alert alert-success mt-4" role="alert">
+          <div className="d-flex align-items-center">
+            <svg
+              className="bi flex-shrink-0 me-2"
+              width="24"
+              height="24"
+              fill="currentColor"
+              role="img"
+              aria-label="Success:"
+            >
+              <use xlinkHref="#check-circle-fill" />
+            </svg>
+            <div>
+              <strong>Success!</strong> {successMessage}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="alert alert-danger mt-4" role="alert">
+          <div className="d-flex align-items-center">
+            <svg
+              className="bi flex-shrink-0 me-2"
+              width="24"
+              height="24"
+              fill="currentColor"
+              role="img"
+              aria-label="Error:"
+            >
+              <use xlinkHref="#exclamation-triangle-fill" />
+            </svg>
+            <div>
+              <strong>Error</strong> {errorMessage}
+            </div>
+          </div>
+        </div>
+      )}
+    </form>
+  </div>
+</div>
+  );
+}
 export default OrderForm;
