@@ -3,7 +3,7 @@ import { FaShoppingCart, FaStar, FaHeart } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 
 const StockBadge = ({ stock }) => {
   return (
@@ -111,7 +111,7 @@ const ProductCard = ({ product }) => {
             style={{ height: '24rem', width: '96% ' }}
           />
 
-          {product.discount && (
+          {product.discount > 0 && (
             <div className="position-absolute top-0 end-0 bg-danger text-white px-3 py-1 rounded-1 small fw-bold shadow-sm">
               {product.discount}% OFF
             </div>
