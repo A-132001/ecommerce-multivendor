@@ -160,13 +160,13 @@ const ProductCard = ({ product }) => {
             <FaShoppingCart />
           </button>
           <button
-            className="btn btn-outline-danger shadow-sm px-3 ms-2"
+            className="btn shadow-sm px-3 ms-2"
             onClick={(e) => {
               e.preventDefault();
               toggleFavorite()
             }}
           >
-            <FaHeart color={isFavorite ? '#ff4d4d' : '#cccccc'} />
+            <FaHeart color={isFavorite ? '#ff4d4d' : 'green'} />
           </button>
         </div>
 
