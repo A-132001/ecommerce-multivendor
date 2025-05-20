@@ -53,15 +53,7 @@ const ServicesPreview = () => {
                 <h3 className="h4 fw-bold mb-3">{service.title}</h3>
                 <p className="text-muted mb-4">{service.description}</p>
 
-                {/* Push button to bottom */}
-                <motion.a
-                  href={service.link}
-                  className="btn btn-outline-yellow-600 mt-auto"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Learn more
-                </motion.a>
+        
               </Card.Body>
             </Card>
           </motion.div>

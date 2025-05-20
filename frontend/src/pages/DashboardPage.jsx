@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardSidebar from '../components/dashboard/DashboardSidebar';
-// import AddProductForm from '../components/dashboard/AddProductForm';
 import ProductManagementTable from '../components/dashboard/ProductManagementTable';
 import OrdersList from '../components/dashboard/OrdersList';
 import Swal from 'sweetalert2';
@@ -13,6 +12,7 @@ import { FaBox, FaShoppingBag, FaChartLine, FaPlus, FaChevronUp } from 'react-ic
 import { Spinner } from 'react-bootstrap';
 import { Tabs, Tab } from 'react-bootstrap';
 import axios from 'axios';
+
 
 
 export default function DashboardPage() {
@@ -214,14 +214,14 @@ export default function DashboardPage() {
     };
 
     fetchProducts();
-    // fetchOrders();
+    fetchOrders();
   }, []);
 
   return (
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-3 bg-dark text-white p-4">
-          <DashboardSidebar products={products} />
+          <DashboardSidebar products={products} orders={orders} />
 
         </div>
         {loading ? (
@@ -230,12 +230,7 @@ export default function DashboardPage() {
             <p className="mt-3">Loading shops...</p>
           </div>
         )
-          //  : error ? (
-          //   <div className="col-md-9 p-4">
-          //     <h2 className="mb-4">Error</h2>
-          //     <p>{error}</p>
-          //   </div>
-          // )
+        
           : (
             <div className="col-md-9 p-4">
               <h2 className="mb-4">Dashboard</h2>

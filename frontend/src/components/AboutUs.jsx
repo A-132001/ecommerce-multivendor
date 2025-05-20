@@ -120,7 +120,7 @@ const AboutUs = () => {
         </Col>
         <Col md={6}>
           <img
-            src="/imgs/about-hero-bg.jpg"
+            src="/imgs/about.jpeg"
             alt="VendorHub team"
             className="img-fluid rounded shadow-lg"
           />

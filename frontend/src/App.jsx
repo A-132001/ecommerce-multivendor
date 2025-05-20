@@ -29,6 +29,7 @@ import Order from './components/pages/Order';
 import PaymentList from './components/pages/Payment';
 import ContactUs from './components/ContactUs';
 import AboutUs from './components/AboutUs';
+import ChatBotComponent from './components/ChatBot';
 
 function App() {
   const dispatch = useDispatch();
@@ -90,6 +91,7 @@ function App() {
           ))}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <ChatBotComponent />
         <Footer />
       </AuthProvider>
     </Router>

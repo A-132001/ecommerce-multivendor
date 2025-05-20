@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { getCart, clearData } from '../../api/api.js'; // تأكد من استيراد clearData
+import { getCart, clearData } from '../../api/api.js'; 
 import { useSelector } from "react-redux";
 
 const Payment = () => {
@@ -96,9 +96,9 @@ const Payment = () => {
 
   const handlePaymentSuccess = async () => {
     try {
-      await clearData(); // استدعاء clearData لمسح السلة
-      setCartItems([]); // تصفير السلة
-      setSubtotal(0); // تصفير الإجمالي
+      await clearData(); 
+      setCartItems([]);
+      setSubtotal(0); 
       setTotalPrice(0);
       setTotalQuantity(0);
 
@@ -193,7 +193,7 @@ const Payment = () => {
 
         if (vodafoneRes.data.success) {
           setPaymentStatus('success');
-          await handlePaymentSuccess(); // استدعاء handlePaymentSuccess عند نجاح الدفع
+          await handlePaymentSuccess(); 
         } else {
           console.error('Vodafone Cash Error:', vodafoneRes.data);
           setError('Payment failed. Please try again.');
@@ -211,13 +211,10 @@ const Payment = () => {
 
   const handlePaymentStart = async () => {
     try {
-      // استدعاء initiatePayment لإتمام الدفع
       await initiatePayment();
 
-      // استدعاء clearData لمسح السلة بعد الدفع
       await clearData();
 
-      // تحديث الحالة بعد مسح السلة
       setCartItems([]);
       setSubtotal(0);
       setTotalPrice(0);

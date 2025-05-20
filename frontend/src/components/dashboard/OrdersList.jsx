@@ -21,6 +21,9 @@ const OrdersList = ({ orders = [], onDelete, onEdit, onAdd }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [ordersPerPage] = useState(5);
+
   const [error, setError] = useState(null);
 
   // React Hook Form setup
@@ -126,18 +129,18 @@ const OrdersList = ({ orders = [], onDelete, onEdit, onAdd }) => {
     visible: { opacity: 1, x: 0 },
     exit: { opacity: 0, x: 50 }
   };
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+
+
+  const totalPages = Math.ceil(orders.length / ordersPerPage);
 
   return (
     <div className="p-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Orders Management</h2>
-        <Button 
-          variant="primary" 
-          onClick={() => setShowAddModal(true)}
-          className="d-flex align-items-center"
-        >
-          <FiPlus className="me-2" /> Add Order
-        </Button>
+       
       </div>
 
       <div className="table-responsive">
@@ -155,7 +158,7 @@ const OrdersList = ({ orders = [], onDelete, onEdit, onAdd }) => {
           </thead>
           <tbody>
             <AnimatePresence>
-              {orders.map((order) => (
+              {currentOrders.map((order) => (
                 <motion.tr
                   key={order.id}
                   variants={rowVariants}
@@ -418,10 +421,33 @@ const OrdersList = ({ orders = [], onDelete, onEdit, onAdd }) => {
                   'Add Order'
                 )}
               </Button>
+
             </div>
           </form>
         </Modal.Body>
+
       </Modal>
+      
+            {/* Pagination Controls */}
+                          <div className="d-flex justify-content-between align-items-center mt-3">
+                <Button
+                  variant="outline-secondary"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                >
+                  Previous
+                </Button>
+                <span>Page {currentPage} of {totalPages}</span>
+                <Button
+                  variant="outline-secondary"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                >
+                  Next
+                </Button>
+              </div>
+
+      
     </div>
   );
 };

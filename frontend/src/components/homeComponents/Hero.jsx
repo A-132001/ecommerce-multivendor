@@ -46,15 +46,7 @@ return (
                 >
                   <FaShoppingBag /> Shop Now
                 </motion.a>
-                <motion.a
-                  href="/products/deals"
-                  className="btn btn-outline-light btn-lg px-4 py-3 d-flex align-items-center gap-2"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  style={{ backdropFilter: 'blur(2px)' }}
-                >
-                  <FaTag /> Today's Deals
-                </motion.a>
+               
               </div>
             </motion.div>
           </Col>
