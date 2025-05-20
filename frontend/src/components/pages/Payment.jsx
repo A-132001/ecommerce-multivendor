@@ -74,7 +74,7 @@ const Payment = () => {
         try {
           await clearData();
 
-          // Optionally refresh cart data
+         
           const response = await getCart();
           if (response.data) {
             setCartItems(response.data.items || []);
@@ -96,12 +96,14 @@ const Payment = () => {
 
   const handlePaymentSuccess = async () => {
     try {
-      await clearData(); 
-      setCartItems([]);
-      setSubtotal(0); 
-      setTotalPrice(0);
-      setTotalQuantity(0);
-
+     
+      if (paymentMethod === 'card') {
+        await clearData();
+        setCartItems([]);
+        setSubtotal(0);
+        setTotalPrice(0);
+        setTotalQuantity(0);
+      }
     } catch (error) {
       console.error('Error clearing cart:', error);
       setError('Payment succeeded but failed to clear the cart.');
@@ -180,25 +182,9 @@ const Payment = () => {
         setIframeUrl(`https://accept.paymob.com/api/acceptance/iframes/${IFRAME_ID}?payment_token=${paymentToken}`);
         setPaymentStatus('pending');
       } else if (paymentMethod === 'vodafone') {
-        const vodafoneRes = await axios.post(
-          'https://accept.paymob.com/api/acceptance/payments/pay',
-          {
-            source: {
-              identifier: phoneNumber,
-              subtype: 'WALLET',
-            },
-            payment_token: paymentToken,
-          }
-        );
-
-        if (vodafoneRes.data.success) {
-          setPaymentStatus('success');
-          await handlePaymentSuccess(); 
-        } else {
-          console.error('Vodafone Cash Error:', vodafoneRes.data);
-          setError('Payment failed. Please try again.');
-          setPaymentStatus('failed');
-        }
+        
+        setPaymentStatus('pending');
+        setError(`Please pay ${subtotal} ${currency} to this Vodafone Cash number: ${phoneNumber}`);
       }
     } catch (err) {
       console.error('Payment Error:', err);
@@ -213,14 +199,14 @@ const Payment = () => {
     try {
       await initiatePayment();
 
-      await clearData();
-
-      setCartItems([]);
-      setSubtotal(0);
-      setTotalPrice(0);
-      setTotalQuantity(0);
-
-
+      
+      if (paymentMethod === 'card') {
+        await clearData();
+        setCartItems([]);
+        setSubtotal(0);
+        setTotalPrice(0);
+        setTotalQuantity(0);
+      }
     } catch (error) {
       console.error('Error during payment or clearing cart:', error);
       setError('Payment succeeded but failed to clear the cart.');
@@ -317,6 +303,11 @@ const Payment = () => {
       {error && <p style={styles.error}>{error}</p>}
       {paymentStatus === 'pending' && paymentMethod === 'card' && (
         <p style={styles.info}>Please complete payment in the form below...</p>
+      )}
+      {paymentMethod === 'vodafone' && paymentStatus === 'pending' && (
+        <p style={styles.info}>
+          Please pay <strong>{subtotal} {currency}</strong> to this Vodafone Cash number: <strong>{phoneNumber}</strong> to confirm your order.
+        </p>
       )}
       {paymentStatus === 'success' && (
         <p style={styles.success}>Payment successful! Your order has been placed.</p>
