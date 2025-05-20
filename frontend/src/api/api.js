@@ -197,7 +197,7 @@ export const removeFromCart = async (itemId) => {
 
 // Order API calls
 export const createOrder = async (orderData) => {
-    return await api.post('/orders/', orderData);
+    return await api.post('/orders/create/', orderData);
 };
 
 export const getOrder = async (orderId) => {

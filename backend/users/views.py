@@ -190,34 +190,38 @@ def change_password(request):
 
 # Google Login
 User = get_user_model()
+
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def google_login(request):
-    token = request.data.get('access_token')
-    if not token:
-        return Response({'error': 'Access token is required'}, status=400)
+    id_token = request.data.get('id_token')
+    if not id_token:
+        return Response({'error': 'id_token is required'}, status=400)
 
     # Verify token with Google
-    google_url = f"https://www.googleapis.com/oauth2/v3/tokeninfo?id_token={token}"
-    response = requests.get(google_url)
-
-    if response.status_code != 200:
+    google_url = f"https://www.googleapis.com/oauth2/v3/tokeninfo?id_token={id_token}"
+    resp = requests.get(google_url)
+    if resp.status_code != 200:
         return Response({'error': 'Invalid Google token'}, status=400)
 
-    data = response.json()
+    data = resp.json()
     email = data.get('email')
     name = data.get('name')
 
     if not email:
-        return Response({'error': 'Email not available from Google'}, status=400)
+        return Response({'error': 'Email not returned by Google'}, status=400)
 
-    user, created = User.objects.get_or_create(email=email, defaults={
-        'username': email.split('@')[0],
-        'name': name,
-        'is_verified': True,
-        'user_type': 'customer',  # or any default
-    })
+    user, created = User.objects.get_or_create(
+        email=email,
+        defaults={
+            'username': email.split('@')[0],
+            'name': name,
+            'is_verified': True,
+            'user_type': 'customer',
+        }
+    )
 
-    # Generate tokens
+    # Issue JWT tokens
     refresh = RefreshToken.for_user(user)
     return Response({
         'refresh': str(refresh),
@@ -226,6 +230,6 @@ def google_login(request):
             'id': user.id,
             'email': user.email,
             'name': user.name,
-            'username': user.username
+            'username': user.username,
         }
     })
