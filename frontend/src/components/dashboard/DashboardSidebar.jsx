@@ -14,12 +14,13 @@ import {
 } from 'react-icons/fa';
 import { FiImage } from 'react-icons/fi';
 
-const DashboardSidebar = ({ products }) => {
+const DashboardSidebar = ({ products, orders }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [activeLink, setActiveLink] = useState('dashboard');
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showProductsModal, setShowProductsModal] = useState(false);
+  const [showOrdersModal, setShowOrdersModal] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -72,18 +73,27 @@ const DashboardSidebar = ({ products }) => {
     tap: { scale: 0.98 }
   };
 
-  const navItems = [
-    { path: '/dashboard/store-profile', name: 'Store Profile', icon: <FaStore />, key: 'store' },
-    { path: '/dashboard', name: 'Dashboard', icon: <FaTachometerAlt />, key: 'dashboard' },
-    { 
-      path: '#', 
-      name: 'Products', 
-      icon: <FaBoxes />, 
-      key: 'products',
-      onClick: () => setShowProductsModal(true)
-    },
-    // { path: '/dashboard/orders', name: 'Orders', icon: <FaClipboardList />, key: 'orders' }
-  ];
+const navItems = [
+  { path: '/dashboard/store-profile', name: 'Store Profile', icon: <FaStore />, key: 'store' },
+  { path: '/dashboard', name: 'Dashboard', icon: <FaTachometerAlt />, key: 'dashboard' },
+  {
+    path: '#',
+    name: 'Products',
+    icon: <FaBoxes />,
+    key: 'products',
+    onClick: () => setShowProductsModal(true)
+  },
+  {
+    path: '#',
+    name: 'Orders',
+    icon: <FaClipboardList />,
+    key: 'orders',
+    onClick: () => setShowOrdersModal(true)
+  }
+];
+
+
+
 
   const MobileToggleButton = () => (
     <Button 
@@ -155,26 +165,7 @@ const DashboardSidebar = ({ products }) => {
         ))}
       </Nav>
 
-      {/* <motion.div
-        variants={linkVariants}
-        whileHover="hover"
-        whileTap="tap"
-      >
-        <Button 
-          variant="outline-danger" 
-          className="w-100 mt-auto"
-          onClick={handleLogout}
-        >
-          {!collapsed ? (
-            <>
-              <FaSignOutAlt className="me-2" />
-              Logout
-            </>
-          ) : (
-            <FaSignOutAlt />
-          )}
-        </Button>
-      </motion.div> */}
+
     </motion.div>
   );
 
@@ -214,14 +205,7 @@ const DashboardSidebar = ({ products }) => {
           ))}
         </Nav>
 
-        {/* <Button 
-          variant="outline-danger" 
-          className="w-100 mt-4"
-          onClick={handleLogout}
-        >
-          <FaSignOutAlt className="me-2" />
-          Logout
-        </Button> */}
+       
       </Offcanvas.Body>
     </Offcanvas>
   );
@@ -307,14 +291,63 @@ const DashboardSidebar = ({ products }) => {
     </Modal>
   );
 
-  return (
-    <>
-      <MobileToggleButton />
-      <DesktopSidebar />
-      <MobileSidebar />
-      <ProductsModal />
-    </>
-  );
+
+
+ return (
+  <>
+    <MobileToggleButton />
+    <DesktopSidebar />
+    <MobileSidebar />
+    <ProductsModal />
+    {orders && <Modal 
+      show={showOrdersModal} 
+      onHide={() => setShowOrdersModal(false)}
+      size="lg"
+      centered
+      scrollable
+    >
+      <Modal.Header closeButton className="bg-dark text-white">
+        <Modal.Title>Orders Overview</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {orders.length > 0 ? (
+          <Table striped bordered hover responsive>
+            <thead className="table-dark">
+              <tr>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Address</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr key={order.id}>
+                  <td><strong>{order.customerName}</strong></td>
+                  <td>{new Date(order.orderDate).toLocaleDateString()}</td>
+                  <td><Badge bg="info">{order.status}</Badge></td>
+                  <td><Badge bg="success">${parseFloat(order.total).toFixed(2)}</Badge></td>
+                  <td><small className="text-muted">{order.shippingAddress}</small></td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        ) : (
+          <div className="text-center py-4">
+            <p className="text-muted">No orders available</p>
+          </div>
+        )}
+      </Modal.Body>
+      <Modal.Footer className="bg-light">
+        <Button variant="secondary" onClick={() => setShowOrdersModal(false)}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>}
+  </>
+);
+
 };
 
 export default DashboardSidebar;
