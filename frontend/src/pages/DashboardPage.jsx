@@ -25,10 +25,10 @@ export default function DashboardPage() {
 
 
   const addProduct = async (newProduct) => {
-    console.log(newProduct)
+    
     try {
       const response = await createProduct(newProduct);
-      console.log(response)
+    
       if (response.status !== 201) {
         Swal.fire({
           title: 'Error',
@@ -51,6 +51,9 @@ export default function DashboardPage() {
         background: '#0f172a',
       })
     } catch (error) {
+      if (error.status === 500){
+        setError("Server Error! please try again later.")
+      }
       let backendErrorMessage = "An error occurred while registering the vendor.";
       const errData = error?.response?.data;
 
@@ -81,7 +84,6 @@ export default function DashboardPage() {
   const handleDeleteProduct = async (id) => {
     try {
       const response = deleteProduct(id);
-      console.log('Delete product response:', response);
       const updatedProducts = products.filter((product) => product.id !== id);
       setProducts(updatedProducts);
 
@@ -114,7 +116,6 @@ export default function DashboardPage() {
   const handleEditProduct = async (id, updatedProduct) => {
     try {
       const response = await updateProduct(id, updatedProduct);
-      console.log('Edit product response:', response);
       setProducts((prevProducts) =>
         prevProducts.map((product) =>
           product.id === response.data.id ? response.data : product
@@ -128,6 +129,7 @@ export default function DashboardPage() {
       })
 
     } catch (error) {
+
       let backendErrorMessage = "An error occurred while updating the product.";
       const errData = error?.response?.data;
       if (typeof errData === "string") {
@@ -170,6 +172,7 @@ export default function DashboardPage() {
       try {
         const response = await getStoreProductsForVendor();
         setProducts(response.data);
+    
         localStorage.setItem('products', JSON.stringify(response.data));
       } catch (error) {
         console.log('Error fetching products:', error);
@@ -183,7 +186,7 @@ export default function DashboardPage() {
       try {
         const response = await listOrders();
         setOrders(response.data);
-        console.log('Fetched orders:', response.data);
+        // console.log('Fetched orders:', response.data);
         localStorage.setItem('orders', JSON.stringify(response.data));
       } catch (error) {
         let backendErrorMessage = "An error occurred while fetching orders.";

@@ -5,6 +5,10 @@ import Swal from 'sweetalert2';
 import { FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 import { getStoreProducts } from '../../api/api';
 import { useNavigate } from 'react-router-dom';
+import { Container, Spinner } from 'react-bootstrap';
+import { motion } from 'framer-motion';
+
+
 export default function ProductList({ storeId }) {
 
   const [products, setProducts] = useState([]);
@@ -14,11 +18,16 @@ export default function ProductList({ storeId }) {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true)
       try {
         const response = await getStoreProducts(storeId);
 
         setProducts(response.data);
         setLoading(false);
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
         if (response.data.length === 0) {
           showInfoAlert('No products found', 'This store currently has no products available');
         }
@@ -67,9 +76,58 @@ export default function ProductList({ storeId }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
-      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Container
+          className="d-flex flex-column justify-content-center align-items-center"
+          style={{
+            minHeight: '50vh',
+            gap: '1rem'
+          }}
+        >
+
+          <div className="d-flex align-items-center">
+            <Spinner
+              animation="grow"
+              variant="warning"
+              role="status"
+              style={{ width: '3rem', height: '3rem' }}
+            >
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </div>
+
+
+          <motion.span
+            className="h5 text-muted"
+            animate={{
+              opacity: [0.6, 1, 0.6],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+            }}
+          >
+            Loading Vendor Products...
+          </motion.span>
+
+          <div className="w-50 mt-3">
+            <div
+              className="progress bg-warning bg-opacity-25"
+              style={{ height: '4px' }}
+            >
+              <div
+                className="progress-bar progress-bar-striped progress-bar-animated bg-warning"
+                style={{ width: '45%' }}
+              />
+            </div>
+          </div>
+        </Container>
+      </motion.div>
     );
   }
 
@@ -95,7 +153,7 @@ export default function ProductList({ storeId }) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold text-white mb-6">Available Products</h2>
+      <h2 className="text-2xl font-bold text-dark mb-6">Available Products</h2>
       <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {products.map((product) => (
           <div key={product.id} className="col d-flex">

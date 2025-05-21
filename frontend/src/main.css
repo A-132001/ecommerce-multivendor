@@ -36,3 +36,13 @@
 .btn-outline-yellow-600:hover {
   background-color: #f8f4e6;
 }
+
+
+.description-truncate {
+  display: inline-block;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
