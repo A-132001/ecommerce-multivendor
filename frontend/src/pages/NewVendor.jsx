@@ -22,19 +22,19 @@ const NewVendor = () => {
 
         try {
             const formData = new FormData();
-            formData.append("name", data.store_name);
-            formData.append("description", data.store_description);
+            formData.append("store_name", data.store_name);
+            formData.append("store_description", data.store_description);
             formData.append("contact_phone", data.contact_phone);
             formData.append("contact_email", data.contact_email);
 
-            // إضافة صورة المتجر إذا تم تحميلها
+            
             if (data.store_logo && data.store_logo.length > 0) {
                 formData.append("logo", data.store_logo[0]);
             }
-            console.log("Data:", data)
+        
             const response = await createStore(formData)
-            console.log(response)
-            if (response.ok) {
+
+            if (response.status === 201) {
                 Swal.fire({
                     icon: "success",
                     title: "Success!",
@@ -42,6 +42,9 @@ const NewVendor = () => {
                 });
 
                 reset();
+                setTimeout(() => {
+                    window.location.href = '/dashboard'
+                }, 1500);
             } else {
                 const errorData = response;
                 setError(errorData.detail || "Something went wrong!");
@@ -57,7 +60,6 @@ const NewVendor = () => {
             let errorMessage = "An error occurred while registering the vendor.";
             
             if (error.response) {
-                // معالجة أخطاء الباكيند
                 const errorData = error.response.data;
                 
                 if (typeof errorData === "string") {
@@ -86,7 +88,7 @@ const NewVendor = () => {
         }
     };
 
-    // مشاهدة تغييرات صورة المتجر لعرض معاينة
+    
     const storeLogo = watch("store_logo");
 
     return (

@@ -66,17 +66,17 @@ function Navigation() {
     const baseItems = [
       { path: "/profile", label: "Profile", icon: <FaUser className="me-2" size={16} /> },
       { path: "/orders", label: "My Orders", icon: <FaShoppingCart className="me-2" size={16} /> },
-      {path: "/new-vendor", label: "Become a Vendor", icon: <FaStore className="me-2" size={16} />},
+      // {path: "/new-vendor", label: "Become a Vendor", icon: <FaStore className="me-2" size={16} />},
     ];
 
     // Add vendor option if not already a vendor
-    // if (user?.user_type !== "shop_owner") {
-    //   baseItems.push({
-    //     path: "/new-vendor",
-    //     label: "Become a Vendor",
-    //     icon: <FaStore className="me-2" size={16} />
-    //   });
-    // }
+    if (user?.is_vendor === false) {
+      baseItems.push({
+        path: "/new-vendor",
+        label: "Become a Vendor",
+        icon: <FaStore className="me-2" size={16} />
+      });
+    }
 
     
     baseItems.push({

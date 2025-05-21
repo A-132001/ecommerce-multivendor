@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { getAllCategories } from '../../api/api.js';
 import { toast } from "react-toastify";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 
 const MySwal = withReactContent(Swal);
 
@@ -97,7 +97,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
         formData.append('image', selectedImageFile);
       }
       await onAdd(formData);
-     
+
       setShowAddModal(false);
       resetAdd();
       setImagePreview(null);
@@ -176,6 +176,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
       try {
         const response = await getAllCategories();
         setCategories(response.data);
+       
       } catch (error) {
         console.error("Error fetching categories:", error);
         const message =
@@ -193,10 +194,25 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
 
   return (
     <div className="p-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-0">Product Management</h2>
-        <Button variant="primary" onClick={() => setShowAddModal(true)} className="d-flex align-items-center">
-          <FiPlus className="me-2" /> Add Product
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom">
+        {/* Left section - Title and count */}
+        <div>
+          <h1 className="display-6 fw-semibold mb-1 text-dark">Product Management</h1>
+          <p className="text-muted small mb-0">
+            {products?.length || 0} {products?.length === 1 ? 'product' : 'products'} available
+          </p>
+        </div>
+
+        {/* Right section - Add button */}
+        <Button
+          variant="primary"
+          onClick={() => setShowAddModal(true)}
+          className="rounded-2 px-3 py-2 shadow-sm hover-shadow-lg focus-shadow-lg transition-all"
+        >
+          <div className="d-flex align-items-center">
+            <FiPlus className="me-2" size={18} />
+            <span className="fw-medium">Add New Product</span>
+          </div>
         </Button>
       </div>
 
@@ -227,12 +243,23 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                   transition={{ duration: 0.3 }}
                 >
                   <td><strong>{product.name}</strong></td>
-                  <td><span className="text-muted">{product.description || '-'}</span></td>
+                  <td>
+                    <span
+                      className="text-muted description-truncate"
+                      title={product.description || ''}
+                    >
+                      {product.description
+                        ? product.description.length > 50
+                          ? `${product.description.substring(0, 50)}...`
+                          : product.description
+                        : '-'}
+                    </span>
+                  </td>
                   <td><Badge bg="success">{currency} {parseFloat(product.price).toFixed(2)}</Badge></td>
                   <td className='text-center'><Badge bg='warning'>{parseFloat(product.discount)}</Badge></td>
                   <td className='text-center'><Badge bg='danger'>{currency} {parseFloat(product.original_price)}</Badge></td>
                   <td><Badge bg={product.stock > 0 ? 'info' : 'danger'}>{product.stock} in stock</Badge></td>
-                  <td><Badge bg="secondary">{product.category}</Badge></td>
+                  <td><Badge bg="secondary">{product.category_name}</Badge></td>
                   <td>
                     {product.image ? (
                       <motion.img
@@ -310,7 +337,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
                     <div className="invalid-feedback">{editErrors.price.message}</div>
                   )}
                 </div>
-                  <div className="mb-3">
+                <div className="mb-3">
                   <label className="form-label">Discount</label>
                   <input
                     type="number"

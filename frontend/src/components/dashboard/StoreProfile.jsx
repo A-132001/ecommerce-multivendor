@@ -26,8 +26,7 @@ const StoreProfile = () => {
     const fetchStoreData = async () => {
       try {
         const response = await getStore();
-        console.log(response.data)
-        console.log(store)
+
         setStore(response.data);
         setLogoPreview(response.data.store_logo);
         reset(response.data);
@@ -88,7 +87,6 @@ const StoreProfile = () => {
         }
       });
       const response = await updateStore(store.id, formData);
-      console.log(response)
       setStore(response.data);
       setEditing(false);
       MySwal.fire({

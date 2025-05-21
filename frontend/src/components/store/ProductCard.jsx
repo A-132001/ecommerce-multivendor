@@ -125,12 +125,34 @@ const ProductCard = ({ product }) => {
         </div>
 
         <div className="w-100 rounded px-3 py-2 flex-grow-1">
-          <div className="mb-2 d-flex justify-content-between align-items-center">
-            <h6 className="fw-bold text-base text-dark text-truncate">{product.name}</h6>
-            <StockBadge stock={product.stock} />
+          <div className="mb-2 d-flex align-items-start gap-2">
+            {/* Product name with flex-shrink and min-width 0 to allow truncation */}
+            <h6
+              className="fw-bold text-dark text-truncate mb-0 flex-grow-1"
+              style={{ minWidth: 0 }}
+              title={product.name}  // Show full name on hover
+            >
+              {product.name}
+            </h6>
+
+            {/* Stock badge with fixed width */}
+            <div className="flex-shrink-0">
+              <StockBadge stock={product.stock} />
+            </div>
           </div>
 
-          <p className="text-muted mb-2 line-clamp-2" style={{ WebkitLineClamp: 2 }}>
+          {/* Description with line clamping */}
+          <p
+            className="text-muted mb-0 line-clamp-2"
+            style={{
+              WebkitLineClamp: 2,
+              display: '-webkit-box',
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              cursor: 'pointer',
+            }}
+            title={product.description}  
+          >
             {product.description}
           </p>
         </div>
