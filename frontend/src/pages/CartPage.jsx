@@ -24,7 +24,7 @@ import { clearData } from '../api/api';
 
 const CartPage = () => {
   const currency = useSelector((state) => state.currency.value);
-  const { cart, loading, updateQuantity, removeFromCart, refreshCart } = useCart();
+  const { cart, loading, updateQuantity, removeFromCart, } = useCart();
   const [quantities, setQuantities] = useState({});
   const navigate = useNavigate();
 
@@ -48,7 +48,7 @@ const CartPage = () => {
   const handleUpdateQuantity = async (productId) => {
     try {
       await updateQuantity(productId, quantities[productId]);
-      await refreshCart();
+      
     } catch (error) {
       console.error('Failed to update quantity:', error);
     }
