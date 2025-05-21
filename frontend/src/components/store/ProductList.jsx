@@ -24,6 +24,10 @@ export default function ProductList({ storeId }) {
 
         setProducts(response.data);
         setLoading(false);
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
         if (response.data.length === 0) {
           showInfoAlert('No products found', 'This store currently has no products available');
         }
@@ -70,62 +74,62 @@ export default function ProductList({ storeId }) {
     });
   };
 
-if (loading) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Container 
-        className="d-flex flex-column justify-content-center align-items-center" 
-        style={{ 
-          minHeight: '50vh',
-          gap: '1rem'
-        }}
+  if (loading) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
       >
-    
-        <div className="d-flex align-items-center">
-          <Spinner 
-            animation="grow" 
-            variant="warning" 
-            role="status"
-            style={{ width: '3rem', height: '3rem' }}
-          >
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        </div>
-
-
-        <motion.span
-          className="h5 text-muted"
-          animate={{
-            opacity: [0.6, 1, 0.6],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
+        <Container
+          className="d-flex flex-column justify-content-center align-items-center"
+          style={{
+            minHeight: '50vh',
+            gap: '1rem'
           }}
         >
-          Loading Vendor Products...
-        </motion.span>
 
-        <div className="w-50 mt-3">
-          <div 
-            className="progress bg-warning bg-opacity-25" 
-            style={{ height: '4px' }}
-          >
-            <div 
-              className="progress-bar progress-bar-striped progress-bar-animated bg-warning" 
-              style={{ width: '45%' }}
-            />
+          <div className="d-flex align-items-center">
+            <Spinner
+              animation="grow"
+              variant="warning"
+              role="status"
+              style={{ width: '3rem', height: '3rem' }}
+            >
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
           </div>
-        </div>
-      </Container>
-    </motion.div>
-  );
-}
+
+
+          <motion.span
+            className="h5 text-muted"
+            animate={{
+              opacity: [0.6, 1, 0.6],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+            }}
+          >
+            Loading Vendor Products...
+          </motion.span>
+
+          <div className="w-50 mt-3">
+            <div
+              className="progress bg-warning bg-opacity-25"
+              style={{ height: '4px' }}
+            >
+              <div
+                className="progress-bar progress-bar-striped progress-bar-animated bg-warning"
+                style={{ width: '45%' }}
+              />
+            </div>
+          </div>
+        </Container>
+      </motion.div>
+    );
+  }
 
   if (error) {
     return (
