@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Container,
   Typography,
@@ -24,12 +24,14 @@ import { clearData } from '../api/api';
 
 const CartPage = () => {
   const currency = useSelector((state) => state.currency.value);
-  const { cart, loading, updateQuantity, removeFromCart, } = useCart();
+  const { cart, loading, updateQuantity, removeFromCart, fetchCart } = useCart();
   const [quantities, setQuantities] = useState({});
+  const [isUpdating, setIsUpdating] = useState({});
   const navigate = useNavigate();
 
+  // Initialize quantities when cart changes
   useEffect(() => {
-    if (cart && Array.isArray(cart.items)) {
+    if (cart?.items) {
       const initialQuantities = {};
       cart.items.forEach(item => {
         initialQuantities[item.product.id] = item.quantity;
@@ -38,32 +40,54 @@ const CartPage = () => {
     }
   }, [cart]);
 
-  const handleQuantityChange = (productId, value) => {
+  // Memoized cart items to prevent unnecessary re-renders
+  const cartItems = useMemo(() => {
+    return cart?.items || [];
+  }, [cart?.items]);
+
+  const handleQuantityChange = useCallback((productId, value) => {
     const numValue = parseInt(value);
     if (numValue > 0) {
       setQuantities(prev => ({ ...prev, [productId]: numValue }));
     }
-  };
+  }, []);
 
-  const handleUpdateQuantity = async (productId) => {
+  const handleUpdateQuantity = useCallback(async (productId) => {
+    if (quantities[productId] === cart.items.find(item => item.product.id === productId)?.quantity) {
+      return; // Skip if quantity hasn't changed
+    }
+
     try {
+      setIsUpdating(prev => ({ ...prev, [productId]: true }));
       await updateQuantity(productId, quantities[productId]);
-      
     } catch (error) {
       console.error('Failed to update quantity:', error);
+    } finally {
+      setIsUpdating(prev => ({ ...prev, [productId]: false }));
     }
-  };
+  }, [quantities, cart?.items, updateQuantity]);
 
-  const handleResetCart = async () => {
+  const handleRemoveItem = useCallback(async (productId) => {
+    try {
+      setIsUpdating(prev => ({ ...prev, [productId]: true }));
+      await removeFromCart(productId);
+    } catch (error) {
+      console.error('Failed to remove item:', error);
+    } finally {
+      setIsUpdating(prev => ({ ...prev, [productId]: false }));
+    }
+  }, [removeFromCart]);
+
+  const handleResetCart = useCallback(async () => {
     try {
       await clearData();
-      await refreshCart();
+      await fetchCart();
     } catch (error) {
       console.error('Failed to clear cart:', error);
     }
-  };
+  }, [fetchCart]);
 
-  if (!cart || cart.items.length === 0) {
+  if (!cart || cartItems.length === 0) {
     return (
       <Box
         sx={{
@@ -84,23 +108,23 @@ const CartPage = () => {
           Looks like you haven't added any items to your cart yet.
         </Typography>
         <Button
-                component={Link}
-                to="/list-stores"
-                variant="contained"
-                size="large"
-                sx={{ 
-                  borderRadius: 5,
-                  backgroundColor: '#d4a017',
-                  color: '#fff',
-                  fontWeight: '600',
-                  '&:hover': {
-                    backgroundColor: '#ede4cd',
-                    color: '#fff', 
-                  },
-                }}
-              >
-                Start Shopping
-              </Button>
+          component={Link}
+          to="/list-stores"
+          variant="contained"
+          size="large"
+          sx={{ 
+            borderRadius: 5,
+            backgroundColor: '#d4a017',
+            color: '#fff',
+            fontWeight: '600',
+            '&:hover': {
+              backgroundColor: '#ede4cd',
+              color: '#fff', 
+            },
+          }}
+        >
+          Start Shopping
+        </Button>
       </Box>
     );
   }
@@ -130,14 +154,15 @@ const CartPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {cart.items.map((item) => (
-                <TableRow key={item.id}>
+              {cartItems.map((item) => (
+                <TableRow key={`${item.id}-${item.quantity}`}>
                   <TableCell>
                     <Box display="flex" alignItems="center">
                       <img
                         src={item.product.image}
                         alt={item.product.name}
                         style={{ width: 50, height: 50, marginRight: 16, borderRadius: 4 }}
+                        // loading="lazy"
                       />
                       <Typography>{item.product.name}</Typography>
                     </Box>
@@ -155,7 +180,7 @@ const CartPage = () => {
                         onBlur={() => handleUpdateQuantity(item.product.id)}
                         inputProps={{ min: 1 }}
                         sx={{ width: 80 }}
-                        disabled={loading}
+                        disabled={loading || isUpdating[item.product.id]}
                       />
                     </Box>
                   </TableCell>
@@ -164,8 +189,9 @@ const CartPage = () => {
                   </TableCell>
                   <TableCell align="right">
                     <IconButton
-                      onClick={() => removeFromCart(item.product.id)}
-                      disabled={loading}
+                      onClick={() => handleRemoveItem(item.product.id)}
+                      disabled={loading || isUpdating[item.product.id]}
+                      aria-label={`Remove ${item.product.name} from cart`}
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -212,7 +238,6 @@ const CartPage = () => {
                 Place Order
               </Button>
               <Button
-                
                 variant="outlined"
                 sx={{ 
                   border: '2px solid #2d2d2d',
@@ -236,10 +261,8 @@ const CartPage = () => {
           </Grid>
         </Grid>
       </Container>
-
-     
     </Box>
   );
 };
 
-export default CartPage;
+export default React.memo(CartPage);

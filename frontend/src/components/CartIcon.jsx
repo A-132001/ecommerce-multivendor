@@ -1,4 +1,4 @@
-// src/components/CartIcon.jsx
+import React from 'react';
 import { Badge, IconButton } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useCart } from '../context/CartContext';
@@ -22,4 +22,4 @@ const CartIcon = () => {
   );
 };
 
-export default CartIcon;
+export default React.memo(CartIcon);

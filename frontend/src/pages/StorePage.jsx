@@ -76,7 +76,7 @@ export default function StorePage() {
               <div className="d-flex align-items-center mb-3">
                 <FaInfoCircle className="text-warning me-2 fs-4" />
                 <Card.Title as="h2" className="mb-0 fs-3">
-                  About the Store
+                  About the Store 
                 </Card.Title>
               </div>
               <Card.Text>

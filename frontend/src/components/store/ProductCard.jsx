@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { FaShoppingCart, FaStar, FaHeart } from 'react-icons/fa';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FaShoppingCart, FaStar, FaHeart, FaCartPlus, FaCheck } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useSelector } from "react-redux";
+import { toast } from 'react-toastify';
 
-const StockBadge = ({ stock }) => {
+const StockBadge = React.memo(({ stock }) => {
   return (
     <span className={`px-2 py-1 rounded-pill text-white small fw-semibold 
         ${stock > 15 ? 'bg-success' : stock > 5 ? 'bg-warning' : 'bg-danger'}`}>
       {stock} left
     </span>
   );
-};
+});
 
-const RatingBadge = ({ rating }) => {
+const RatingBadge = React.memo(({ rating }) => {
   return (
     <span className={`px-2 py-1 rounded-pill text-white small fw-semibold 
         ${rating >= 4.5 ? 'bg-success' : rating >= 3.5 ? 'bg-warning' : 'bg-danger'}`}>
@@ -22,34 +23,33 @@ const RatingBadge = ({ rating }) => {
       {rating}
     </span>
   );
-};
+});
 
 const ProductCard = ({ product }) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isAddedToCart, setIsAddedToCart] = useState(false);
   const currency = useSelector((state) => state.currency.value);
+  const { addToCart, loading,cart } = useCart();
+
+  
+
   useEffect(() => {
     const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
     setIsFavorite(favorites.some(fav => fav.id === product.id));
   }, [product.id]);
-  const toggleFavorite = () => {
+
+  const toggleFavorite = useCallback(() => {
     const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    const updatedFavorites = isFavorite
+      ? favorites.filter(fav => fav.id !== product.id)
+      : [...favorites, product];
+    
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+    setIsFavorite(!isFavorite);
+    showFavoriteAlert(!isFavorite);
+  }, [isFavorite, product]);
 
-    if (isFavorite) {
-      // Remove from favorites
-      const updatedFavorites = favorites.filter(fav => fav.id !== product.id);
-      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-      setIsFavorite(false);
-      showFavoriteAlert(false);
-    } else {
-      // Add to favorites
-      const updatedFavorites = [...favorites, product];
-      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-      setIsFavorite(true);
-      showFavoriteAlert(true);
-    }
-  };
-
-  const showFavoriteAlert = (added) => {
+  const showFavoriteAlert = useCallback((added) => {
     Swal.fire({
       title: added ? 'Added to Favorites!' : 'Removed from Favorites',
       text: added
@@ -65,35 +65,31 @@ const ProductCard = ({ product }) => {
         popup: 'shadow-lg border border-gray-700'
       }
     });
-  };
+  }, [product.name]);
 
-  const { addToCart, loading } = useCart();
-
-  const handleAddToCart = async () => {
+  const handleAddToCart = useCallback(async () => {
     try {
-      await addToCart(product.id, 1); // Add 1 quantity
-      Swal.fire({
-        title: 'Added to Cart',
-        text: `${product.name} has been added to your cart`,
-        icon: 'success',
-        background: '#0f172a',
-        color: '#f8fafc',
-        confirmButtonColor: '#d4a017',
-        customClass: {
-          popup: 'shadow-lg border border-gray-700'
-        }
+      setIsAddedToCart(true);
+      await addToCart(product.id, 1);
+      toast.success(`${product.name} added to cart`, {
+        position: "top-right",
       });
     } catch (error) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Could not add to cart.',
-        icon: 'error',
-        background: '#0f172a',
-        color: '#f8fafc',
-        confirmButtonColor: '#d4a017',
+      setIsAddedToCart(false);
+      toast.error('Could not add to cart.', {
+        position: "top-right",
       });
     }
-  };
+  }, [addToCart, product.id, product.name]);
+
+
+useEffect(() => {
+  if (cart) {
+    const isProductInCart = cart.items.some(item => item.product.id === product.id);
+    setIsAddedToCart(isProductInCart);
+  }
+}, [cart, product.id]);
+
 
   return (
     <div className="col">
@@ -103,7 +99,7 @@ const ProductCard = ({ product }) => {
                 text-secondary bg-white h-100 d-flex flex-column`}
         style={{ width: '100%' }}
       >
-        <div className="position-relative">
+         <div className="position-relative">
           <img
             src={product.image || 'https://img.freepik.com/free-vector/blue-studio-background_1017-2241.jpg?t=st=1746920445~exp=1746924045~hmac=a7387cbb298600a947eb0dd810169b97c9891a9026b93e6da5695893ac1c3fd2&w=740'}
             alt={product.name}
@@ -165,41 +161,34 @@ const ProductCard = ({ product }) => {
             <span className="text-danger fw-bold fs-5">{currency} {product.price}</span>
           </div>
         </div>
-
         <div className="d-flex align-items-center px-3 pb-3">
           <Link
             to={`/product/${product.id}`}
             state={{ product }}
             className="btn btn-outline-dark text-center shadow-sm flex-grow-1 me-2"
           >
-            View Details
+            View Details 
           </Link>
           <button
             className="btn btn-outline-dark shadow-sm px-3"
             onClick={handleAddToCart}
-            disabled={loading}
+            // disabled={loading}
           >
-            <FaShoppingCart />
+            {isAddedToCart ? <FaCheck color="green" /> : <FaCartPlus color="green" />}
           </button>
           <button
             className="btn shadow-sm px-3 ms-2"
             onClick={(e) => {
               e.preventDefault();
-              toggleFavorite()
+              toggleFavorite();
             }}
           >
             <FaHeart color={isFavorite ? '#ff4d4d' : 'green'} />
           </button>
         </div>
-
-        {product.stock === 0 && (
-          <div className="position-absolute top-50 start-50 translate-middle bg-dark text-white p-2 rounded">
-            Out of Stock
-          </div>
-        )}
       </div>
     </div>
   );
 };
 
-export default ProductCard;
+export default React.memo(ProductCard);
