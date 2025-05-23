@@ -2,7 +2,7 @@
 
 A full-stack e-commerce platform that connects multiple vendors with customers, featuring a modern React frontend and Django REST framework backend.
 
-![VendorHub Platform](https://via.placeholder.com/800x400?text=VendorHub+E-Commerce+Platform)
+![VendorHub Platform](https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)
 
 ## 🚀 VendorHub Features
 
