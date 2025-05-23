@@ -171,10 +171,10 @@ useEffect(() => {
           </Link>
           <button
             className="btn btn-outline-dark shadow-sm px-3"
-            onClick={handleAddToCart}
+           
             // disabled={loading}
           >
-            {isAddedToCart ? <FaCheck color="green" /> : <FaCartPlus color="green" />}
+            {isAddedToCart ? <FaCheck color="green" /> : <FaCartPlus color="green"  onClick={handleAddToCart} />}
           </button>
           <button
             className="btn shadow-sm px-3 ms-2"
