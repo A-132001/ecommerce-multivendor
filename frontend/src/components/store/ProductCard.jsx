@@ -183,7 +183,7 @@ useEffect(() => {
               toggleFavorite();
             }}
           >
-            <FaHeart color={isFavorite ? '#ff4d4d' : 'green'} />
+            <FaHeart color={isFavorite ? '#ff4d4d' : 'gray'} />
           </button>
         </div>
       </div>
