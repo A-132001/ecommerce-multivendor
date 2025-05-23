@@ -175,7 +175,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Contributors
 
-- [Mostafa Kadry](https://github.com/Mostafa-Kadry)
+- [Mostafa Kadry](https://github.com/MostafaKadry)
 - [Abdelrahamn Sabry](https://github.com/AbdelrahmanSabryA)
 - [Gehad Balegh](https://github.com/GehadBalegh)
 - [Bassem Beshai](https://github.com/BassemBeshay)
