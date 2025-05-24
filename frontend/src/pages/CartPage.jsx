@@ -20,16 +20,14 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useCart } from '../context/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { clearData } from '../api/api';
 
 const CartPage = () => {
   const currency = useSelector((state) => state.currency.value);
-  const { cart, loading, updateQuantity, removeFromCart, fetchCart } = useCart();
+  const { cart, updateQuantity, removeFromCart, resetCart } = useCart();
   const [quantities, setQuantities] = useState({});
-  const [isUpdating, setIsUpdating] = useState({});
+  const [debounceTimers, setDebounceTimers] = useState({});
   const navigate = useNavigate();
 
-  // Initialize quantities when cart changes
   useEffect(() => {
     if (cart?.items) {
       const initialQuantities = {};
@@ -40,7 +38,6 @@ const CartPage = () => {
     }
   }, [cart]);
 
-  // Memoized cart items to prevent unnecessary re-renders
   const cartItems = useMemo(() => {
     return cart?.items || [];
   }, [cart?.items]);
@@ -49,43 +46,44 @@ const CartPage = () => {
     const numValue = parseInt(value);
     if (numValue > 0) {
       setQuantities(prev => ({ ...prev, [productId]: numValue }));
-    }
-  }, []);
+      
+      if (debounceTimers[productId]) {
+        clearTimeout(debounceTimers[productId]);
+      }
 
-  const handleUpdateQuantity = useCallback(async (productId) => {
-    if (quantities[productId] === cart.items.find(item => item.product.id === productId)?.quantity) {
-      return; // Skip if quantity hasn't changed
-    }
+      const timer = setTimeout(async () => {
+        try {
+          await updateQuantity(productId, numValue);
+        } catch (error) {
+          console.error('Failed to update quantity:', error);
+        }
+      }, 300);
 
-    try {
-      setIsUpdating(prev => ({ ...prev, [productId]: true }));
-      await updateQuantity(productId, quantities[productId]);
-    } catch (error) {
-      console.error('Failed to update quantity:', error);
-    } finally {
-      setIsUpdating(prev => ({ ...prev, [productId]: false }));
+      setDebounceTimers(prev => ({ ...prev, [productId]: timer }));
     }
-  }, [quantities, cart?.items, updateQuantity]);
+  }, [debounceTimers, updateQuantity]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(debounceTimers).forEach(timer => clearTimeout(timer));
+    };
+  }, [debounceTimers]);
 
   const handleRemoveItem = useCallback(async (productId) => {
     try {
-      setIsUpdating(prev => ({ ...prev, [productId]: true }));
       await removeFromCart(productId);
     } catch (error) {
       console.error('Failed to remove item:', error);
-    } finally {
-      setIsUpdating(prev => ({ ...prev, [productId]: false }));
     }
   }, [removeFromCart]);
 
   const handleResetCart = useCallback(async () => {
     try {
-      await clearData();
-      await fetchCart();
+      await resetCart();
     } catch (error) {
       console.error('Failed to clear cart:', error);
     }
-  }, [fetchCart]);
+  }, [resetCart]);
 
   if (!cart || cartItems.length === 0) {
     return (
@@ -162,7 +160,6 @@ const CartPage = () => {
                         src={item.product.image}
                         alt={item.product.name}
                         style={{ width: 50, height: 50, marginRight: 16, borderRadius: 4 }}
-                        // loading="lazy"
                       />
                       <Typography>{item.product.name}</Typography>
                     </Box>
@@ -177,10 +174,8 @@ const CartPage = () => {
                         size="small"
                         value={quantities[item.product.id] || 1}
                         onChange={(e) => handleQuantityChange(item.product.id, e.target.value)}
-                        onBlur={() => handleUpdateQuantity(item.product.id)}
                         inputProps={{ min: 1 }}
                         sx={{ width: 80 }}
-                        disabled={loading || isUpdating[item.product.id]}
                       />
                     </Box>
                   </TableCell>
@@ -190,7 +185,6 @@ const CartPage = () => {
                   <TableCell align="right">
                     <IconButton
                       onClick={() => handleRemoveItem(item.product.id)}
-                      disabled={loading || isUpdating[item.product.id]}
                       aria-label={`Remove ${item.product.name} from cart`}
                     >
                       <DeleteIcon />
@@ -253,7 +247,6 @@ const CartPage = () => {
                 }}
                 fullWidth
                 onClick={handleResetCart}
-                disabled={loading}
               >
                 Reset Cart
               </Button>

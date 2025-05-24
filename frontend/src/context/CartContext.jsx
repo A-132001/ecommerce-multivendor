@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import api from '../api/axios';
 import { useAuth } from './AuthContext';
 
@@ -8,18 +8,13 @@ export const CartProvider = ({ children }) => {
   const { user, authTokens } = useAuth();
   const [cart, setCart] = useState(null);
   const [cartCount, setCartCount] = useState(0);
-  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      fetchCart();
-    } else {
+  const fetchCart = useCallback(async () => {
+    if (!user) {
       setCart(null);
       setCartCount(0);
+      return;
     }
-  }, [user]);
-
-  const fetchCart = async () => {
     try {
       const response = await api.get('/api/cart/my_cart/');
       setCart(response.data);
@@ -27,61 +22,106 @@ export const CartProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching cart:', error);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   const addToCart = async (productId, quantity = 1) => {
     try {
-      setLoading(true);
+      const optimisticCart = cart ? {...cart} : { items: [], total_price: 0, total_quantity: 0 };
+      const existingItem = optimisticCart.items.find(item => item.product.id === productId);
+      
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        optimisticCart.items.push({
+          id: Date.now(),
+          product: { id: productId },
+          quantity,
+          total_price: 0
+        });
+      }
+      
+      optimisticCart.total_quantity += quantity;
+      setCart(optimisticCart);
+      setCartCount(prev => prev + quantity);
+
       await api.post('/api/cart/add_item/', { product: productId, quantity });
-      await fetchCart(); 
+      await fetchCart();
     } catch (error) {
       console.error('Error adding to cart:', error);
+      fetchCart();
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const updateQuantity = async (productId, newQuantity) => {
     try {
-      const prevCart = { ...cart };
       const updatedItems = cart.items.map(item => 
         item.product.id === productId ? { ...item, quantity: newQuantity } : item
       );
-      setCart({ ...cart, items: updatedItems });
-
-      await api.patch(
-        `/api/cart/update_item/${productId}/`,
-        { quantity: newQuantity },
-      );
       
-      await fetchCart();
+      const newTotalQuantity = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+      
+      setCart(prev => ({
+        ...prev,
+        items: updatedItems,
+        total_quantity: newTotalQuantity
+      }));
+      setCartCount(newTotalQuantity);
+
+      await api.patch(`/api/cart/update_item/${productId}/`, { quantity: newQuantity });
     } catch (error) {
       console.error('Error updating quantity:', error);
-      setCart(prevCart);
+      fetchCart();
       throw error;
     }
   };
 
   const removeFromCart = async (productId) => {
     try {
+      const itemToRemove = cart.items.find(item => item.product.id === productId);
+      if (itemToRemove) {
+        const newTotalQuantity = cart.total_quantity - itemToRemove.quantity;
+        setCart({
+          ...cart,
+          items: cart.items.filter(item => item.product.id !== productId),
+          total_quantity: newTotalQuantity
+        });
+        setCartCount(newTotalQuantity);
+      }
+
       await api.delete(`/api/cart/remove_item/${productId}/`);
-      await fetchCart();
     } catch (error) {
       console.error('Error removing from cart:', error);
+      fetchCart();
       throw error;
     }
   };
+
+  const resetCart = useCallback(async () => {
+    try {
+      setCart(null);
+      setCartCount(0);
+      await api.delete('/api/cart/clear/');
+    } catch (error) {
+      console.error('Failed to clear cart:', error);
+      fetchCart();
+      throw error;
+    }
+  }, [fetchCart]);
 
   return (
     <CartContext.Provider
       value={{
         cart,
         cartCount,
-        loading,
         addToCart,
         updateQuantity,
         removeFromCart,
+        resetCart,
         fetchCart,
       }}
     >
