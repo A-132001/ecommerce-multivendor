@@ -96,6 +96,8 @@ export const logout = () => {
 };
 
 // User API calls
+
+
 export const getCurrentUser = async () => {
     return await api.get('/auth/profile/');
 };
@@ -110,6 +112,9 @@ export const changePassword = async (passwords) => {
 
 // Store API calls
 
+export const listCategories = () => {
+    return api.get('/vendors/categories/');
+};
 
 export const createStore = async (storeData) => {
     return await api.post('/vendors/', storeData, {

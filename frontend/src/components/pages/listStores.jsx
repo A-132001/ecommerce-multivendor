@@ -1,5 +1,5 @@
 import React from "react";
-import { listStores } from "../../api/api";
+import { listStores, listCategories } from "../../api/api";
 import { Container, Row, Col, Spinner, Alert } from "react-bootstrap";
 import { motion } from "framer-motion";
 import ShopCard from "../ShopCard";
@@ -13,37 +13,46 @@ const ListStores = () => {
   const [stores, setStores] = React.useState([]);
   const [filteredStores, setFilteredStores] = React.useState([]);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [categories, setCategories] = React.useState([]);
+  const [selectedCategory, setSelectedCategory] = React.useState("");
 
   React.useEffect(() => {
-    const fetchStores = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await listStores();
-        setStores(response.data);
-        setFilteredStores(response.data);
+        const [storesRes, categoriesRes] = await Promise.all([
+          listStores(),
+          listCategories()
+        ]);
+        
+        setStores(storesRes.data);
+        setFilteredStores(storesRes.data);
+        setCategories(categoriesRes.data?.results || categoriesRes.data || []);
       } catch (error) {
-        console.error("Error fetching stores:", error);
+        console.error("Error fetching data:", error);
         setError(
           error.response
-            ? error.response.data.detail ||
-                error.response.data.message ||
-                "An error occurred."
-            : "Error fetching stores. Please try again later."
+            ? error.response.data.detail || "An error occurred."
+            : "Error fetching data. Please try again later."
         );
+        setCategories([]);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchStores();
+    fetchData();
   }, []);
 
   React.useEffect(() => {
-    const results = stores.filter((store) =>
-      store.store_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const results = stores.filter(store => {
+      const matchesSearch = store.store_name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory ? 
+        store.categories?.name === selectedCategory : 
+        true;
+      return matchesSearch && matchesCategory;
+    });
     setFilteredStores(results);
-  }, [searchQuery, stores]);
+  }, [searchQuery, selectedCategory, stores]);
 
   return (
     <div className="stores-page">
@@ -54,6 +63,9 @@ const ListStores = () => {
           <StoresFilter
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
+            categories={categories}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
           />
           <FeaturedCategories />
         </Container>

@@ -11,8 +11,8 @@ from django.contrib.auth.models import AnonymousUser
 from psycopg2.errors import UniqueViolation
 import logging
 
-from .models import Vendor
-from .serializers import VendorSerializer, VendorPublicSerializer
+from .models import Vendor, VendorCategory
+from .serializers import VendorSerializer, VendorPublicSerializer, VendorCategorySerializer
 from .permissions import IsOwnerOfVendor
 
 logger = logging.getLogger(__name__)
@@ -22,6 +22,10 @@ class VendorThrottle(UserRateThrottle):
     rate = '100/day'
     scope = 'vendor_operations'
 
+class VendorCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = VendorCategory.objects.all()
+    serializer_class = VendorCategorySerializer
+    permission_classes = [permissions.AllowAny]
 
 class VendorViewSet(viewsets.ModelViewSet):
     serializer_class = VendorSerializer
