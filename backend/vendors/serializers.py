@@ -6,15 +6,17 @@ from rest_framework.exceptions import ValidationError
 
 
 
+# serializers.py
 class VendorCategorySerializer(serializers.ModelSerializer):
+    vendors_count = serializers.IntegerField(read_only=True)  
     class Meta:
         model = VendorCategory
-        fields = ['id', 'name', 'slug']
-        read_only_fields = fields
+        fields = ['id', 'name', 'slug', 'vendors_count']
+        read_only_fields = ['id', 'name', 'slug', 'vendors_count']
 
 class VendorPublicSerializer(serializers.ModelSerializer):
 
-    categories = VendorCategorySerializer(read_only=True)  # Changed this line
+    categories = VendorCategorySerializer(read_only=True)
 
 
     class Meta:

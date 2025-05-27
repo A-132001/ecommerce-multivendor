@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
 from psycopg2.errors import UniqueViolation
 import logging
-
+from django.db.models import Count, Q
 from .models import Vendor, VendorCategory
 from .serializers import VendorSerializer, VendorPublicSerializer, VendorCategorySerializer
 from .permissions import IsOwnerOfVendor
@@ -23,9 +23,14 @@ class VendorThrottle(UserRateThrottle):
     scope = 'vendor_operations'
 
 class VendorCategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = VendorCategory.objects.all()
+    queryset = VendorCategory.objects.annotate(
+        vendors_count=Count('vendors', 
+            filter=Q(vendors__is_verified=True, vendors__is_active=True)
+        )
+    )
     serializer_class = VendorCategorySerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = None
 
 class VendorViewSet(viewsets.ModelViewSet):
     serializer_class = VendorSerializer

@@ -67,7 +67,10 @@ const ListStores = () => {
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
           />
-          <FeaturedCategories />
+          <FeaturedCategories 
+            categories={categories}
+            loading={loading}
+            />
         </Container>
       </section>
 
