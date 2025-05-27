@@ -1,10 +1,22 @@
 from rest_framework import serializers
 from django.core.validators import RegexValidator
-from .models import Vendor
+from .models import Vendor, VendorCategory
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
+
+
+class VendorCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VendorCategory
+        fields = ['id', 'name', 'slug']
+        read_only_fields = fields
+
 class VendorPublicSerializer(serializers.ModelSerializer):
+
+    categories = VendorCategorySerializer(read_only=True)  # Changed this line
+
+
     class Meta:
         model = Vendor
         fields = [
@@ -12,7 +24,8 @@ class VendorPublicSerializer(serializers.ModelSerializer):
             'store_name',
             'store_description',
             'store_logo',
-            'created_at'
+            'created_at',
+            'categories'
         ]
         read_only_fields = fields
 
@@ -45,7 +58,8 @@ class VendorSerializer(serializers.ModelSerializer):
             'created_at',
            
             'days_since_created',
-            'is_owned_by_user'
+            'is_owned_by_user',
+            'categories',
         ]
         read_only_fields = (
             'id',
@@ -54,7 +68,9 @@ class VendorSerializer(serializers.ModelSerializer):
             'is_active',
             'created_at',
             'days_since_created',
-            'is_owned_by_user'
+            'is_owned_by_user',
+            'categories',
+            
         )
         extra_kwargs = {
             'contact_email': {'required': True},
@@ -107,3 +123,5 @@ class VendorSerializer(serializers.ModelSerializer):
             instance.store_logo.delete(save=False)
             
         return super().update(instance, validated_data)
+    
+    

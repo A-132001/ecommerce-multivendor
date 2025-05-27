@@ -36,13 +36,15 @@ class VendorViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if self.action == 'list':
-            return Vendor.objects.filter(is_verified=True, is_active=True).select_related('user').prefetch_related('products')
+           return Vendor.objects.filter(is_verified=True, is_active=True)\
+            .select_related('user', 'categories').prefetch_related('products')
 
         if user and not isinstance(user, AnonymousUser):
             if user.is_staff:
                 return Vendor.objects.all()
             return Vendor.objects.filter(user=user)
-
+        
+      
         return Vendor.objects.none()
 
     def get_serializer_class(self):

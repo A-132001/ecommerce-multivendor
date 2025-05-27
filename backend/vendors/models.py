@@ -1,9 +1,14 @@
 from django.db import models
 from django.conf import settings
 
-# Create your models here.
+class VendorCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
 def get_upload_path(instance, filename):
-    # Generate a unique upload path for the vendor logo
     return f'vendor_logos/{instance.user.id}/{filename}'
 
 class Vendor(models.Model):
@@ -16,8 +21,7 @@ class Vendor(models.Model):
     is_active = models.BooleanField(default=True)
     contact_phone = models.CharField(max_length=15)
     contact_email = models.EmailField()
-    
- 
+    categories = models.ForeignKey(VendorCategory, on_delete=models.SET_NULL, related_name='vendors', null=True, blank=True)
+
     def __str__(self): 
         return self.store_name
-    

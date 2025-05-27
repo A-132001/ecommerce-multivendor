@@ -1,6 +1,6 @@
 from django.utils import timezone
 from django.contrib import admin
-from .models import Vendor
+from .models import Vendor, VendorCategory
 from .tasks import send_vendor_approval_email, send_vendor_rejection_email
 from django.http import HttpResponse
 
@@ -70,3 +70,10 @@ class VendorAdmin(admin.ModelAdmin):
             self.message_user(request, f"{queryset.count()} Vendor(s) deactivated.")
 
     deactivate_vendors.short_description = "Deactiveate Selected Vendors"
+
+
+@admin.register(VendorCategory)
+class VendorCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name']
+    ordering = ['name']
+    search_fields = ['name', 'slug']
