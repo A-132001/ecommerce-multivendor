@@ -1,16 +1,18 @@
 from decimal import Decimal
 from django.db import models
 from django.core.exceptions import ValidationError
+from vendors.models import Vendor, VendorCategory
 
 def get_upload_path(instance, filename):
     vendor_id = instance.vendor.id if instance.vendor else 'default'
     return f'products/{vendor_id}/{filename}'
 
 class Category(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255) # product subcategory name
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    vendor_category = models.ForeignKey(VendorCategory, on_delete=models.CASCADE, related_name='product_categories', blank=False, null=True)
 
     def __str__(self):
         return self.name

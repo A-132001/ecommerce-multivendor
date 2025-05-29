@@ -5,9 +5,10 @@ import { FiEdit, FiTrash2, FiSave, FiX, FiImage, FiPlus, FiUpload } from 'react-
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { getAllCategories } from '../../api/api.js';
+import { getAllCategories,getVendorProductCategories } from '../../api/api.js';
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+
 
 const MySwal = withReactContent(Swal);
 
@@ -27,7 +28,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
   const pageSize = 5;
   const totalPages = Math.ceil(products.length / pageSize);
   const paginatedProducts = products.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const {
     register: registerEdit,
     handleSubmit: handleEditSubmit,
@@ -192,12 +193,30 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
     fetchCategories();
   }, []);
 
+  
+
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const response = await getVendorProductCategories();
+      setCategories(response.data); // تأكدي إن response.data هو اللي فيه الليست
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  fetchCategories();
+}, []);
+
+
   return (
     <div className="p-4">
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-2 border-bottom">
         {/* Left section - Title and count */}
         <div>
-          <h1 className="display-6 fw-semibold mb-1 text-dark">Product Management</h1>
+          <h1 className="display-6 fw-semibold mb-1 text-dark">Product Management </h1>
           <p className="text-muted small mb-0">
             {products?.length || 0} {products?.length === 1 ? 'product' : 'products'} available
           </p>
@@ -221,7 +240,7 @@ const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
           <thead className="table-dark">
             <tr>
               <th>Name</th>
-              <th>Description</th>
+              <th>Description </th>
               <th>Price</th>
               <th>Discount%</th>
               <th>old Price</th>

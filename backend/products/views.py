@@ -11,6 +11,13 @@ from .models import Product, Category
 from vendors.models import Vendor
 from rest_framework.parsers import MultiPartParser, FormParser
 
+
+
+from rest_framework import viewsets, permissions
+from rest_framework.response import Response
+from .models import Category, Vendor
+from .serializers import CategorySerializer
+
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     throttle_classes = [UserRateThrottle]
@@ -69,3 +76,25 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
+
+
+class VendorCategoryProductsViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request):
+        user = request.user
+        try:
+            vendor = Vendor.objects.get(user=user)
+        except Vendor.DoesNotExist:
+            return Response({"detail": "Vendor not found."}, status=404)
+
+        vendor_category = vendor.categories  
+
+        if not vendor_category:
+            return Response({"detail": "Vendor has no category assigned."}, status=400)
+
+        # جلب Categories الخاصة بهذا VendorCategory
+        categories = Category.objects.filter(vendor_category=vendor_category)
+
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)

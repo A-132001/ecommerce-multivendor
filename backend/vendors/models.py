@@ -21,7 +21,7 @@ class Vendor(models.Model):
     is_active = models.BooleanField(default=True)
     contact_phone = models.CharField(max_length=15)
     contact_email = models.EmailField()
-    categories = models.ForeignKey(VendorCategory, on_delete=models.SET_NULL, related_name='vendors', null=True, blank=True)
+    categories = models.ForeignKey(VendorCategory, on_delete=models.CASCADE, related_name='vendors', null=False, blank=False)
 
     def __str__(self): 
         return self.store_name

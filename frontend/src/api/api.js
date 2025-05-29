@@ -112,8 +112,8 @@ export const changePassword = async (passwords) => {
 
 // Store API calls
 
-export const listCategories = () => {
-    return api.get('/vendors/categories/');
+export const listCategories = async () => {
+    return await api.get('/vendors/categories/');
 };
 
 export const createStore = async (storeData) => {
@@ -179,6 +179,10 @@ export const listProducts = async () => {
     return await api.get('/products/products/');
 };
 
+export const getVendorProductCategories = async () => {
+    return await api.get('/products/vendor-categories-products/');
+};
+
 // Cart API calls
 export const getCart = async () => {
     return await api.get('/cart/cartitem');
@@ -220,4 +224,7 @@ export const updateOrderStatus = async (orderId, status) => {
     return await api.put(`/orders/${orderId}/status/`, { status });
 };
 
-export default api;
+
+
+
+

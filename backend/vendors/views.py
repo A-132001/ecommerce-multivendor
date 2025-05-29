@@ -10,10 +10,11 @@ from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
 from psycopg2.errors import UniqueViolation
 import logging
-from django.db.models import Count, Q
 from .models import Vendor, VendorCategory
 from .serializers import VendorSerializer, VendorPublicSerializer, VendorCategorySerializer
 from .permissions import IsOwnerOfVendor
+from django.db.models import Count, Q
+from django.core.validators import RegexValidator
 
 logger = logging.getLogger(__name__)
 
@@ -24,13 +25,11 @@ class VendorThrottle(UserRateThrottle):
 
 class VendorCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = VendorCategory.objects.annotate(
-        vendors_count=Count('vendors', 
-            filter=Q(vendors__is_verified=True, vendors__is_active=True)
-        )
+        vendors_count=Count('vendors', filter=Q(vendors__is_verified=True, vendors__is_active=True))
     )
     serializer_class = VendorCategorySerializer
-    permission_classes = [permissions.AllowAny]
     pagination_class = None
+    permission_classes = [permissions.AllowAny]
 
 class VendorViewSet(viewsets.ModelViewSet):
     serializer_class = VendorSerializer
@@ -69,6 +68,7 @@ class VendorViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        print(request.data)
         try:
             if hasattr(request.user, 'vendor'):
                 raise ValidationError({'detail': 'You already have a vendor account.'})

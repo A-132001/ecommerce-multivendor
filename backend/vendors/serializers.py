@@ -5,8 +5,6 @@ from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 
-
-# serializers.py
 class VendorCategorySerializer(serializers.ModelSerializer):
     vendors_count = serializers.IntegerField(read_only=True)  
     class Meta:
@@ -16,9 +14,6 @@ class VendorCategorySerializer(serializers.ModelSerializer):
 
 class VendorPublicSerializer(serializers.ModelSerializer):
 
-    categories = VendorCategorySerializer(read_only=True)
-
-
     class Meta:
         model = Vendor
         fields = [
@@ -27,7 +22,6 @@ class VendorPublicSerializer(serializers.ModelSerializer):
             'store_description',
             'store_logo',
             'created_at',
-            'categories'
         ]
         read_only_fields = fields
 
@@ -43,6 +37,14 @@ class VendorSerializer(serializers.ModelSerializer):
     
     days_since_created = serializers.SerializerMethodField()
     is_owned_by_user = serializers.SerializerMethodField()
+
+    
+    categories = VendorCategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+    queryset=VendorCategory.objects.all(),
+    source='categories',  
+    write_only=True
+)
     
     class Meta:
         model = Vendor
@@ -62,6 +64,7 @@ class VendorSerializer(serializers.ModelSerializer):
             'days_since_created',
             'is_owned_by_user',
             'categories',
+            'category_id',
         ]
         read_only_fields = (
             'id',
@@ -71,7 +74,6 @@ class VendorSerializer(serializers.ModelSerializer):
             'created_at',
             'days_since_created',
             'is_owned_by_user',
-            'categories',
             
         )
         extra_kwargs = {
