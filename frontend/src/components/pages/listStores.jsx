@@ -46,9 +46,9 @@ const ListStores = () => {
   React.useEffect(() => {
     const results = stores.filter(store => {
       const matchesSearch = store.store_name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory ? 
-        store.categories?.name === selectedCategory : 
-        true;
+      const matchesCategory = selectedCategory ?
+            store.categories.toString() === selectedCategory.toString()
+          : true;
       return matchesSearch && matchesCategory;
     });
     setFilteredStores(results);

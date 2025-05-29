@@ -1,13 +1,13 @@
-import React from 'react';
-import { InputGroup, Form } from 'react-bootstrap';
-import { FaSearch } from 'react-icons/fa';
+import React from "react";
+import { InputGroup, Form } from "react-bootstrap";
+import { FaSearch } from "react-icons/fa";
 
-const StoresFilter = ({ 
-  searchQuery, 
+const StoresFilter = ({
+  searchQuery,
   setSearchQuery,
-  categories = [], 
+  categories = [],
   selectedCategory,
-  setSelectedCategory
+  setSelectedCategory,
 }) => {
   return (
     <div className="mb-5">
@@ -31,12 +31,14 @@ const StoresFilter = ({
           aria-label="Select category"
         >
           <option value="">All Categories</option>
-          {Array.isArray(categories) && categories.map(category => (
-            <option key={category.id} value={category.name}>
-              {category.name}
-            </option>
-          ))}
+          {Array.isArray(categories) &&
+            categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
         </Form.Select>
+   
       </div>
     </div>
   );

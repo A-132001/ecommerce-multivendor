@@ -22,6 +22,7 @@ class VendorPublicSerializer(serializers.ModelSerializer):
             'store_description',
             'store_logo',
             'created_at',
+            'categories',
         ]
         read_only_fields = fields
 
