@@ -10,13 +10,11 @@ from .serializers import ProductSerializer, CategorySerializer
 from .models import Product, Category
 from vendors.models import Vendor
 from rest_framework.parsers import MultiPartParser, FormParser
-
-
-
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from .models import Category, Vendor
 from .serializers import CategorySerializer
+from rest_framework.permissions import AllowAny
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
@@ -93,8 +91,27 @@ class VendorCategoryProductsViewSet(viewsets.ViewSet):
         if not vendor_category:
             return Response({"detail": "Vendor has no category assigned."}, status=400)
 
-        # جلب Categories الخاصة بهذا VendorCategory
         categories = Category.objects.filter(vendor_category=vendor_category)
 
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
+    
+
+class StoreCategoriesViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]  # Allow public access
+    
+    @action(detail=False, methods=['get'], url_path='by-store/(?P<store_id>[^/.]+)')
+    def by_store(self, request, store_id=None):
+        try:
+            vendor = Vendor.objects.get(id=store_id)
+            vendor_category = vendor.categories
+            
+            if not vendor_category:
+                return Response({"detail": "Vendor has no category assigned."}, status=400)
+            
+            categories = Category.objects.filter(vendor_category=vendor_category)
+            serializer = CategorySerializer(categories, many=True)
+            return Response(serializer.data)
+        
+        except Vendor.DoesNotExist:
+            return Response({"detail": "Vendor not found."}, status=404)

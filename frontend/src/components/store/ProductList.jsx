@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import ProductCard from './ProductCard';
 import Swal from 'sweetalert2';
-import { FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
+import { FaExclamationTriangle, FaInfoCircle, FaFilter } from 'react-icons/fa';
 import { getStoreProducts } from '../../api/api';
 import { useNavigate } from 'react-router-dom';
-import { Container, Spinner } from 'react-bootstrap';
+import { Container, Spinner, Alert, Row, Col } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 
-
-export default function ProductList({ storeId }) {
-
+export default function ProductList({ storeId, selectedCategories, priceRange }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,16 +19,12 @@ export default function ProductList({ storeId }) {
       setLoading(true)
       try {
         const response = await getStoreProducts(storeId);
-
         setProducts(response.data);
         setLoading(false);
         window.scrollTo({
           top: 0,
           behavior: 'smooth'
         });
-        if (response.data.length === 0) {
-          showInfoAlert('No products found', 'This store currently has no products available');
-        }
       } catch (error) {
         const errorMessage = error.response
           ? error.response.data.detail || error.response.data.message || 'An error occurred.'
@@ -45,6 +39,23 @@ export default function ProductList({ storeId }) {
 
     fetchProducts();
   }, [storeId]);
+
+  // Filter products based on selected categories and price range
+  const filteredProducts = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    
+    return products.filter(product => {
+      // Category filter
+      const categoryMatch = selectedCategories.length === 0 || 
+                           selectedCategories.includes(product.category_name);
+      
+      // Price filter
+      const price = parseFloat(product.price);
+      const priceMatch = price >= priceRange[0] && price <= priceRange[1];
+      
+      return categoryMatch && priceMatch;
+    });
+  }, [products, selectedCategories, priceRange]);
 
   const showErrorAlert = (title, text) => {
     Swal.fire({
@@ -89,7 +100,6 @@ export default function ProductList({ storeId }) {
             gap: '1rem'
           }}
         >
-
           <div className="d-flex align-items-center">
             <Spinner
               animation="grow"
@@ -100,7 +110,6 @@ export default function ProductList({ storeId }) {
               <span className="visually-hidden">Loading...</span>
             </Spinner>
           </div>
-
 
           <motion.span
             className="h5 text-muted"
@@ -145,8 +154,20 @@ export default function ProductList({ storeId }) {
     return (
       <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 text-center max-w-md mx-auto mt-8">
         <FaInfoCircle className="text-yellow-500 text-3xl mx-auto mb-3" />
-        <h3 className="text-xl font-semibold text-dark mb-2">No Products Available</h3>
+        <h3 className="text-xl font-semibold text-white mb-2">No Products Available</h3>
         <p className="text-gray-400">This store currently has no products listed.</p>
+      </div>
+    );
+  }
+
+  if (filteredProducts.length === 0) {
+    return (
+      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 text-center max-w-md mx-auto mt-8">
+        <FaFilter className="text-yellow-500 text-3xl mx-auto mb-3" />
+        <h3 className="text-xl font-semibold text-white mb-2">No Matching Products</h3>
+        <p className="text-gray-400">
+          No products match your selected filters. Try adjusting your criteria.
+        </p>
       </div>
     );
   }
@@ -154,13 +175,13 @@ export default function ProductList({ storeId }) {
   return (
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold text-dark mb-6">Available Products</h2>
-      <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {products.map((product) => (
-          <div key={product.id} className="col d-flex">
+      <Row className="row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {filteredProducts.map((product) => (
+          <Col key={product.id} className="d-flex">
             <ProductCard product={product} className="h-100" />
-          </div>
+          </Col>
         ))}
-      </div>
+      </Row>
     </div>
   );
 }

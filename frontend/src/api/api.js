@@ -183,6 +183,11 @@ export const getVendorProductCategories = async () => {
     return await api.get('/products/vendor-categories-products/');
 };
 
+// Add this new API function
+export const getStoreCategories = async (storeId) => {
+  return await api.get(`/products/store-categories/by-store/${storeId}/`);
+};
+
 // Cart API calls
 export const getCart = async () => {
     return await api.get('/cart/cartitem');

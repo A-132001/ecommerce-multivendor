@@ -40,3 +40,9 @@ class ProductSerializer(serializers.ModelSerializer):
         if self.instance is None and not attrs.get('image'):
             raise serializers.ValidationError({"image": "This field is required."})
         return attrs
+    
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'description']

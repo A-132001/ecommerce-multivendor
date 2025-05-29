@@ -14,6 +14,8 @@ import {
 import { motion } from "framer-motion";
 import ProductList from "../components/store/ProductList";
 import { FaStore, FaInfoCircle, FaFilter } from "react-icons/fa";
+import { getStoreCategories} from "../api/api"; // Adjust the import path as necessary
+
 
 export default function StorePage() {
   const { store_id } = useParams();
@@ -24,16 +26,28 @@ export default function StorePage() {
   const [error, setError] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [priceRange, setPriceRange] = useState([100, 1200]);
+  const [categories, setCategories] = useState([]); 
 
-  // Categories list
-  const categories = [
-    "Sportswear",
-    "Bags & Accessories",
-    "Shoes",
-    "Kids",
-    "Women's Clothing",
-    "Men's Clothing",
-  ];
+ 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await getStoreCategories(store_id); // Pass store_id
+        if (response.data && response.data.length > 0) {
+          setCategories(response.data.map(cat => cat.name));
+        }
+      } catch (err) {
+        setError("Failed to load categories");
+        console.error("Error fetching categories:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [store_id]); // Add store_id to dependencies
+
 
   // Add animation variants
   const containerVariants = {
@@ -66,7 +80,7 @@ export default function StorePage() {
     setPriceRange([Math.min(value, priceRange[1]), value]);
   };
 
-  return (
+return (
     <motion.div
       initial="hidden"
       animate="visible"
@@ -83,29 +97,35 @@ export default function StorePage() {
                   <div className="d-flex align-items-center mb-3">
                     <FaFilter className="text-warning me-2 fs-4" />
                     <Card.Title as="h3" className="mb-0 fs-5">
-                      Filters
+                      Filters 
                     </Card.Title>
                   </div>
 
                   {/* Categories Filter */}
                   <div className="mb-4">
                     <h5 className="mb-3">Categories</h5>
-                    <ListGroup variant="flush">
-                      {categories.map((category) => (
-                        <ListGroup.Item
-                          key={category}
-                          className="border-0 px-0"
-                        >
-                          <Form.Check
-                            type="checkbox"
-                            id={category}
-                            label={category}
-                            checked={selectedCategories.includes(category)}
-                            onChange={() => handleCategoryChange(category)}
-                          />
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
+                    {loading ? (
+                      <Spinner animation="border" size="sm" />
+                    ) : error ? (
+                      <Alert variant="danger" className="py-1">{error}</Alert>
+                    ) : (
+                      <ListGroup variant="flush">
+                        {categories.map((category) => (
+                          <ListGroup.Item
+                            key={category}
+                            className="border-0 px-0"
+                          >
+                            <Form.Check
+                              type="checkbox"
+                              id={category}
+                              label={category}
+                              checked={selectedCategories.includes(category)}
+                              onChange={() => handleCategoryChange(category)}
+                            />
+                          </ListGroup.Item>
+                        ))}
+                      </ListGroup>
+                    )}
                   </div>
 
                   {/* Price Filter */}
@@ -128,7 +148,7 @@ export default function StorePage() {
             </motion.div>
           </Col>
 
-          {/* Main Content */}
+          {/* Rest of the component remains the same */}
           <Col md={9}>
             {/* Store Header Section */}
             <motion.div variants={itemVariants}>
@@ -188,3 +208,4 @@ export default function StorePage() {
     </motion.div>
   );
 }
+
