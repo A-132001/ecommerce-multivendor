@@ -49,7 +49,7 @@ class CurrencyView(APIView):
 
 logger = logging.getLogger(__name__) 
 
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 
 MODEL = "mistralai/mistral-7b-instruct"
 SYSTEM_PROMPT = """
