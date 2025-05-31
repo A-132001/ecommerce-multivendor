@@ -7,8 +7,9 @@ def get_upload_path(instance, filename):
     vendor_id = instance.vendor.id if instance.vendor else 'default'
     return f'products/{vendor_id}/{filename}'
 
+
 class Category(models.Model):
-    name = models.CharField(max_length=255) # product subcategory name
+    name = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
