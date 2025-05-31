@@ -15,6 +15,7 @@ const MySwal = withReactContent(Swal);
 const ProductManagementTable = ({ products, onDelete, onEdit, onAdd }) => {
   const currency = useSelector((state) => state.currency.value);
   const [categories, setCategories] = useState([]);
+  console.log(categories)
   const [loading, setLoading] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);

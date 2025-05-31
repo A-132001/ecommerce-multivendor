@@ -17,6 +17,7 @@ import CartIcon from './CartIcon';
 
 function Navigation() {
   const { isAuthenticated, user, logout } = useAuth();
+  console.log("User in Navigation:", user);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -69,8 +70,8 @@ function Navigation() {
       // {path: "/new-vendor", label: "Become a Vendor", icon: <FaStore className="me-2" size={16} />},
     ];
 
-    // Add vendor option if not already a vendor
-    if (user?.is_vendor === false) {
+    
+    if (user?.is_vendor === true) {
       baseItems.push({
         path: "/new-vendor",
         label: "Become a Vendor",

@@ -171,7 +171,7 @@ export default function StorePage() {
       variants={containerVariants}
       className="store-page py-5"
     >
-      <Container>
+      <Container fluid>
         <Row>
           {/* Sidebar Filters */}
           <Col md={3} className="mb-4">

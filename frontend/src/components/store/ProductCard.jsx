@@ -167,7 +167,7 @@ useEffect(() => {
             state={{ product }}
             className="btn btn-outline-dark text-center shadow-sm flex-grow-1 me-2"
           >
-            View Details 
+            Details 
           </Link>
           <button
             className="btn btn-outline-dark shadow-sm px-3"

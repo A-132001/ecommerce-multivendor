@@ -56,3 +56,4 @@ class Product(models.Model):
             self.price = self.original_price - discount_amount
         
         super().save(*args, **kwargs)
+        

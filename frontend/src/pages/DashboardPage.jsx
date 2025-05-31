@@ -41,6 +41,7 @@ export default function DashboardPage() {
             popup: 'shadow-lg border border-gray-700'
           }
         });
+        return;
       }
       setProducts((prev) => [response.data, ...prev]);
 
@@ -228,9 +229,9 @@ export default function DashboardPage() {
 
         </div>
         {loading ? (
-          <div className="text-center py-5">
+          <div className="text-center py-5 text-warning fixed-top m-5">
             <Spinner animation="border" variant="warning" />
-            <p className="mt-3">Loading shops...</p>
+            <p className="mx-3">Loading products and orders...</p>
           </div>
         )
         
